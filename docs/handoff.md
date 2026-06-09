@@ -2,14 +2,15 @@
 
 ## CurrentPhase
 - Phase 2 complete (static prototype implemented and verified)
-- PR #4 open; Issue #3 closes on merge
+- PR #4 merged; Issue #3 closed
 - Next phase: Phase 3 (local development environment setup)
 
 ## Status
 - `mock/` に全11画面の静的プロトタイプ（HTML + Tailwind CDN + vanilla JS）を実装した
 - 画面遷移・モック認証（登録/ログイン）・フォロー・アンフォロー・投稿 CRUD・コメント・目標・統計・セッション管理 UI を実装した
 - ローカルでの画面確認を完了した（`cd mock && python3 -m http.server 8766`）
-- `feature/issue-3-phase2-mock` にコミットし、PR #4 を作成した（`Closes #3`）
+- `feature/issue-3-phase2-mock` の修正を PR #4 に反映し、`main` へマージした（`Closes #3`）
+- `main` を最新化済み（Phase 2 の成果物と運用ルール更新が取り込み済み）
 
 ## SourceOfTruthOrder
 1. `CLAUDE.md` (workflow and guardrails)
@@ -43,7 +44,7 @@
 - (none)
 
 ## ReviewStatus
-- Status: 未着手
+- Status: 完了（手動レビュー完了・指摘反映済み）
 - Scope: Phase 2 Mock（`mock/` 一式）
 - ReviewFocus:
   - `docs/screens.md` との画面仕様一致
@@ -57,19 +58,19 @@
   - レビュー承認
 
 ## MergeReadiness
-- ReviewApproved: false
-- CIGreen: false
+- ReviewApproved: true
+- CIGreen: n/a（Phase 2 時点では CI 未設定）
 - IssueLinkValid (`Closes #...`): true
-- ReadyToMerge: false
+- ReadyToMerge: true（マージ済み）
 
 ## NextAction
-- PR #4 のレビューを実施し、指摘事項を確定する。
+- Issue `#5`（Phase 3: ローカル開発環境構築）を作成する。
 
 ## References
 - Plan: `/Users/user/.claude/plans/it-fitlog-er-noble-river.md`
 - Issue: `#5` (Phase 3: ローカル開発環境構築 — 作成予定)
-- PR: `#4` (Phase 2 mock — merge待ち, `Closes #3`)
-- Branch: `feature/issue-5-phase3-dev-env`（作成予定）
+- PR: `#4` (Phase 2 mock — merged, `Closes #3`)
+- Branch: `feature/issue-5-phase3-dev-env`（Issue #5 作成後に main から作成）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules
