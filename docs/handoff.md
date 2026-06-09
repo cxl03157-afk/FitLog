@@ -38,6 +38,11 @@
 - Timeline shows a compact follow button on others' posts only (no separate "フォロー中" label beside the name).
 - Goal abandon action label is 「中止する」; delete and abort both require confirmation dialogs.
 - Mock auth stores registered users in `registeredUsers` / `accounts`; register requires password confirmation.
+- [Phase 3] `docker-compose.yml` は PostgreSQL 17 のみ。LocalStack は Phase 9 で追加する。
+- [Phase 3] CI 完了条件は Lint + 型チェック + テスト（Jest/Vitest）まで含む。
+- [Phase 3] `backend/` には TypeORM パッケージ導入 + DataSource 設定ファイルの雛形まで置く（DB 実接続は Phase 4）。
+- [Phase 3] Node 22 は CI で強制する（`actions/setup-node@v4` + `.nvmrc`）。
+- [Phase 3] Tailwind CSS は v3（`tailwind.config.js` + `postcss.config.js`）で導入する。
 
 ## OpenQuestions
 - (none)
