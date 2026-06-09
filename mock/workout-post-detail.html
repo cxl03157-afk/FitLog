@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>投稿詳細 — FitLog</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-50">
+  <div id="nav"></div>
+  <main class="max-w-3xl mx-auto px-6 py-8">
+    <a href="timeline.html" class="text-sm text-indigo-600 mb-4 inline-block">← タイムラインに戻る</a>
+    <div id="not-found" class="hidden text-center py-12 text-gray-500">投稿が見つかりません</div>
+    <article id="post-detail" class="bg-white rounded-xl border border-gray-200 p-6 mb-6"></article>
+    <section id="comments" class="bg-white rounded-xl border border-gray-200 p-6">
+      <h2 class="font-semibold text-gray-900 mb-4">コメント</h2>
+      <div id="comment-list" class="divide-y divide-gray-100 mb-4"></div>
+      <form id="comment-form" class="flex gap-2">
+        <input type="text" id="comment-input" maxlength="280" placeholder="コメントを入力…" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm" required />
+        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700">送信</button>
+      </form>
+    </section>
+  </main>
+  <script src="js/data.js"></script>
+  <script src="js/store.js?v=5"></script>
+  <script src="js/common.js?v=14"></script>
+  <script>
+    const postId = getQueryParam('id');
+    const postDetailEl = document.getElementById('post-detail');
+    renderNav('timeline');
+    bindFollowButtons(postDetailEl, () => refresh());
+
+    function renderComments(comments) {
+      const listEl = document.getElementById('comment-list');
+      listEl.innerHTML = comments.length
+        ? comments.map((c) => commentItemHtml(c, postId)).join('')
+        : '<p class="text-sm text-gray-400">まだコメントはありません</p>';
+      bindCommentDeletes(listEl, postId, refresh);
+    }
+
+    function refresh() {
+      const p = getPost(postId);
+      if (!p) {
+        postDetailEl.classList.add('hidden');
+        document.getElementById('comments').classList.add('hidden');
+        document.getElementById('not-found').classList.remove('hidden');
+        return;
+      }
+      postDetailEl.innerHTML = `
+        <div class="flex items-start justify-between gap-4 mb-4">
+          <a href="profile.html?user=${p.userId}" class="flex items-start gap-3 hover:opacity-80 min-w-0">
+            ${avatarHtml(p.avatarColor, 'w-12 h-12')}
+            <div>
+              <p class="font-semibold text-lg">${p.displayName}</p>
+              <p class="text-sm text-gray-500">@${p.username}</p>
+            </div>
+          </a>
+          <div class="shrink-0 flex items-center gap-2">
+            ${p.isMine ? `
+              <a href="workout-post-new.html?edit=${p.id}" class="text-sm text-indigo-600 hover:bg-indigo-50 px-3 py-1 rounded-lg">編集</a>
+              <button type="button" id="delete-post" class="text-sm text-red-600 hover:bg-red-50 px-3 py-1 rounded-lg">削除</button>
+            ` : (isFollowableUser(p.userId) ? followButtonHtml(p.userId, isFollowing(p.userId)) : '')}
+          </div>
+        </div>
+        <p class="text-sm text-gray-500 mb-1">${p.trainedOn}</p>
+        <h1 class="text-2xl font-bold mb-4">${p.title}</h1>
+        ${p.exerciseDetails.map((ex) => `
+          <div class="mb-6">
+            <h3 class="font-semibold text-gray-900 mb-2">${ex.name}</h3>
+            <table class="w-full text-sm border border-gray-100 rounded-lg overflow-hidden">
+              <thead class="bg-gray-50"><tr><th class="text-left p-2">セット</th><th class="text-left p-2">重量</th><th class="text-left p-2">回数</th><th class="text-left p-2">PR</th><th class="text-left p-2">メモ</th></tr></thead>
+              <tbody>
+                ${ex.sets.map((s) => `<tr class="border-t"><td class="p-2">${s.number}</td><td class="p-2">${s.weight} kg</td><td class="p-2">${s.reps}</td><td class="p-2">${s.isPr ? '<span class="text-amber-600 font-medium">PR</span>' : '—'}</td><td class="p-2 text-gray-600">${s.memo || '—'}</td></tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        `).join('')}
+        ${p.note ? `<p class="text-gray-700 mb-4">${p.note}</p>` : ''}
+        <div class="flex items-center gap-4 pt-4 border-t">
+          <button type="button" id="like-btn" class="flex items-center gap-2 ${p.liked ? 'liked text-red-500' : 'text-gray-500'}">
+            <span class="like-icon">${p.liked ? '❤️' : '🤍'}</span>
+            <span class="like-count">${p.likes}</span>
+          </button>
+        </div>
+      `;
+      document.getElementById('like-btn').onclick = () => handleLikeClick(document.getElementById('like-btn'), postId);
+      const delBtn = document.getElementById('delete-post');
+      if (delBtn) {
+        delBtn.onclick = () => {
+          if (confirm('この投稿を削除しますか？')) {
+            deletePost(postId);
+            location.href = 'timeline.html';
+          }
+        };
+      }
+      renderComments(p.comments);
+    }
+
+    document.getElementById('comment-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('comment-input');
+      const text = input.value.trim();
+      if (!text) return;
+      addComment(postId, text);
+      input.value = '';
+      refresh();
+    });
+
+    refresh();
+    window.addEventListener('pageshow', () => refresh());
+    if (location.hash === '#comments') {
+      document.getElementById('comments').scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
