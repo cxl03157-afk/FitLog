@@ -52,11 +52,26 @@ type: `feat` / `fix` / `docs` / `refactor` / `test` / `chore`
 - `stash pop` は禁止し、`apply` で確認後に問題なければ `drop` する
 - 作業終了時は `git status` が意図どおり（コミット済み or 変更保留を明示）か確認してからブランチを離れる
 
-## Claude Code がこのルールを適用するタイミング
+## エージェントがこのルールを適用するタイミング
 
 - 新しい機能・修正の実装を依頼されたとき → Issue 作成を提案する
 - コミット・プッシュを依頼されたとき → 作業ブランチ上にいるか確認する
 - PR 作成を依頼されたとき → Issue 番号を PR に紐付ける
+
+## オーケストレーター運用（Claude が司令塔）
+
+- **Claude（Cursor）** が計画・Issue・handoff 管理・サブエージェント起動を担う
+- サブエージェント（Codex / Composer）へは `docs/context.md` の内容のみ渡す（4ファイル全読み込み不要）
+- サブエージェントの起動タイミング：
+
+  | サブエージェント | 起動タイミング |
+  |----------------|-------------|
+  | Codex | 実装開始前の計画/差分チェック |
+  | Composer | チェック完了後の実装・PR 作成 |
+  | Codex / Claude | PR 作成後のレビュー |
+
+- サブエージェント完了後、Claude が `docs/context.md` と `docs/handoff.md` を更新してから次フェーズへ進む
+- `docs/context.md` はフェーズ切替時に必ず最新化する（NextAction・Phase・Branch を書き換える）
 
 ---
 
