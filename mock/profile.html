@@ -65,14 +65,9 @@
             <p class="text-gray-700 mb-4">${u.bio || ''}</p>
             <div class="flex gap-6 text-sm flex-wrap">
               <span><strong>${u.postCount}</strong> 投稿</span>
-              ${isOwnProfile ? `
-                <a href="followers.html" class="hover:text-indigo-600"><strong>${u.followerCount}</strong> フォロワー</a>
-                <a href="following.html" class="hover:text-indigo-600"><strong id="own-following-count">${u.followingCount}</strong> フォロー中</a>
-                <a href="sessions.html" class="text-indigo-600 hover:underline">デバイス管理</a>
-              ` : `
-                <span><strong>${u.followerCount}</strong> フォロワー</span>
-                <span><strong>${u.followingCount}</strong> フォロー中</span>
-              `}
+              <a href="followers.html?user=${u.id}" class="hover:text-indigo-600"><strong>${u.followerCount}</strong> フォロワー</a>
+              <a href="following.html?user=${u.id}" class="hover:text-indigo-600"><strong ${isOwnProfile ? 'id="own-following-count"' : ''}>${u.followingCount}</strong> フォロー中</a>
+              ${isOwnProfile ? `<a href="sessions.html" class="text-indigo-600 hover:underline">デバイス管理</a>` : ''}
             </div>
           </div>
         </div>

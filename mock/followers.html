@@ -9,11 +9,11 @@
 <body class="min-h-screen bg-gray-50">
   <div id="nav"></div>
   <main class="max-w-2xl mx-auto px-6 py-8">
-    <a href="profile.html" class="text-sm text-indigo-600 mb-4 inline-block">← プロフィール</a>
+    <a id="back-to-profile" href="profile.html" class="text-sm text-indigo-600 mb-4 inline-block">← プロフィール</a>
     <h1 id="page-title" class="text-xl font-bold mb-4">つながり</h1>
     <div class="flex gap-2 mb-6 border-b border-gray-200">
-      <a href="followers.html" class="px-4 py-2 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600">フォロワー</a>
-      <a href="following.html" class="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700">フォロー中</a>
+      <a id="tab-followers" href="followers.html" class="px-4 py-2 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600">フォロワー</a>
+      <a id="tab-following" href="following.html" class="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700">フォロー中</a>
     </div>
     <div id="user-list" class="space-y-3"></div>
   </main>
@@ -23,12 +23,22 @@
   <script>
     renderNav('profile');
     const listEl = document.getElementById('user-list');
+    const currentUser = getCurrentUser();
+    const targetId = Number(getQueryParam('user') || currentUser.id);
+    const targetUser = getUserById(targetId) || currentUser;
+
+    document.getElementById('back-to-profile').href = profileUrlForUserId(targetUser.id);
+    document.getElementById('tab-followers').href = `followers.html?user=${targetUser.id}`;
+    document.getElementById('tab-following').href = `following.html?user=${targetUser.id}`;
     bindFollowButtons(listEl, () => renderFollowersList());
 
     function renderFollowersList() {
-      const user = getCurrentUser();
-      document.getElementById('page-title').textContent = user.displayName + ' のつながり';
-      listEl.innerHTML = getAllUsers().map((u) => `
+      document.getElementById('page-title').textContent = targetUser.displayName + ' のフォロワー';
+      const users = getAllUsers().filter((u) => u.id !== targetUser.id);
+      const mockNote = targetUser.id !== currentUser.id
+        ? '<p class="text-xs text-amber-600 mb-3">※ Mock では他ユーザーのフォロワー一覧は簡易表示です</p>'
+        : '';
+      listEl.innerHTML = mockNote + users.map((u) => `
         <div class="flex items-center justify-between bg-white border border-gray-200 rounded-xl p-4">
           <a href="profile.html?user=${u.id}" class="flex items-center gap-3 hover:opacity-80">
             ${avatarHtml(u.avatarColor)}
