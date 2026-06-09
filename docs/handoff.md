@@ -65,7 +65,8 @@
 - `feature/issue-6-phase3-dev-env` ブランチで Phase 3 の実装を開始する（Composer 担当）。
 
 ## References
-- Plan: `/Users/user/.claude/plans/it-fitlog-er-noble-river.md`
+- Plan（全体）: `/Users/user/.claude/plans/it-fitlog-er-noble-river.md`
+- Plan（Phase 3 詳細）: `/Users/user/.cursor/plans/phase_3_dev_env_plan_86ceed28.plan.md`
 - Issue: `#6` (Phase 3: ローカル開発環境構築)
 - PR: `#4` (Phase 2 mock — merged, `Closes #3`)
 - Branch: `feature/issue-6-phase3-dev-env`
