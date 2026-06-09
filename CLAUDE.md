@@ -31,6 +31,27 @@ type: `feat` / `fix` / `docs` / `refactor` / `test` / `chore`
 - 作業完了後は PR を作成して main にマージする
 - PR 本文には必ず `Closes #イシュー番号` を記載する
 
+## PRレビュー運用（必須ゲート）
+
+- PR 作成後の最初の `NextAction` は必ず「レビュー実施」にする
+- マージ前に以下3点をすべて満たすこと
+  - レビュー承認済み（指摘対応完了を含む）
+  - CI グリーン（Backend CI / Frontend CI）
+  - Issue 紐付けが有効（`Closes #...`）
+- 上記が揃うまでマージしない
+- `docs/handoff.md` で `ReviewStatus` と `MergeReadiness` を更新し、状態を可視化する
+
+## Git安全運用（stash衝突防止）
+
+- 退避の第一選択は `stash` ではなく「作業ブランチへの WIP コミット」にする
+- `stash` を使う場合は必ずメッセージ付きで保存する（例: `git stash push -u -m "wip: ..."`）
+- 既存の作業ブランチで `git stash apply` / `git stash pop` を直接実行しない
+- `stash` を展開するときは `git stash branch <branch-name> stash@{n}` を優先し、別ブランチで確認する
+- `stash` 適用前に `git status --porcelain` が空（クリーン）であることを必ず確認する
+- 未追跡ファイルがある状態で `stash` を適用しない
+- `stash pop` は禁止し、`apply` で確認後に問題なければ `drop` する
+- 作業終了時は `git status` が意図どおり（コミット済み or 変更保留を明示）か確認してからブランチを離れる
+
 ## Claude Code がこのルールを適用するタイミング
 
 - 新しい機能・修正の実装を依頼されたとき → Issue 作成を提案する

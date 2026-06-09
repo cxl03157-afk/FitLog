@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>統計 — FitLog</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-50">
+  <div id="nav"></div>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    <h1 class="text-2xl font-bold text-gray-900 mb-6">トレーニング統計</h1>
+    <div class="flex gap-2 mb-6 border-b border-gray-200">
+      <button type="button" id="tab-week" class="stats-tab px-4 py-2 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600">週間</button>
+      <button type="button" id="tab-month" class="stats-tab px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500">月間</button>
+    </div>
+    <div class="grid grid-cols-3 gap-4 mb-8">
+      <div class="bg-white rounded-xl border p-5"><p class="text-sm text-gray-500">トレーニング回数</p><p id="stat-sessions" class="text-3xl font-bold text-indigo-600">4</p></div>
+      <div class="bg-white rounded-xl border p-5"><p class="text-sm text-gray-500">総セット数</p><p id="stat-sets" class="text-3xl font-bold text-indigo-600">48</p></div>
+      <div class="bg-white rounded-xl border p-5"><p class="text-sm text-gray-500">総ボリューム (kg)</p><p id="stat-volume" class="text-3xl font-bold text-indigo-600">12,400</p></div>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+      <h2 class="font-semibold mb-4">ボリューム推移</h2>
+      <svg id="chart" viewBox="0 0 400 200" class="w-full h-48 text-indigo-500" aria-label="棒グラフ（モック）">
+        <rect x="20" y="120" width="40" height="60" fill="currentColor" opacity="0.3"/>
+        <rect x="80" y="80" width="40" height="100" fill="currentColor" opacity="0.5"/>
+        <rect x="140" y="100" width="40" height="80" fill="currentColor" opacity="0.4"/>
+        <rect x="200" y="40" width="40" height="140" fill="currentColor"/>
+        <rect x="260" y="90" width="40" height="90" fill="currentColor" opacity="0.6"/>
+        <rect x="320" y="110" width="40" height="70" fill="currentColor" opacity="0.35"/>
+        <line x1="10" y1="180" x2="390" y2="180" stroke="#e5e7eb" stroke-width="2"/>
+      </svg>
+      <p class="text-xs text-gray-400 mt-2 text-center">SVG プレースホルダー（週間データ）</p>
+    </div>
+  </main>
+  <script src="js/data.js"></script>
+  <script src="js/common.js"></script>
+  <script>
+    renderNav('stats');
+    const week = { sessions: 4, sets: 48, volume: '12,400' };
+    const month = { sessions: 16, sets: 192, volume: '48,200' };
+    function setStats(d) {
+      document.getElementById('stat-sessions').textContent = d.sessions;
+      document.getElementById('stat-sets').textContent = d.sets;
+      document.getElementById('stat-volume').textContent = d.volume;
+    }
+    document.getElementById('tab-week').onclick = () => { setStats(week); document.getElementById('tab-week').className = 'stats-tab px-4 py-2 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600'; document.getElementById('tab-month').className = 'stats-tab px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500'; };
+    document.getElementById('tab-month').onclick = () => { setStats(month); document.getElementById('tab-month').className = 'stats-tab px-4 py-2 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600'; document.getElementById('tab-week').className = 'stats-tab px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500'; };
+  </script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>タイムライン — FitLog</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-50">
+  <div id="nav"></div>
+  <main class="max-w-3xl mx-auto px-6 py-6 pb-24">
+    <div class="flex gap-2 mb-6 border-b border-gray-200">
+      <button type="button" id="tab-all" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600">全体</button>
+      <button type="button" id="tab-following" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700">フォロー中</button>
+    </div>
+    <p id="tab-hint" class="text-xs text-gray-400 mb-4 hidden">フォロー中ユーザーの投稿のみ表示</p>
+    <div id="post-list" class="space-y-4"></div>
+  </main>
+  <a href="workout-post-new.html" class="fixed bottom-8 right-8 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg flex items-center justify-center text-2xl hover:bg-indigo-700 transition-colors" title="新規投稿">+</a>
+  <script src="js/data.js"></script>
+  <script src="js/store.js?v=5"></script>
+  <script src="js/common.js?v=9"></script>
+  <script>
+    let filterFollowing = false;
+    const postListEl = document.getElementById('post-list');
+    bindFollowButtons(postListEl, () => renderPosts());
+
+    function renderPosts() {
+      let posts = getPosts();
+      if (filterFollowing) {
+        const followingIds = getFollowingUserIds();
+        posts = posts.filter((p) => followingIds.includes(Number(p.userId)));
+      }
+      if (!posts.length) {
+        if (filterFollowing) {
+          const hasFollowing = getFollowingUserIds().length > 0;
+          postListEl.innerHTML = hasFollowing
+            ? '<p class="text-gray-500 text-center py-12">フォロー中のユーザーにはまだ投稿がありません。</p>'
+            : `<div class="text-center py-12 px-4">
+                <p class="text-gray-500 mb-3">まだフォロー中のユーザーがいません。検索画面からトレーニング仲間をフォローしてみましょう。</p>
+                <a href="search.html" class="text-sm text-indigo-600 font-medium hover:underline">ユーザーを検索する</a>
+              </div>`;
+        } else {
+          postListEl.innerHTML = '<p class="text-gray-500 text-center py-12">投稿がありません</p>';
+        }
+        return;
+      }
+      postListEl.innerHTML = posts.map((post) => `
+        <article class="bg-white rounded-xl border border-gray-200 p-5 hover:border-indigo-200 transition-colors">
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <a href="profile.html?user=${post.userId}" class="flex items-start gap-3 hover:opacity-80 min-w-0">
+              ${avatarHtml(post.avatarColor)}
+              <div>
+                <p class="font-semibold text-gray-900">${post.displayName}</p>
+                <p class="text-sm text-gray-500">@${post.username} · ${post.trainedOn}</p>
+              </div>
+            </a>
+            <div class="shrink-0 flex items-center gap-2">
+              ${post.isMine ? postMenuHtml(post.id) : (isFollowableUser(post.userId) ? followButtonHtml(post.userId, isFollowing(post.userId), true) : '')}
+            </div>
+          </div>
+          <a href="workout-post-detail.html?id=${post.id}" class="block">
+            <h2 class="text-lg font-bold text-gray-900 mb-1">${post.title}</h2>
+            ${workoutStatsHtml(post)}
+            <ul class="text-sm text-gray-600 space-y-1 mb-3">
+              ${post.exercises.map((ex) => `<li>${ex.name} — ${ex.sets}セット（${ex.summary}）</li>`).join('')}
+            </ul>
+            ${post.note ? `<p class="text-sm text-gray-500 mb-3">${post.note}</p>` : ''}
+          </a>
+          <div class="flex items-center gap-4 pt-3 border-t border-gray-100">
+            <button type="button" data-post-id="${post.id}" class="like-btn flex items-center gap-1 text-sm ${post.liked ? 'liked text-red-500' : 'text-gray-500'}">
+              <span class="like-icon">${post.liked ? '❤️' : '🤍'}</span>
+              <span class="like-count">${post.likes}</span>
+            </button>
+            <a href="workout-post-detail.html?id=${post.id}#comments" class="text-sm text-gray-500 hover:text-indigo-600">💬 ${post.comments}</a>
+          </div>
+        </article>
+      `).join('');
+      postListEl.querySelectorAll('.like-btn').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          handleLikeClick(btn, Number(btn.dataset.postId));
+        });
+      });
+      bindPostMenus(postListEl, () => renderPosts());
+    }
+
+    document.getElementById('tab-all').addEventListener('click', () => {
+      filterFollowing = false;
+      document.getElementById('tab-all').className = 'tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600';
+      document.getElementById('tab-following').className = 'tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500';
+      document.getElementById('tab-hint').classList.add('hidden');
+      renderPosts();
+    });
+    document.getElementById('tab-following').addEventListener('click', () => {
+      filterFollowing = true;
+      document.getElementById('tab-following').className = 'tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600';
+      document.getElementById('tab-all').className = 'tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500';
+      document.getElementById('tab-hint').classList.remove('hidden');
+      renderPosts();
+    });
+    renderNav('timeline');
+    renderPosts();
+    window.addEventListener('pageshow', () => renderPosts());
+  </script>
+</body>
+</html>

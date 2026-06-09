@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>プロフィール — FitLog</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-50">
+  <div id="nav"></div>
+  <main class="max-w-3xl mx-auto px-6 py-8">
+    <div id="profile-header" class="bg-white rounded-xl border border-gray-200 p-6 mb-6"></div>
+    <h2 class="text-lg font-bold text-gray-900 mb-4">投稿</h2>
+    <div id="profile-posts" class="space-y-4"></div>
+  </main>
+  <div id="edit-modal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-xl">
+      <h2 class="text-lg font-bold mb-4">プロフィール編集</h2>
+      <form id="edit-form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">表示名</label>
+          <input type="text" id="edit-display-name" maxlength="50" required class="w-full px-3 py-2 border rounded-lg" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">自己紹介</label>
+          <textarea id="edit-bio" rows="3" class="w-full px-3 py-2 border rounded-lg"></textarea>
+        </div>
+        <div class="flex gap-2">
+          <button type="submit" class="flex-1 py-2 bg-indigo-600 text-white rounded-lg">保存</button>
+          <button type="button" id="close-edit" class="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg">キャンセル</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="js/data.js"></script>
+  <script src="js/store.js?v=5"></script>
+  <script src="js/common.js?v=11"></script>
+  <script>
+    renderNav('profile');
+    const userId = getQueryParam('user');
+    const header = document.getElementById('profile-header');
+
+    function renderProfile() {
+      const currentUser = getCurrentUser();
+      const isOwnProfile = !userId || Number(userId) === currentUser.id;
+      const u = isOwnProfile ? currentUser : getUserById(userId);
+
+      if (!u) {
+        header.innerHTML = '<p class="text-gray-500">ユーザーが見つかりません</p>';
+        return null;
+      }
+
+      header.innerHTML = `
+        <div class="flex items-start gap-6">
+          ${avatarHtml(u.avatarColor, 'w-24 h-24')}
+          <div class="flex-1">
+            <div class="flex items-center gap-3 mb-2 flex-wrap">
+              <h1 class="text-2xl font-bold">${u.displayName}</h1>
+              ${isOwnProfile ? `
+                <button type="button" id="open-edit" class="text-sm px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50">プロフィール編集</button>
+                <button type="button" id="avatar-change" class="text-sm px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50">アバター変更</button>
+              ` : (isFollowableUser(u.id) ? followButtonHtml(u.id, isFollowing(u.id)) : '')}
+            </div>
+            <p class="text-gray-500 mb-2">@${u.username}</p>
+            <p class="text-gray-700 mb-4">${u.bio || ''}</p>
+            <div class="flex gap-6 text-sm flex-wrap">
+              <span><strong>${u.postCount}</strong> 投稿</span>
+              <a href="followers.html?user=${u.id}" class="hover:text-indigo-600"><strong>${u.followerCount}</strong> フォロワー</a>
+              <a href="following.html?user=${u.id}" class="hover:text-indigo-600"><strong ${isOwnProfile ? 'id="own-following-count"' : ''}>${u.followingCount}</strong> フォロー中</a>
+              ${isOwnProfile ? `<a href="sessions.html" class="text-indigo-600 hover:underline">デバイス管理</a>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+
+      if (!isOwnProfile && isFollowableUser(u.id)) {
+        bindFollowButtons(header, () => syncFollowButtonsIn(header));
+      }
+      return { u, isOwnProfile };
+    }
+
+    const profile = renderProfile();
+    if (profile) {
+      const { u, isOwnProfile } = profile;
+      window.addEventListener('pageshow', () => {
+        const refreshed = renderProfile();
+        if (refreshed) {
+          renderProfilePosts(refreshed.u);
+          if (refreshed.isOwnProfile) bindOwnProfileActions(refreshed.u);
+        }
+      });
+
+      function renderProfilePosts(user) {
+        const userPosts = getPosts().filter((p) => p.userId === user.id);
+        document.getElementById('profile-posts').innerHTML = userPosts.length
+          ? userPosts.map((post) => profilePostCardHtml(post)).join('')
+          : '<p class="text-gray-500">投稿がありません</p>';
+      }
+
+      renderProfilePosts(u);
+
+      function bindOwnProfileActions(user) {
+        const modal = document.getElementById('edit-modal');
+        document.getElementById('open-edit').onclick = () => {
+          document.getElementById('edit-display-name').value = user.displayName;
+          document.getElementById('edit-bio').value = user.bio || '';
+          modal.classList.remove('hidden');
+        };
+        document.getElementById('close-edit').onclick = () => modal.classList.add('hidden');
+        document.getElementById('avatar-change').onclick = () => alert('アバター変更はモックでは未実装です（本番ではS3アップロード）');
+      }
+
+      if (isOwnProfile) {
+        bindOwnProfileActions(u);
+        document.getElementById('edit-form').onsubmit = (e) => {
+          e.preventDefault();
+          updateCurrentUser({
+            displayName: document.getElementById('edit-display-name').value.trim(),
+            bio: document.getElementById('edit-bio').value.trim(),
+          });
+          document.getElementById('edit-modal').classList.add('hidden');
+          location.reload();
+        };
+      }
+    }
+  </script>
+</body>
+</html>
