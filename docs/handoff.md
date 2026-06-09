@@ -1,16 +1,15 @@
 # Agent Handoff
 
 ## CurrentPhase
-- Phase 2 complete (static prototype implemented and verified)
-- PR #4 merged; Issue #3 closed
-- Next phase: Phase 3 (local development environment setup)
+- Phase 3 in progress (local development environment setup)
+- Issue #6 open; branch `feature/issue-6-phase3-dev-env` created from `main`
+- Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- `mock/` に全11画面の静的プロトタイプ（HTML + Tailwind CDN + vanilla JS）を実装した
-- 画面遷移・モック認証（登録/ログイン）・フォロー・アンフォロー・投稿 CRUD・コメント・目標・統計・セッション管理 UI を実装した
-- ローカルでの画面確認を完了した（`cd mock && python3 -m http.server 8766`）
-- `feature/issue-3-phase2-mock` の修正を PR #4 に反映し、`main` へマージした（`Closes #3`）
-- `main` を最新化済み（Phase 2 の成果物と運用ルール更新が取り込み済み）
+- Phase 3 Issue #6 を作成した
+- `feature/issue-6-phase3-dev-env` ブランチを `main` から作成した
+- 実装はまだ未着手（Composer 担当）
+- Phase 2 の成果物（`mock/`）と運用ルールは `main` に取り込み済み
 
 ## SourceOfTruthOrder
 1. `CLAUDE.md` (workflow and guardrails)
@@ -44,33 +43,32 @@
 - (none)
 
 ## ReviewStatus
-- Status: 完了（手動レビュー完了・指摘反映済み）
-- Scope: Phase 2 Mock（`mock/` 一式）
+- Status: 未着手（Phase 3 実装後に実施）
+- Scope: Phase 3（`frontend/`, `backend/`, `docker-compose.yml`, `.github/workflows/`）
 - ReviewFocus:
-  - `docs/screens.md` との画面仕様一致
-  - 11画面の遷移整合（リンク切れなし）
-  - モック認証（登録/ログイン）と状態遷移
-  - 投稿作成/編集/削除、コメント、フォロー、目標、統計、セッション管理UIの主要操作
-  - 既知の制約（desktop-first、mockデータ/`sessionStorage`）の明示
+  - フロント・バック両方で `npm run lint` / `npm test` がパスすること
+  - `docker compose up -d` で PostgreSQL 17 + LocalStack が起動すること
+  - GitHub Actions CI（backend-ci / frontend-ci）がグリーンになること
+  - `.env.example` に必要な環境変数が全て記載されていること
 - ExitCriteria:
+  - CI グリーン
   - 指摘対応完了
-  - 再確認完了
   - レビュー承認
 
 ## MergeReadiness
-- ReviewApproved: true
-- CIGreen: n/a（Phase 2 時点では CI 未設定）
-- IssueLinkValid (`Closes #...`): true
-- ReadyToMerge: true（マージ済み）
+- ReviewApproved: false
+- CIGreen: false
+- IssueLinkValid (`Closes #...`): false（PR 未作成）
+- ReadyToMerge: false
 
 ## NextAction
-- Issue `#5`（Phase 3: ローカル開発環境構築）を作成する。
+- `feature/issue-6-phase3-dev-env` ブランチで Phase 3 の実装を開始する（Composer 担当）。
 
 ## References
 - Plan: `/Users/user/.claude/plans/it-fitlog-er-noble-river.md`
-- Issue: `#5` (Phase 3: ローカル開発環境構築 — 作成予定)
+- Issue: `#6` (Phase 3: ローカル開発環境構築)
 - PR: `#4` (Phase 2 mock — merged, `Closes #3`)
-- Branch: `feature/issue-5-phase3-dev-env`（Issue #5 作成後に main から作成）
+- Branch: `feature/issue-6-phase3-dev-env`
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules
