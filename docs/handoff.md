@@ -49,7 +49,7 @@
 - (none)
 
 ## ReviewStatus
-- Status: 未着手（Phase 3 実装後に実施）
+- Status: レビュー完了（Codex 承認済み）
 - Scope: Phase 3（`frontend/`, `backend/`, `docker-compose.yml`, `.github/workflows/`）
 - ReviewFocus:
   - フロント・バック両方で `npm run lint` / `npm test` がパスすること
@@ -62,13 +62,13 @@
   - レビュー承認
 
 ## MergeReadiness
-- ReviewApproved: false
-- CIGreen: false（CI 実行中）
+- ReviewApproved: true（Codex 承認済み）
+- CIGreen: true（backend-ci / frontend-ci グリーン確認済み）
 - IssueLinkValid (`Closes #...`): true（PR #7 に `Closes #6` 記載済み）
-- ReadyToMerge: false
+- ReadyToMerge: true
 
 ## NextAction
-- PR #7 のレビューを実施する（CI グリーン確認 → レビュー承認 → main マージ）。
+- PR #7 を main にマージする（ReadyToMerge: true）。
 
 ## References
 - Plan（全体）: `/Users/user/.claude/plans/it-fitlog-er-noble-river.md`
