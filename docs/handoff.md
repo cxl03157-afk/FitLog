@@ -61,12 +61,12 @@
 
 ## MergeReadiness
 - ReviewApproved: true（Codex v4 承認）
-- CIGreen: 確認待ち（PR push 後）
+- CIGreen: true（2026-06-10 確認済み）
 - IssueLinkValid (`Closes #...`): true
-- ReadyToMerge: CI グリーン確認後
+- ReadyToMerge: true（マージ承認待ち）
 
 ## NextAction
-CI グリーンを確認後、PR #（番号確定後）を main にマージする。
+PR #9 を main にマージする（ユーザー承認後）。マージ後は Phase 5 の計画を開始する。
 
 ## References
 - Plan（全体）: `/Users/user/.claude/plans/it-fitlog-er-noble-river.md`
