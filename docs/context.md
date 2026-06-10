@@ -8,7 +8,7 @@
 - Phase: **3**（ローカル開発環境構築）
 - Issue: **#6**
 - Branch: `feature/issue-6-phase3-dev-env`
-- Status: 実装未着手（Composer 待ち）
+- Status: 実装完了・コミット済み（PR 作成前にユーザー確認待ち）
 
 ## 技術スタック
 
@@ -29,8 +29,7 @@
 
 ## NextAction
 
-Composer が `feature/issue-6-phase3-dev-env` ブランチで 7 ステップ実装し、
-コミット・PR 作成（`Closes #6`）まで実施する。
+ユーザー承認後、`feature/issue-6-phase3-dev-env` から PR を作成する（`Closes #6`）。
 
 ## 参照ファイル（詳細確認が必要な場合）
 
