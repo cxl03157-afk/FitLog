@@ -10,7 +10,7 @@
 - `feature/issue-6-phase3-dev-env` ブランチを `main` から作成した
 - 実装完了・コミット済み（commit: 06cdf91）
 - Phase 2 の成果物（`mock/`）と運用ルールは `main` に取り込み済み
-- PR 作成前にユーザー確認待ち
+- PR #7 作成済み（レビュー・CI 確認待ち）
 
 ## SourceOfTruthOrder
 1. `CLAUDE.md` (workflow and guardrails)
@@ -63,12 +63,12 @@
 
 ## MergeReadiness
 - ReviewApproved: false
-- CIGreen: false（PR 作成後に確認）
-- IssueLinkValid (`Closes #...`): false（PR 未作成）
+- CIGreen: false（CI 実行中）
+- IssueLinkValid (`Closes #...`): true（PR #7 に `Closes #6` 記載済み）
 - ReadyToMerge: false
 
 ## NextAction
-- ユーザー承認後、`feature/issue-6-phase3-dev-env` から `Closes #6` 付きで PR を作成する。
+- PR #7 のレビューを実施する（CI グリーン確認 → レビュー承認 → main マージ）。
 
 ## References
 - Plan（全体）: `/Users/user/.claude/plans/it-fitlog-er-noble-river.md`
