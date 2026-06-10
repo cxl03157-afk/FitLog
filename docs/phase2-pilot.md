@@ -1,5 +1,12 @@
 # Phase 2 Pilot Playbook
 
+> **旧運用資料 — 現行運用では参照しない**
+> このドキュメントは Claude / Codex / Composer の多エージェント運用を検証した Phase 2 の記録です。
+> Issue #10 により現行運用は **Claude Code 単独運用** に移行しました。
+> 現行の手順は `CLAUDE.md`・`docs/agent-prompts.md`・`docs/phase-gates.md` を参照してください。
+
+---
+
 目的: フェーズ2（静的プロトタイプ）でエージェント切替運用が機能するかを検証し、テンプレを改善する。
 
 ---

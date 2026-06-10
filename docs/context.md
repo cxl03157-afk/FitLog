@@ -5,10 +5,10 @@
 
 ## 現状スナップショット
 
-- Phase: **4 PR作成済み**（認証API実装・Codex承認済み）
-- Issue: **#8**
-- Branch: `feature/issue-8-phase4-auth`
-- Status: 実装完了・Codex レビュー全指摘解消・PR 作成済み・CI 待ち
+- Phase: **4 完了**（認証API実装・PR #9 マージ済み）/ **Issue #10 進行中**（ドキュメント移行）
+- Issue: **#10**
+- Branch: `docs/issue-10-claude-code-workflow`
+- Status: 運用ドキュメントを Claude Code 単独運用に書き換え中・PR 作成待ち
 
 ## 技術スタック
 
@@ -32,12 +32,13 @@
 
 ## NextAction
 
-CI グリーンを確認後、PR を main にマージする。マージ後は Phase 5 の計画を開始する。
+PR #10（docs/issue-10-claude-code-workflow）をユーザー承認後マージし、Phase 5 の計画を開始する。
 
 ## 参照ファイル（詳細確認が必要な場合）
 
 - ルール: `CLAUDE.md`
+- 全体フェーズ計画（Phase 1〜18）: `docs/phase-roadmap.md`
 - 認証仕様: `docs/features/01_auth.md`
 - DB 設計: `docs/database.md`
 - 状態詳細: `docs/handoff.md`
-- Issue: https://github.com/cxl03157-afk/FitLog/issues/8
+- Issue: https://github.com/cxl03157-afk/FitLog/issues/10

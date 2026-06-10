@@ -1,13 +1,13 @@
 # Agent Handoff
 
 ## CurrentPhase
-- Phase 4 complete: 認証API実装（Issue #8）PR 作成済み・CI 待ち
+- Phase 4 complete: 認証API実装（Issue #8）PR #9 merged（2026-06-10）
 - Phase 3 complete: PR #7 merged, Issue #6 closed
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #8 実装完了、`feature/issue-8-phase4-auth` ブランチで PR 作成済み
-- Codex レビュー全指摘（High×1 / Medium×4 / Low×1）対応完了、Ready for merge: Yes
+- Issue #8 完了・PR #9 マージ済み
+- Issue #10: 運用ドキュメント書き換え中（docs/issue-10-claude-code-workflow ブランチ）
 
 ## SourceOfTruthOrder
 1. `CLAUDE.md` (workflow and guardrails)
@@ -50,28 +50,23 @@
 - (none)
 
 ## ReviewStatus
-- Status: Codex レビュー承認済み（Ready for merge: Yes）
-- Scope: Phase 4（`backend/` 認証 API）
-- 解消済み指摘:
-  - [High] rotate() の session_id UNIQUE 制約衝突 → partial unique index で解消
-  - [Medium] /refresh レート制限キーがアカウント識別子を含まない → sessionId DB ルックアップで解消
-  - [Medium] 統合テスト JWT_SECRET 未設定 → beforeAll で設定し解消
-  - [Medium] req.body null-safe でない → optional chain で解消
-  - [Low] OriginRefererGuard フェイルオープン → fail-closed に変更し解消
+- Status: セルフレビュー済み（Claude Code）
+- Scope: Issue #10（ドキュメント運用移行）
+- 確認済み: 多エージェント記述の削除・Claude Code 単独運用への統一
 
 ## MergeReadiness
-- ReviewApproved: true（Codex v4 承認）
-- CIGreen: true（2026-06-10 確認済み）
-- IssueLinkValid (`Closes #...`): true
-- ReadyToMerge: true（マージ承認待ち）
+- ReviewApproved: セルフレビュー済み
+- CIGreen: N/A（docs-only PR のため Backend / Frontend CI 非対象）
+- IssueLinkValid (`Closes #...`): true（Closes #10）
+- ReadyToMerge: ユーザー承認待ち
 
 ## NextAction
-PR #9 を main にマージする（ユーザー承認後）。マージ後は Phase 5 の計画を開始する。
+PR #10（docs/issue-10-claude-code-workflow）をマージ後、Phase 5 の計画を開始する。
 
 ## References
 - Plan（全体）: `/Users/user/.claude/plans/it-fitlog-er-noble-river.md`
-- Issue: `#8` (Phase 4: 認証API実装)
-- Branch: `feature/issue-8-phase4-auth`
+- Issue: `#10` (運用ドキュメント書き換え)
+- Branch: `docs/issue-10-claude-code-workflow`
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules
@@ -81,7 +76,6 @@ PR #9 を main にマージする（ユーザー承認後）。マージ後は P
 - Keep `ReviewStatus` and `MergeReadiness` updated from PR creation to merge.
 
 ## PilotFeedback
-- (empty) Fill after Phase 2 pilot:
-  - What context was missing at agent switch?
-  - Which prompt text was ambiguous?
-  - Which checklist item failed to prevent confusion?
+- Phase 2 多エージェント運用の知見（Issue #10 で運用廃止済み）:
+  - Codex/Composer へのコンテキスト引き渡しコストが高く、Claude Code 単独で完結できることが判明
+  - docs/handoff.md をコード PR に混在させると CI が余分に起動する（コードと別 PR で管理すること）

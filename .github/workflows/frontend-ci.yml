@@ -2,7 +2,8 @@ name: Frontend CI
 
 on:
   push:
-    branches: [main, "feature/**", "fix/**"]
+    # docs/** ブランチへの push は paths フィルターで自動除外（frontend/** に非該当）
+    branches: [main, "feature/**", "fix/**", "refactor/**"]
     paths:
       - "frontend/**"
       - ".github/workflows/frontend-ci.yml"

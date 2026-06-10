@@ -1,3 +1,5 @@
+@docs/context.md
+
 # 開発ワークフロールール
 
 ## 作業開始前の必須手順
@@ -58,20 +60,21 @@ type: `feat` / `fix` / `docs` / `refactor` / `test` / `chore`
 - コミット・プッシュを依頼されたとき → 作業ブランチ上にいるか確認する
 - PR 作成を依頼されたとき → Issue 番号を PR に紐付ける
 
-## オーケストレーター運用（Claude が司令塔）
+## Claude Code 単独運用
 
-- **Claude（Cursor）** が計画・Issue・handoff 管理・サブエージェント起動を担う
-- サブエージェント（Codex / Composer）へは `docs/context.md` の内容のみ渡す（4ファイル全読み込み不要）
-- サブエージェントの起動タイミング：
+- **Claude Code（Cursor 拡張）** が計画・実装・レビュー・Issue / handoff 管理をすべて担う
+- 外部サブエージェント（Codex / Composer）は使用しない
+- フェーズの進め方：
 
-  | サブエージェント | 起動タイミング |
-  |----------------|-------------|
-  | Codex | 実装開始前の計画/差分チェック |
-  | Composer | チェック完了後の実装・PR 作成 |
-  | Codex / Claude | PR 作成後のレビュー |
+  | ステップ | 担当 | 内容 |
+  |---------|------|------|
+  | 計画 | Claude Code | docs/context.md を読み、NextAction を1つ提案 |
+  | 実装 | Claude Code | 承認後に実装・テスト。**コミット前にユーザーへ diff とメッセージ案を提示し承認を得る** |
+  | セルフレビュー | Claude Code | `/code-review` で diff を確認、指摘を解消 |
+  | マージ | ユーザー承認 | CI グリーン・レビュー承認後にユーザーがマージ |
 
-- サブエージェント完了後、Claude が `docs/context.md` と `docs/handoff.md` を更新してから次フェーズへ進む
 - `docs/context.md` はフェーズ切替時に必ず最新化する（NextAction・Phase・Branch を書き換える）
+- `docs/handoff.md` の更新は **マージ前に同 PR へ追加する**。ただし `docs/**` は CI の `paths` フィルター対象外のためワークフローは動作しない
 
 ---
 
@@ -96,7 +99,7 @@ type: `feat` / `fix` / `docs` / `refactor` / `test` / `chore`
 - LocalStack は Docker Compose で起動（ポート 4566）
 - バックエンド（NestJS）は port 3000
 - フロントエンド（Vite）は port 5173
-- ポート競合が発生した場合は `lsof -ti:<port> | xargs kill -9` で解消する
+- ポート競合が発生した場合は、まず `lsof -i:<port>` で使用中プロセスを確認し、問題なければ `lsof -ti:<port> | xargs kill` で終了する。通常終了できない場合のみ `kill -9` を使う
 
 ### Docker build 事前検証
 - Dockerfile 変更時は `docker build` をローカルで必ず実行してから PR を出す
@@ -117,5 +120,6 @@ type: `feat` / `fix` / `docs` / `refactor` / `test` / `chore`
 | 種別 | ツール | 実行コマンド |
 |------|--------|------------|
 | バックエンドユニットテスト | Jest | `cd backend && npm test` |
+| バックエンド統合テスト | Jest | `cd backend && npx jest --config ./test/jest-integration.json --runInBand --forceExit` |
 | フロントエンドユニットテスト | Vitest | `cd frontend && npm test` |
 | E2E テスト | Playwright | `cd frontend && npx playwright test` |

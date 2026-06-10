@@ -7,11 +7,14 @@
 
 ## 1. 開始前チェック（Start Gate）
 
-- [ ] 対象Issueがあり、目的と完了条件が明記されている
-- [ ] 作業ブランチが命名規則どおりに作成されている
-- [ ] `docs/handoff.md` の `CurrentPhase` と `NextAction` が更新されている
-- [ ] 参照順（`CLAUDE.md` → 要件 → features → screens → database → handoff）を確認した
-- [ ] このフェーズの担当ロール（Claude/Codex/Composer/Reviewer）が明確
+- [ ] `docs/context.md` を読み、現在フェーズと状況を把握した
+- [ ] 必要なら `docs/handoff.md`、詳細 docs（`docs/features/` / `docs/screens.md` / `docs/database.md`）を参照した
+- [ ] `docs/phase-roadmap.md` で対象フェーズの実施事項・完了条件を確認した
+- [ ] `CLAUDE.md` の該当ルール（ブランチ命名・コミット・テスト方針等）を確認した
+- [ ] 対象フェーズの詳細計画（実装順序・リスク・成果物）を立案し、ユーザーに提示した
+- [ ] 計画をユーザーが承認した
+- [ ] GitHub Issue を作成した（目的・完了条件を記載）
+- [ ] main から作業ブランチを作成した（命名規則に従う）
 
 ---
 
@@ -21,7 +24,7 @@
 - [ ] 新しい未解決事項を `OpenQuestions` に追記した
 - [ ] スコープ外作業を実施していない
 - [ ] 進捗が `Status` に反映されている
-- [ ] 次の担当エージェントが再開可能な情報が残っている
+- [ ] 次のセッションが再開可能な情報が残っている
 
 ---
 
@@ -37,8 +40,8 @@
 
 ## 4. 切替直前チェック（Handoff Gate）
 
-- [ ] 次に読むべきファイル4点を明記した（`CLAUDE.md`, 計画, `docs/handoff.md`, 対象Issue）
+- [ ] 次に読むべきファイルを明記した（`CLAUDE.md`, `docs/handoff.md`, `docs/context.md`, 対象Issue）
 - [ ] 対象Issue番号（`#<issue>`）を明示し、`docs/handoff.md` の `References` の Issue と一致していることを確認した
 - [ ] 次担当向けに「次の1アクション」が1つだけ定義されている
-- [ ] レビュー担当が確認すべき論点（仕様・セキュリティ・テスト）を残した
+- [ ] セルフレビューで確認すべき論点（仕様・セキュリティ・テスト）を残した
 
