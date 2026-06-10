@@ -11,6 +11,7 @@ import { RefreshToken } from './entities/refresh-token.entity';
 import { RefreshTokenCleanupService } from './refresh-token-cleanup.service';
 import { RefreshTokenService } from './refresh-token.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { AuthThrottleGuard } from './guards/auth-throttle.guard';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     RefreshTokenCleanupService,
     JwtStrategy,
     AuditLoggerService,
+    AuthThrottleGuard,
   ],
   exports: [AuthService],
 })
