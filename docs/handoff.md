@@ -1,16 +1,16 @@
 # Agent Handoff
 
 ## CurrentPhase
-- Phase 2 complete (static prototype implemented and verified)
-- PR #4 merged; Issue #3 closed
-- Next phase: Phase 3 (local development environment setup)
+- Phase 3 in progress (local development environment setup)
+- Issue #6 open; branch `feature/issue-6-phase3-dev-env` created from `main`
+- Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- `mock/` に全11画面の静的プロトタイプ（HTML + Tailwind CDN + vanilla JS）を実装した
-- 画面遷移・モック認証（登録/ログイン）・フォロー・アンフォロー・投稿 CRUD・コメント・目標・統計・セッション管理 UI を実装した
-- ローカルでの画面確認を完了した（`cd mock && python3 -m http.server 8766`）
-- `feature/issue-3-phase2-mock` の修正を PR #4 に反映し、`main` へマージした（`Closes #3`）
-- `main` を最新化済み（Phase 2 の成果物と運用ルール更新が取り込み済み）
+- Phase 3 Issue #6 を作成した
+- `feature/issue-6-phase3-dev-env` ブランチを `main` から作成した
+- 実装完了・コミット済み（commit: 06cdf91）
+- Phase 2 の成果物（`mock/`）と運用ルールは `main` に取り込み済み
+- PR #7 作成済み（レビュー・CI 確認待ち）
 
 ## SourceOfTruthOrder
 1. `CLAUDE.md` (workflow and guardrails)
@@ -39,38 +39,43 @@
 - Timeline shows a compact follow button on others' posts only (no separate "フォロー中" label beside the name).
 - Goal abandon action label is 「中止する」; delete and abort both require confirmation dialogs.
 - Mock auth stores registered users in `registeredUsers` / `accounts`; register requires password confirmation.
+- [Phase 3] `docker-compose.yml` は PostgreSQL 17 のみ。LocalStack は Phase 9 で追加する。
+- [Phase 3] CI 完了条件は Lint + 型チェック + テスト（Jest/Vitest）まで含む。
+- [Phase 3] `backend/` には TypeORM パッケージ導入 + DataSource 設定ファイルの雛形まで置く（DB 実接続は Phase 4）。
+- [Phase 3] Node 22 は CI で強制する（`actions/setup-node@v4` + `.nvmrc`）。
+- [Phase 3] Tailwind CSS は v3（`tailwind.config.js` + `postcss.config.js`）で導入する。
 
 ## OpenQuestions
 - (none)
 
 ## ReviewStatus
-- Status: 完了（手動レビュー完了・指摘反映済み）
-- Scope: Phase 2 Mock（`mock/` 一式）
+- Status: レビュー完了（Codex 承認済み）
+- Scope: Phase 3（`frontend/`, `backend/`, `docker-compose.yml`, `.github/workflows/`）
 - ReviewFocus:
-  - `docs/screens.md` との画面仕様一致
-  - 11画面の遷移整合（リンク切れなし）
-  - モック認証（登録/ログイン）と状態遷移
-  - 投稿作成/編集/削除、コメント、フォロー、目標、統計、セッション管理UIの主要操作
-  - 既知の制約（desktop-first、mockデータ/`sessionStorage`）の明示
+  - フロント・バック両方で `npm run lint` / `npm test` がパスすること
+  - `docker compose up -d` で PostgreSQL 17 + LocalStack が起動すること
+  - GitHub Actions CI（backend-ci / frontend-ci）がグリーンになること
+  - `.env.example` に必要な環境変数が全て記載されていること
 - ExitCriteria:
+  - CI グリーン
   - 指摘対応完了
-  - 再確認完了
   - レビュー承認
 
 ## MergeReadiness
-- ReviewApproved: true
-- CIGreen: n/a（Phase 2 時点では CI 未設定）
-- IssueLinkValid (`Closes #...`): true
-- ReadyToMerge: true（マージ済み）
+- ReviewApproved: true（Codex 承認済み）
+- CIGreen: true（backend-ci / frontend-ci グリーン確認済み）
+- IssueLinkValid (`Closes #...`): true（PR #7 に `Closes #6` 記載済み）
+- ReadyToMerge: true
 
 ## NextAction
-- Issue `#5`（Phase 3: ローカル開発環境構築）を作成する。
+- PR #7 を main にマージする（ReadyToMerge: true）。
 
 ## References
-- Plan: `/Users/user/.claude/plans/it-fitlog-er-noble-river.md`
-- Issue: `#5` (Phase 3: ローカル開発環境構築 — 作成予定)
+- Plan（全体）: `/Users/user/.claude/plans/it-fitlog-er-noble-river.md`
+- Plan（Phase 3 詳細）: `/Users/user/.cursor/plans/phase_3_dev_env_plan_86ceed28.plan.md`
+- Issue: `#6` (Phase 3: ローカル開発環境構築)
 - PR: `#4` (Phase 2 mock — merged, `Closes #3`)
-- Branch: `feature/issue-5-phase3-dev-env`（Issue #5 作成後に main から作成）
+- Branch: `feature/issue-6-phase3-dev-env`
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules
