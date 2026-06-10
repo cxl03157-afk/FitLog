@@ -1,13 +1,13 @@
 # Agent Handoff
 
 ## CurrentPhase
-- Phase 4 in progress: 認証API実装（Issue #8）
+- Phase 4 complete: 認証API実装（Issue #8）PR 作成済み・CI 待ち
 - Phase 3 complete: PR #7 merged, Issue #6 closed
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #8 を作成し `feature/issue-8-phase4-auth` ブランチで実装中
-- TypeORM 接続・CORS・users/refresh_tokens マイグレーション・AuthModule を実装予定
+- Issue #8 実装完了、`feature/issue-8-phase4-auth` ブランチで PR 作成済み
+- Codex レビュー全指摘（High×1 / Medium×4 / Low×1）対応完了、Ready for merge: Yes
 
 ## SourceOfTruthOrder
 1. `CLAUDE.md` (workflow and guardrails)
@@ -50,27 +50,23 @@
 - (none)
 
 ## ReviewStatus
-- Status: 未着手（実装中）
+- Status: Codex レビュー承認済み（Ready for merge: Yes）
 - Scope: Phase 4（`backend/` 認証 API）
-- ReviewFocus:
-  - POST /api/auth/register / login / refresh が正常動作すること
-  - DB チェックリスト（users / refresh_tokens）全項目が満たされていること
-  - CORS・レート制限・監査ログが実装されていること
-  - Jest ユニットテスト + 統合テストがすべてパスすること
-  - `npm run lint` がエラーなしで通過すること
-- ExitCriteria:
-  - CI グリーン
-  - 指摘対応完了
-  - レビュー承認
+- 解消済み指摘:
+  - [High] rotate() の session_id UNIQUE 制約衝突 → partial unique index で解消
+  - [Medium] /refresh レート制限キーがアカウント識別子を含まない → sessionId DB ルックアップで解消
+  - [Medium] 統合テスト JWT_SECRET 未設定 → beforeAll で設定し解消
+  - [Medium] req.body null-safe でない → optional chain で解消
+  - [Low] OriginRefererGuard フェイルオープン → fail-closed に変更し解消
 
 ## MergeReadiness
-- ReviewApproved: false
-- CIGreen: false
-- IssueLinkValid (`Closes #...`): false
-- ReadyToMerge: false
+- ReviewApproved: true（Codex v4 承認）
+- CIGreen: 確認待ち（PR push 後）
+- IssueLinkValid (`Closes #...`): true
+- ReadyToMerge: CI グリーン確認後
 
 ## NextAction
-AuthModule 実装（register / login / refresh / logout / sessions）と Jest テストを完了し、lint/test を通過させる。
+CI グリーンを確認後、PR #（番号確定後）を main にマージする。
 
 ## References
 - Plan（全体）: `/Users/user/.claude/plans/it-fitlog-er-noble-river.md`

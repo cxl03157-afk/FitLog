@@ -5,10 +5,10 @@
 
 ## 現状スナップショット
 
-- Phase: **4 実装中**（認証API実装）
+- Phase: **4 PR作成済み**（認証API実装・Codex承認済み）
 - Issue: **#8**
 - Branch: `feature/issue-8-phase4-auth`
-- Status: TypeORM 接続・users/refresh_tokens マイグレーション・AuthModule 実装中
+- Status: 実装完了・Codex レビュー全指摘解消・PR 作成済み・CI 待ち
 
 ## 技術スタック
 
@@ -32,7 +32,7 @@
 
 ## NextAction
 
-AuthModule 実装（register / login / refresh / logout / sessions）と Jest テストを完了し、lint/test を通過させる。
+CI グリーンを確認後、PR を main にマージする。マージ後は Phase 5 の計画を開始する。
 
 ## 参照ファイル（詳細確認が必要な場合）
 
