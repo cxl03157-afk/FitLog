@@ -7,11 +7,14 @@
 
 ## 1. 開始前チェック（Start Gate）
 
-- [ ] 対象Issueがあり、目的と完了条件が明記されている
-- [ ] 作業ブランチが命名規則どおりに作成されている
-- [ ] `docs/handoff.md` の `CurrentPhase` と `NextAction` が更新されている
-- [ ] 参照順（`CLAUDE.md` → 要件 → features → screens → database → handoff）を確認した
-- [ ] このフェーズの作業内容（計画 / 実装 / セルフレビュー）が明確
+- [ ] `docs/context.md` を読み、現在フェーズと状況を把握した
+- [ ] 必要なら `docs/handoff.md`、詳細 docs（`docs/features/` / `docs/screens.md` / `docs/database.md`）を参照した
+- [ ] `docs/phase-roadmap.md` で対象フェーズの実施事項・完了条件を確認した
+- [ ] `CLAUDE.md` の該当ルール（ブランチ命名・コミット・テスト方針等）を確認した
+- [ ] 対象フェーズの詳細計画（実装順序・リスク・成果物）を立案し、ユーザーに提示した
+- [ ] 計画をユーザーが承認した
+- [ ] GitHub Issue を作成した（目的・完了条件を記載）
+- [ ] main から作業ブランチを作成した（命名規則に従う）
 
 ---
 

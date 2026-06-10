@@ -37,7 +37,8 @@ PR #10（docs/issue-10-claude-code-workflow）をユーザー承認後マージ�
 ## 参照ファイル（詳細確認が必要な場合）
 
 - ルール: `CLAUDE.md`
+- 全体フェーズ計画（Phase 1〜18）: `docs/phase-roadmap.md`
 - 認証仕様: `docs/features/01_auth.md`
 - DB 設計: `docs/database.md`
 - 状態詳細: `docs/handoff.md`
-- Issue: https://github.com/cxl03157-afk/FitLog/issues/8
+- Issue: https://github.com/cxl03157-afk/FitLog/issues/10
