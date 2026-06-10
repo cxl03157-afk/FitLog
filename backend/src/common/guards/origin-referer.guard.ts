@@ -14,9 +14,12 @@ export class OriginRefererGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<Request>();
     const allowedOrigin = this.configService.get<string>('FRONTEND_ORIGIN');
+    const isDev = this.configService.get<string>('NODE_ENV') === 'development';
 
     if (!allowedOrigin) {
-      return true;
+      // 開発環境のみフェイルオープン許容。それ以外は拒否
+      if (isDev) return true;
+      throw new ForbiddenException('FRONTEND_ORIGIN is not configured');
     }
 
     const origin = request.headers.origin;

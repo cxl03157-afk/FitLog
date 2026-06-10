@@ -19,13 +19,15 @@ export class CreateRefreshTokensTable1739000000002 implements MigrationInterface
         "replaced_by_token_id" BIGINT,
         "created_at" TIMESTAMP NOT NULL DEFAULT now(),
         CONSTRAINT "PK_refresh_tokens_id" PRIMARY KEY ("id"),
-        CONSTRAINT "UQ_refresh_tokens_session_id" UNIQUE ("session_id"),
         CONSTRAINT "FK_refresh_tokens_user_id" FOREIGN KEY ("user_id")
           REFERENCES "users"("id") ON DELETE CASCADE,
         CONSTRAINT "FK_refresh_tokens_replaced_by" FOREIGN KEY ("replaced_by_token_id")
           REFERENCES "refresh_tokens"("id")
       )
     `);
+    await queryRunner.query(
+      `CREATE UNIQUE INDEX "idx_refresh_tokens_active_session_id" ON "refresh_tokens" ("session_id") WHERE "revoked_at" IS NULL`,
+    );
     await queryRunner.query(
       `CREATE INDEX "idx_refresh_tokens_user_id" ON "refresh_tokens" ("user_id")`,
     );
@@ -47,6 +49,9 @@ export class CreateRefreshTokensTable1739000000002 implements MigrationInterface
     );
     await queryRunner.query(`DROP INDEX "idx_refresh_tokens_token_hash"`);
     await queryRunner.query(`DROP INDEX "idx_refresh_tokens_user_id"`);
+    await queryRunner.query(
+      `DROP INDEX "idx_refresh_tokens_active_session_id"`,
+    );
     await queryRunner.query(`DROP TABLE "refresh_tokens"`);
   }
 }

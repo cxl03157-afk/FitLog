@@ -19,6 +19,11 @@ describe('Auth Integration (register/login/refresh)', () => {
   };
 
   beforeAll(async () => {
+    process.env.JWT_SECRET =
+      process.env.JWT_SECRET ?? 'test-integration-secret-32chars!!';
+    process.env.FRONTEND_ORIGIN =
+      process.env.FRONTEND_ORIGIN ?? 'http://localhost:5173';
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();

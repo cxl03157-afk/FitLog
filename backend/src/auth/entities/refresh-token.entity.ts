@@ -32,7 +32,7 @@ export class RefreshToken {
   @Column({ type: 'varchar', length: 255, name: 'token_hash' })
   tokenHash: string;
 
-  @Column({ type: 'uuid', name: 'session_id', unique: true })
+  @Column({ type: 'uuid', name: 'session_id' })
   sessionId: string;
 
   @Column({ type: 'varchar', length: 100, name: 'device_name', nullable: true })

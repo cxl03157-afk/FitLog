@@ -7,8 +7,10 @@ export class AuthThrottleGuard extends ThrottlerGuard {
   protected getTracker(req: Request): Promise<string> {
     const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown';
     const body = req.body as { email?: string };
-    const email = typeof body.email === 'string' ? body.email : 'anonymous';
-    return Promise.resolve(`${ip}:${email}`);
+    // /refresh has no email in body — use endpoint path as identifier
+    const identifier =
+      typeof body.email === 'string' ? body.email : `path:${req.path}`;
+    return Promise.resolve(`${ip}:${identifier}`);
   }
 
   protected async throwThrottlingException(
