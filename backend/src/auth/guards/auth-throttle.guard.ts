@@ -12,11 +12,11 @@ export class AuthThrottleGuard extends ThrottlerGuard {
 
   protected async getTracker(req: Request): Promise<string> {
     const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown';
-    const body = req.body as { email?: string };
+    const email = (req.body as { email?: unknown } | undefined)?.email;
 
-    if (typeof body.email === 'string') {
+    if (typeof email === 'string') {
       // login: IP + email でアカウント単位の制限
-      return `${ip}:${body.email}`;
+      return `${ip}:${email}`;
     }
 
     // refresh: DB から sessionId を取得してセッション単位の制限を実施
