@@ -305,8 +305,8 @@ GET /api/auth/sessions を実行
 
 | メソッド | エンドポイント | 説明 | 認証 |
 |---|---|---|---|
-| POST | `/api/auth/register` | 新規ユーザー登録 | 不要 |
-| POST | `/api/auth/login` | ログイン・JWT 発行 | 不要 |
+| POST | `/api/auth/register` | 新規ユーザー登録（HTTP 200） | 不要 |
+| POST | `/api/auth/login` | ログイン・JWT 発行（HTTP 200） | 不要 |
 | POST | `/api/auth/refresh` | AccessToken リフレッシュ | Cookie（RefreshToken） |
 | POST | `/api/auth/logout` | ログアウト・RefreshToken 無効化 | 必要 |
 | GET | `/api/auth/sessions` | ログイン中セッション一覧 | 必要 |

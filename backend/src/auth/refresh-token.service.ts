@@ -70,14 +70,18 @@ export class RefreshTokenService {
     oldToken: RefreshToken,
     params: Omit<CreateRefreshTokenParams, 'sessionId'>,
   ): Promise<RefreshTokenResult> {
+    // Revoke old token first so the partial UNIQUE index (session_id WHERE revoked_at IS NULL)
+    // allows inserting a new active token for the same session.
+    oldToken.revokedAt = new Date();
+    oldToken.lastUsedAt = new Date();
+    await this.refreshTokenRepository.save(oldToken);
+
     const { rawToken, entity: newEntity } = await this.create({
       ...params,
       sessionId: oldToken.sessionId,
     });
 
-    oldToken.revokedAt = new Date();
     oldToken.replacedByTokenId = newEntity.id;
-    oldToken.lastUsedAt = new Date();
     await this.refreshTokenRepository.save(oldToken);
 
     return { rawToken, entity: newEntity };

@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Post,
   Req,
@@ -26,6 +27,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
+  @HttpCode(200)
   register(
     @Body() dto: RegisterDto,
     @Req() req: Request,
@@ -40,6 +42,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @HttpCode(200)
   @UseGuards(AuthThrottleGuard)
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   login(
@@ -56,6 +59,7 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @HttpCode(200)
   @UseGuards(OriginRefererGuard, AuthThrottleGuard)
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
