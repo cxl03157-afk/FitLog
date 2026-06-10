@@ -58,20 +58,21 @@ type: `feat` / `fix` / `docs` / `refactor` / `test` / `chore`
 - コミット・プッシュを依頼されたとき → 作業ブランチ上にいるか確認する
 - PR 作成を依頼されたとき → Issue 番号を PR に紐付ける
 
-## オーケストレーター運用（Claude が司令塔）
+## Claude Code 単独運用
 
-- **Claude（Cursor）** が計画・Issue・handoff 管理・サブエージェント起動を担う
-- サブエージェント（Codex / Composer）へは `docs/context.md` の内容のみ渡す（4ファイル全読み込み不要）
-- サブエージェントの起動タイミング：
+- **Claude Code（Cursor 拡張）** が計画・実装・レビュー・Issue / handoff 管理をすべて担う
+- 外部サブエージェント（Codex / Composer）は使用しない
+- フェーズの進め方：
 
-  | サブエージェント | 起動タイミング |
-  |----------------|-------------|
-  | Codex | 実装開始前の計画/差分チェック |
-  | Composer | チェック完了後の実装・PR 作成 |
-  | Codex / Claude | PR 作成後のレビュー |
+  | ステップ | 担当 | 内容 |
+  |---------|------|------|
+  | 計画 | Claude Code | docs/context.md を読み、NextAction を1つ提案 |
+  | 実装 | Claude Code | 承認後に実装・テスト・PR 作成 |
+  | セルフレビュー | Claude Code | `/code-review` で diff を確認、指摘を解消 |
+  | マージ | ユーザー承認 | CI グリーン・レビュー承認後にユーザーがマージ |
 
-- サブエージェント完了後、Claude が `docs/context.md` と `docs/handoff.md` を更新してから次フェーズへ進む
 - `docs/context.md` はフェーズ切替時に必ず最新化する（NextAction・Phase・Branch を書き換える）
+- `docs/handoff.md` の更新は **コードと別 PR にする**（コード PR に docs commit を混在させない）
 
 ---
 
