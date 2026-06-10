@@ -274,7 +274,7 @@ GET /api/auth/sessions を実行
 | 属性 | 値 |
 |------|---|
 | HttpOnly | true（JavaScript からアクセス不可） |
-| Secure | true（HTTPS のみ送信） |
+| Secure | 本番: `true`（HTTPS のみ送信）、ローカル開発: `false`（HTTP のため。`NODE_ENV` で切り替え） |
 | SameSite | Strict（CSRF 対策） |
 | Domain | `<本番ドメイン>`（ローカルは localhost） |
 | Path | `/api/auth`（Auth エンドポイントのみ Cookie を送信） |
@@ -305,8 +305,8 @@ GET /api/auth/sessions を実行
 
 | メソッド | エンドポイント | 説明 | 認証 |
 |---|---|---|---|
-| POST | `/api/auth/register` | 新規ユーザー登録 | 不要 |
-| POST | `/api/auth/login` | ログイン・JWT 発行 | 不要 |
+| POST | `/api/auth/register` | 新規ユーザー登録（HTTP 200） | 不要 |
+| POST | `/api/auth/login` | ログイン・JWT 発行（HTTP 200） | 不要 |
 | POST | `/api/auth/refresh` | AccessToken リフレッシュ | Cookie（RefreshToken） |
 | POST | `/api/auth/logout` | ログアウト・RefreshToken 無効化 | 必要 |
 | GET | `/api/auth/sessions` | ログイン中セッション一覧 | 必要 |
