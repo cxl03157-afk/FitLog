@@ -274,7 +274,7 @@ GET /api/auth/sessions を実行
 | 属性 | 値 |
 |------|---|
 | HttpOnly | true（JavaScript からアクセス不可） |
-| Secure | true（HTTPS のみ送信） |
+| Secure | 本番: `true`（HTTPS のみ送信）、ローカル開発: `false`（HTTP のため。`NODE_ENV` で切り替え） |
 | SameSite | Strict（CSRF 対策） |
 | Domain | `<本番ドメイン>`（ローカルは localhost） |
 | Path | `/api/auth`（Auth エンドポイントのみ Cookie を送信） |

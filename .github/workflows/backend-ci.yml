@@ -17,6 +17,31 @@ jobs:
     name: Lint, Type Check & Test
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: fitlog
+          POSTGRES_PASSWORD: fitlog
+          POSTGRES_DB: fitlog
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U fitlog -d fitlog"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: fitlog
+      DB_PASSWORD: fitlog
+      DB_NAME: fitlog
+      JWT_SECRET: test-secret
+      FRONTEND_ORIGIN: http://localhost:5173
+      NODE_ENV: test
+
     steps:
       - uses: actions/checkout@v4
 
@@ -39,6 +64,10 @@ jobs:
         working-directory: backend
         run: npx tsc --noEmit
 
+      - name: Run migrations
+        working-directory: backend
+        run: npm run migration:run
+
       - name: Test
         working-directory: backend
-        run: npm test -- --passWithNoTests
+        run: npm test
