@@ -1,16 +1,13 @@
 # Agent Handoff
 
 ## CurrentPhase
-- Phase 3 in progress (local development environment setup)
-- Issue #6 open; branch `feature/issue-6-phase3-dev-env` created from `main`
+- Phase 4 in progress: 認証API実装（Issue #8）
+- Phase 3 complete: PR #7 merged, Issue #6 closed
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Phase 3 Issue #6 を作成した
-- `feature/issue-6-phase3-dev-env` ブランチを `main` から作成した
-- 実装完了・コミット済み（commit: 06cdf91）
-- Phase 2 の成果物（`mock/`）と運用ルールは `main` に取り込み済み
-- PR #7 作成済み（レビュー・CI 確認待ち）
+- Issue #8 を作成し `feature/issue-8-phase4-auth` ブランチで実装中
+- TypeORM 接続・CORS・users/refresh_tokens マイグレーション・AuthModule を実装予定
 
 ## SourceOfTruthOrder
 1. `CLAUDE.md` (workflow and guardrails)
@@ -41,41 +38,44 @@
 - Mock auth stores registered users in `registeredUsers` / `accounts`; register requires password confirmation.
 - [Phase 3] `docker-compose.yml` は PostgreSQL 17 のみ。LocalStack は Phase 9 で追加する。
 - [Phase 3] CI 完了条件は Lint + 型チェック + テスト（Jest/Vitest）まで含む。
-- [Phase 3] `backend/` には TypeORM パッケージ導入 + DataSource 設定ファイルの雛形まで置く（DB 実接続は Phase 4）。
 - [Phase 3] Node 22 は CI で強制する（`actions/setup-node@v4` + `.nvmrc`）。
 - [Phase 3] Tailwind CSS は v3（`tailwind.config.js` + `postcss.config.js`）で導入する。
+- [Phase 4] Cookie: HttpOnly, SameSite=Strict, Path=/api/auth; Secure は NODE_ENV で切り替え。
+- [Phase 4] DELETE /api/auth/sessions は現在端末を除く全セッションを無効化。
+- [Phase 4] レート制限: login 10回/分、refresh 20回/分（IP + email）。
+- [Phase 4] トークン削除保持期間: revoked_at / expires_at から 30 日後。
+- [Phase 4] 監査ログ: NestJS Logger JSON 形式。機微情報マスキング必須。
 
 ## OpenQuestions
 - (none)
 
 ## ReviewStatus
-- Status: レビュー完了（Codex 承認済み）
-- Scope: Phase 3（`frontend/`, `backend/`, `docker-compose.yml`, `.github/workflows/`）
+- Status: 未着手（実装中）
+- Scope: Phase 4（`backend/` 認証 API）
 - ReviewFocus:
-  - フロント・バック両方で `npm run lint` / `npm test` がパスすること
-  - `docker compose up -d` で PostgreSQL 17 + LocalStack が起動すること
-  - GitHub Actions CI（backend-ci / frontend-ci）がグリーンになること
-  - `.env.example` に必要な環境変数が全て記載されていること
+  - POST /api/auth/register / login / refresh が正常動作すること
+  - DB チェックリスト（users / refresh_tokens）全項目が満たされていること
+  - CORS・レート制限・監査ログが実装されていること
+  - Jest ユニットテスト + 統合テストがすべてパスすること
+  - `npm run lint` がエラーなしで通過すること
 - ExitCriteria:
   - CI グリーン
   - 指摘対応完了
   - レビュー承認
 
 ## MergeReadiness
-- ReviewApproved: true（Codex 承認済み）
-- CIGreen: true（backend-ci / frontend-ci グリーン確認済み）
-- IssueLinkValid (`Closes #...`): true（PR #7 に `Closes #6` 記載済み）
-- ReadyToMerge: true
+- ReviewApproved: false
+- CIGreen: false
+- IssueLinkValid (`Closes #...`): false
+- ReadyToMerge: false
 
 ## NextAction
-- PR #7 を main にマージする（ReadyToMerge: true）。
+AuthModule 実装（register / login / refresh / logout / sessions）と Jest テストを完了し、lint/test を通過させる。
 
 ## References
 - Plan（全体）: `/Users/user/.claude/plans/it-fitlog-er-noble-river.md`
-- Plan（Phase 3 詳細）: `/Users/user/.cursor/plans/phase_3_dev_env_plan_86ceed28.plan.md`
-- Issue: `#6` (Phase 3: ローカル開発環境構築)
-- PR: `#4` (Phase 2 mock — merged, `Closes #3`)
-- Branch: `feature/issue-6-phase3-dev-env`
+- Issue: `#8` (Phase 4: 認証API実装)
+- Branch: `feature/issue-8-phase4-auth`
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules
