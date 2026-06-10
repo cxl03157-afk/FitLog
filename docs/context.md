@@ -5,10 +5,10 @@
 
 ## 現状スナップショット
 
-- Phase: **4 完了**（認証API実装・PR #9 マージ済み）/ **Issue #10 進行中**（ドキュメント移行）
-- Issue: **#10**
-- Branch: `docs/issue-10-claude-code-workflow`
-- Status: 運用ドキュメントを Claude Code 単独運用に書き換え中・PR 作成待ち
+- Phase: **4 完了**・**Issue #10 完了**（ドキュメント移行・PR #11 マージ済み）
+- Issue: 次フェーズ未発行
+- Branch: `main`
+- Status: Phase 5 計画待ち
 
 ## 技術スタック
 
@@ -32,7 +32,7 @@
 
 ## NextAction
 
-PR #10（docs/issue-10-claude-code-workflow）をユーザー承認後マージし、Phase 5 の計画を開始する。
+Phase 5（バックエンド API 作成）の計画を開始する。
 
 ## 参照ファイル（詳細確認が必要な場合）
 
@@ -41,4 +41,4 @@ PR #10（docs/issue-10-claude-code-workflow）をユーザー承認後マージ�
 - 認証仕様: `docs/features/01_auth.md`
 - DB 設計: `docs/database.md`
 - 状態詳細: `docs/handoff.md`
-- Issue: https://github.com/cxl03157-afk/FitLog/issues/10
+- Issue: 次フェーズ発行後に更新

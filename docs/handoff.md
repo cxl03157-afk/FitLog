@@ -6,8 +6,9 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #8 完了・PR #9 マージ済み
-- Issue #10: 運用ドキュメント書き換え中（docs/issue-10-claude-code-workflow ブランチ）
+- Issue #8 完了・PR #9 マージ済み（2026-06-10）
+- Issue #10 完了・PR #11 マージ済み（2026-06-10）
+- 次フェーズ（Phase 5）計画待ち
 
 ## SourceOfTruthOrder
 1. `CLAUDE.md` (workflow and guardrails)
@@ -50,23 +51,18 @@
 - (none)
 
 ## ReviewStatus
-- Status: セルフレビュー済み（Claude Code）
-- Scope: Issue #10（ドキュメント運用移行）
-- 確認済み: 多エージェント記述の削除・Claude Code 単独運用への統一
+- Status: Phase 5 未開始
 
 ## MergeReadiness
-- ReviewApproved: セルフレビュー済み
-- CIGreen: N/A（docs-only PR のため Backend / Frontend CI 非対象）
-- IssueLinkValid (`Closes #...`): true（Closes #10）
-- ReadyToMerge: ユーザー承認待ち
+- N/A（Phase 5 未開始）
 
 ## NextAction
-PR #10（docs/issue-10-claude-code-workflow）をマージ後、Phase 5 の計画を開始する。
+Phase 5（バックエンド API 作成）の Issue を発行し、計画を開始する。
 
 ## References
-- Plan（全体）: `/Users/user/.claude/plans/it-fitlog-er-noble-river.md`
-- Issue: `#10` (運用ドキュメント書き換え)
-- Branch: `docs/issue-10-claude-code-workflow`
+- Plan（全体）: `docs/phase-roadmap.md`
+- Issue: 次フェーズ発行後に更新
+- Branch: `main`
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules
