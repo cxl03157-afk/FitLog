@@ -1,0 +1,29 @@
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
+import { StatsService } from './stats.service';
+
+@Controller('stats')
+@UseGuards(JwtAuthGuard)
+export class StatsController {
+  constructor(private readonly statsService: StatsService) {}
+
+  @Get('weekly')
+  getWeeklyStats(@CurrentUser() user: JwtPayload) {
+    return this.statsService.getWeeklyStats(user.sub);
+  }
+
+  @Get('monthly')
+  getMonthlyStats(@CurrentUser() user: JwtPayload) {
+    return this.statsService.getMonthlyStats(user.sub);
+  }
+
+  @Get('exercise/:exerciseId')
+  getExerciseStats(
+    @Param('exerciseId') exerciseId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.statsService.getExerciseStats(user.sub, exerciseId);
+  }
+}
