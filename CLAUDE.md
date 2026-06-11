@@ -46,12 +46,12 @@ type: `feat` / `fix` / `docs` / `refactor` / `test` / `chore`
 ## Git安全運用（stash衝突防止）
 
 - 退避の第一選択は `stash` ではなく「作業ブランチへの WIP コミット」にする
-- `stash` を使う場合は必ずメッセージ付きで保存する（例: `git stash push -u -m "wip: ..."`）
+- **`stash` を使う場合はユーザーへ承認確認を行う**（意図が不明確なら WIP コミットで代替）
+- `stash` を使う場合は必ずメッセージ付きで保存する（`git stash push -m "wip: ..."` 必須）
 - 既存の作業ブランチで `git stash apply` / `git stash pop` を直接実行しない
-- `stash` を展開するときは `git stash branch <branch-name> stash@{n}` を優先し、別ブランチで確認する
+- `stash pop` は禁止。展開は `git stash branch temp/<name> stash@{n}` で別ブランチに出してから確認する
 - `stash` 適用前に `git status --porcelain` が空（クリーン）であることを必ず確認する
 - 未追跡ファイルがある状態で `stash` を適用しない
-- `stash pop` は禁止し、`apply` で確認後に問題なければ `drop` する
 - 作業終了時は `git status` が意図どおり（コミット済み or 変更保留を明示）か確認してからブランチを離れる
 
 ## エージェントがこのルールを適用するタイミング
@@ -123,3 +123,17 @@ type: `feat` / `fix` / `docs` / `refactor` / `test` / `chore`
 | バックエンド統合テスト | Jest | `cd backend && npx jest --config ./test/jest-integration.json --runInBand --forceExit` |
 | フロントエンドユニットテスト | Vitest | `cd frontend && npm test` |
 | E2E テスト | Playwright | `cd frontend && npx playwright test` |
+
+### バックエンドコミット前チェックリスト
+
+バックエンドの変更をコミットする前に以下の順でパスさせること：
+
+```bash
+cd backend && npm run lint   # 1. lint
+cd backend && npm test       # 2. テスト
+cd backend && npm run build  # 3. TS 型チェック（必須）
+```
+
+- **lint + test が通っただけで CI グリーン相当と判断しない**
+- ts-jest は型チェックを部分的にスキップするため `npm run build` でしか検出できないエラーがある
+  （例: TS1272 isolatedModules エラー、TS2559 TypeORM relations 型エラー）
