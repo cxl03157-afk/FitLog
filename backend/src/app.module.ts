@@ -6,7 +6,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { CommentsModule } from './comments/comments.module';
+import { ExerciseSetsModule } from './exercise-sets/exercise-sets.module';
+import { ExercisesModule } from './exercises/exercises.module';
+import { FollowsModule } from './follows/follows.module';
+import { GoalsModule } from './goals/goals.module';
+import { LikesModule } from './likes/likes.module';
+import { StatsModule } from './stats/stats.module';
 import { UsersModule } from './users/users.module';
+import { WorkoutExercisesModule } from './workout-exercises/workout-exercises.module';
+import { WorkoutPostsModule } from './workout-posts/workout-posts.module';
 
 @Module({
   imports: [
@@ -36,6 +45,15 @@ import { UsersModule } from './users/users.module';
     ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
+    ExercisesModule,
+    WorkoutPostsModule,
+    WorkoutExercisesModule,
+    ExerciseSetsModule,
+    CommentsModule,
+    LikesModule,
+    FollowsModule,
+    GoalsModule,
+    StatsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
