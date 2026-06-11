@@ -14,7 +14,7 @@ const mockSet = (postUserId = 'user1') =>
     workoutExercise: {
       workoutPost: { userId: postUserId },
     },
-  }) as any;
+  }) as unknown as ExerciseSet;
 
 describe('ExerciseSetsService', () => {
   let service: ExerciseSetsService;
@@ -52,7 +52,9 @@ describe('ExerciseSetsService', () => {
 
     it('updates set when owner', async () => {
       const set = mockSet('user1');
-      repository.findOne.mockResolvedValueOnce(set).mockResolvedValueOnce({ ...set, reps: 5 });
+      repository.findOne
+        .mockResolvedValueOnce(set)
+        .mockResolvedValueOnce({ ...set, reps: 5 });
       repository.update.mockResolvedValue(undefined);
 
       const result = await service.update('1', { reps: 5 }, 'user1');
@@ -66,7 +68,9 @@ describe('ExerciseSetsService', () => {
     it('throws ForbiddenException when deleting another user set', async () => {
       repository.findOne.mockResolvedValue(mockSet('user2'));
 
-      await expect(service.remove('1', 'user1')).rejects.toThrow(ForbiddenException);
+      await expect(service.remove('1', 'user1')).rejects.toThrow(
+        ForbiddenException,
+      );
     });
 
     it('deletes set when owner', async () => {

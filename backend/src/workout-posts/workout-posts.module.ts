@@ -7,7 +7,9 @@ import { WorkoutPostsController } from './workout-posts.controller';
 import { WorkoutPostsService } from './workout-posts.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([WorkoutPost, WorkoutExercise, ExerciseSet])],
+  imports: [
+    TypeOrmModule.forFeature([WorkoutPost, WorkoutExercise, ExerciseSet]),
+  ],
   controllers: [WorkoutPostsController],
   providers: [WorkoutPostsService],
   exports: [WorkoutPostsService],

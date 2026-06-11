@@ -5,14 +5,13 @@ import { Repository } from 'typeorm';
 import { Exercise } from './entities/exercise.entity';
 import { ExercisesService } from './exercises.service';
 
-const mockExercise = (): Exercise =>
-  ({
-    id: '1',
-    name: 'ベンチプレス',
-    category: '胸',
-    description: null,
-    createdAt: new Date(),
-  }) as Exercise;
+const mockExercise = (): Exercise => ({
+  id: '1',
+  name: 'ベンチプレス',
+  category: '胸',
+  description: null,
+  createdAt: new Date(),
+});
 
 describe('ExercisesService', () => {
   let service: ExercisesService;
@@ -44,7 +43,9 @@ describe('ExercisesService', () => {
       const result = await service.findAll();
 
       expect(result).toEqual(exercises);
-      expect(repository.find).toHaveBeenCalledWith({ order: { name: 'ASC' } });
+      expect(repository.find.mock.calls[0][0]).toEqual({
+        order: { name: 'ASC' },
+      });
     });
   });
 

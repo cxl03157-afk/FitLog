@@ -19,7 +19,16 @@ export class ExerciseSet {
   @Column({ type: 'int', name: 'set_number' })
   setNumber: number;
 
-  @Column({ type: 'decimal', precision: 6, scale: 2, name: 'weight_kg' })
+  @Column({
+    type: 'decimal',
+    precision: 6,
+    scale: 2,
+    name: 'weight_kg',
+    transformer: {
+      to: (v: number) => v,
+      from: (v: string | null) => (v == null ? v : parseFloat(v)),
+    },
+  })
   weightKg: number;
 
   @Column({ type: 'int' })

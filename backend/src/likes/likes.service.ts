@@ -18,7 +18,9 @@ export class LikesService {
   ) {}
 
   private async assertPostExists(postId: string): Promise<void> {
-    const post = await this.workoutPostRepository.findOne({ where: { id: postId } });
+    const post = await this.workoutPostRepository.findOne({
+      where: { id: postId },
+    });
     if (!post) {
       throw new NotFoundException(`WorkoutPost ${postId} not found`);
     }
@@ -30,7 +32,10 @@ export class LikesService {
     try {
       return await this.likeRepository.save(like);
     } catch (err) {
-      if (err instanceof QueryFailedError && (err as any).code === '23505') {
+      if (
+        err instanceof QueryFailedError &&
+        (err as QueryFailedError & { code: string }).code === '23505'
+      ) {
         throw new ConflictException('Already liked this post');
       }
       throw err;

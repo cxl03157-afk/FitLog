@@ -54,7 +54,10 @@ export class WorkoutPostsService {
   async findOne(id: string): Promise<WorkoutPost> {
     const post = await this.workoutPostRepository.findOne({
       where: { id },
-      relations: ['user', 'workoutExercises', 'workoutExercises.exercise', 'workoutExercises.sets'],
+      relations: {
+        user: true,
+        workoutExercises: { exercise: true, sets: true },
+      },
     });
     if (!post) {
       throw new NotFoundException(`WorkoutPost ${id} not found`);
@@ -62,7 +65,10 @@ export class WorkoutPostsService {
     return post;
   }
 
-  async create(dto: CreateWorkoutPostDto, userId: string): Promise<WorkoutPost> {
+  async create(
+    dto: CreateWorkoutPostDto,
+    userId: string,
+  ): Promise<WorkoutPost> {
     return this.dataSource.transaction(async (manager) => {
       const post = manager.create(WorkoutPost, {
         userId,
@@ -104,12 +110,13 @@ export class WorkoutPostsService {
   ): Promise<WorkoutPost> {
     const post = await this.findOne(id);
     if (post.userId !== userId) {
-      throw new ForbiddenException('Cannot update another user\'s post');
+      throw new ForbiddenException("Cannot update another user's post");
     }
     await this.workoutPostRepository.update(id, {
       ...(dto.title !== undefined && { title: dto.title }),
       ...(dto.note !== undefined && { note: dto.note }),
       ...(dto.trainedOn !== undefined && { trainedOn: dto.trainedOn }),
+      updatedAt: new Date(),
     });
     return this.findOne(id);
   }
@@ -117,7 +124,7 @@ export class WorkoutPostsService {
   async remove(id: string, userId: string): Promise<void> {
     const post = await this.findOne(id);
     if (post.userId !== userId) {
-      throw new ForbiddenException('Cannot delete another user\'s post');
+      throw new ForbiddenException("Cannot delete another user's post");
     }
     await this.workoutPostRepository.delete(id);
   }

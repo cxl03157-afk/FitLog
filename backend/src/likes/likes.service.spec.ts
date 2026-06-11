@@ -8,11 +8,23 @@ import { LikesService } from './likes.service';
 
 describe('LikesService', () => {
   let service: LikesService;
-  let likeRepo: { findOne: jest.Mock; create: jest.Mock; save: jest.Mock; delete: jest.Mock; count: jest.Mock };
+  let likeRepo: {
+    findOne: jest.Mock;
+    create: jest.Mock;
+    save: jest.Mock;
+    delete: jest.Mock;
+    count: jest.Mock;
+  };
   let postRepo: { findOne: jest.Mock };
 
   beforeEach(async () => {
-    likeRepo = { findOne: jest.fn(), create: jest.fn(), save: jest.fn(), delete: jest.fn(), count: jest.fn() };
+    likeRepo = {
+      findOne: jest.fn(),
+      create: jest.fn(),
+      save: jest.fn(),
+      delete: jest.fn(),
+      count: jest.fn(),
+    };
     postRepo = { findOne: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -30,17 +42,21 @@ describe('LikesService', () => {
     it('throws NotFoundException when post not found', async () => {
       postRepo.findOne.mockResolvedValue(null);
 
-      await expect(service.add('999', 'user1')).rejects.toThrow(NotFoundException);
+      await expect(service.add('999', 'user1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('throws ConflictException on duplicate like', async () => {
       postRepo.findOne.mockResolvedValue({ id: '1' });
       likeRepo.create.mockReturnValue({});
       const err = new QueryFailedError('', [], new Error());
-      (err as any).code = '23505';
+      Object.assign(err, { code: '23505' });
       likeRepo.save.mockRejectedValue(err);
 
-      await expect(service.add('1', 'user1')).rejects.toThrow(ConflictException);
+      await expect(service.add('1', 'user1')).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('creates like successfully', async () => {

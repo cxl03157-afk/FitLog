@@ -29,9 +29,15 @@ export class StatsService {
   async getWeeklyStats(userId: string): Promise<PeriodStat[]> {
     const rows = await this.workoutPostRepository
       .createQueryBuilder('post')
-      .select("TO_CHAR(DATE_TRUNC('week', post.trained_on), 'YYYY-MM-DD')", 'period')
+      .select(
+        "TO_CHAR(DATE_TRUNC('week', post.trained_on), 'YYYY-MM-DD')",
+        'period',
+      )
       .addSelect('COUNT(DISTINCT post.id)::int', 'postCount')
-      .addSelect('COALESCE(SUM(es.weight_kg * es.reps), 0)::float', 'totalVolume')
+      .addSelect(
+        'COALESCE(SUM(es.weight_kg * es.reps), 0)::float',
+        'totalVolume',
+      )
       .leftJoin('post.workoutExercises', 'we')
       .leftJoin('we.sets', 'es')
       .where('post.user_id = :userId', { userId })
@@ -46,9 +52,15 @@ export class StatsService {
   async getMonthlyStats(userId: string): Promise<PeriodStat[]> {
     const rows = await this.workoutPostRepository
       .createQueryBuilder('post')
-      .select("TO_CHAR(DATE_TRUNC('month', post.trained_on), 'YYYY-MM')", 'period')
+      .select(
+        "TO_CHAR(DATE_TRUNC('month', post.trained_on), 'YYYY-MM')",
+        'period',
+      )
       .addSelect('COUNT(DISTINCT post.id)::int', 'postCount')
-      .addSelect('COALESCE(SUM(es.weight_kg * es.reps), 0)::float', 'totalVolume')
+      .addSelect(
+        'COALESCE(SUM(es.weight_kg * es.reps), 0)::float',
+        'totalVolume',
+      )
       .leftJoin('post.workoutExercises', 'we')
       .leftJoin('we.sets', 'es')
       .where('post.user_id = :userId', { userId })
@@ -60,7 +72,10 @@ export class StatsService {
     return rows;
   }
 
-  async getExerciseStats(userId: string, exerciseId: string): Promise<ExerciseStat[]> {
+  async getExerciseStats(
+    userId: string,
+    exerciseId: string,
+  ): Promise<ExerciseStat[]> {
     const rows = await this.exerciseSetRepository
       .createQueryBuilder('es')
       .select('we.exercise_id', 'exerciseId')

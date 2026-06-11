@@ -1,4 +1,8 @@
-import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { QueryFailedError } from 'typeorm';
@@ -8,11 +12,23 @@ import { FollowsService } from './follows.service';
 
 describe('FollowsService', () => {
   let service: FollowsService;
-  let followRepo: { findOne: jest.Mock; create: jest.Mock; save: jest.Mock; delete: jest.Mock; find: jest.Mock };
+  let followRepo: {
+    findOne: jest.Mock;
+    create: jest.Mock;
+    save: jest.Mock;
+    delete: jest.Mock;
+    find: jest.Mock;
+  };
   let usersService: { findById: jest.Mock };
 
   beforeEach(async () => {
-    followRepo = { findOne: jest.fn(), create: jest.fn(), save: jest.fn(), delete: jest.fn(), find: jest.fn() };
+    followRepo = {
+      findOne: jest.fn(),
+      create: jest.fn(),
+      save: jest.fn(),
+      delete: jest.fn(),
+      find: jest.fn(),
+    };
     usersService = { findById: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -28,17 +44,21 @@ describe('FollowsService', () => {
 
   describe('follow', () => {
     it('throws BadRequestException when following self', async () => {
-      await expect(service.follow('user1', 'user1')).rejects.toThrow(BadRequestException);
+      await expect(service.follow('user1', 'user1')).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('throws ConflictException on duplicate follow', async () => {
       usersService.findById.mockResolvedValue({ id: 'user2' });
       followRepo.create.mockReturnValue({});
       const err = new QueryFailedError('', [], new Error());
-      (err as any).code = '23505';
+      Object.assign(err, { code: '23505' });
       followRepo.save.mockRejectedValue(err);
 
-      await expect(service.follow('user2', 'user1')).rejects.toThrow(ConflictException);
+      await expect(service.follow('user2', 'user1')).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('creates follow relationship successfully', async () => {
@@ -58,7 +78,9 @@ describe('FollowsService', () => {
       usersService.findById.mockResolvedValue({ id: 'user2' });
       followRepo.findOne.mockResolvedValue(null);
 
-      await expect(service.unfollow('user2', 'user1')).rejects.toThrow(NotFoundException);
+      await expect(service.unfollow('user2', 'user1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

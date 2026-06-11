@@ -28,13 +28,15 @@ export class WorkoutExercisesService {
   ): Promise<ExerciseSet> {
     const we = await this.workoutExerciseRepository.findOne({
       where: { id: workoutExerciseId },
-      relations: ['workoutPost'],
+      relations: { workoutPost: true },
     });
     if (!we) {
-      throw new NotFoundException(`WorkoutExercise ${workoutExerciseId} not found`);
+      throw new NotFoundException(
+        `WorkoutExercise ${workoutExerciseId} not found`,
+      );
     }
     if (we.workoutPost.userId !== userId) {
-      throw new ForbiddenException('Cannot add set to another user\'s exercise');
+      throw new ForbiddenException("Cannot add set to another user's exercise");
     }
 
     const set = this.exerciseSetRepository.create({

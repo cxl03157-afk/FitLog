@@ -22,7 +22,7 @@ export class GoalsService {
     if (status) where['status'] = status;
     return this.goalRepository.find({
       where,
-      relations: ['exercise'],
+      relations: { exercise: true },
       order: { createdAt: 'DESC' },
     });
   }
@@ -42,7 +42,8 @@ export class GoalsService {
   async update(id: string, dto: UpdateGoalDto, userId: string): Promise<Goal> {
     const goal = await this.goalRepository.findOne({ where: { id } });
     if (!goal) throw new NotFoundException(`Goal ${id} not found`);
-    if (goal.userId !== userId) throw new ForbiddenException('Cannot update another user\'s goal');
+    if (goal.userId !== userId)
+      throw new ForbiddenException("Cannot update another user's goal");
     if (goal.status !== 'IN_PROGRESS') {
       throw new BadRequestException('Cannot update a completed goal');
     }
@@ -55,13 +56,17 @@ export class GoalsService {
     if (dto.deadline !== undefined) updates.deadline = dto.deadline;
 
     await this.goalRepository.update(id, updates);
-    return this.goalRepository.findOne({ where: { id }, relations: ['exercise'] }) as Promise<Goal>;
+    return this.goalRepository.findOne({
+      where: { id },
+      relations: { exercise: true },
+    }) as Promise<Goal>;
   }
 
   async remove(id: string, userId: string): Promise<void> {
     const goal = await this.goalRepository.findOne({ where: { id } });
     if (!goal) throw new NotFoundException(`Goal ${id} not found`);
-    if (goal.userId !== userId) throw new ForbiddenException('Cannot delete another user\'s goal');
+    if (goal.userId !== userId)
+      throw new ForbiddenException("Cannot delete another user's goal");
     await this.goalRepository.delete(id);
   }
 }

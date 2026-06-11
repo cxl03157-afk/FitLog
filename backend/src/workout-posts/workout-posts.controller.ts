@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
+import type { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 import { CreateWorkoutPostDto } from './dto/create-workout-post.dto';
 import { QueryWorkoutPostsDto } from './dto/query-workout-posts.dto';
 import { UpdateWorkoutPostDto } from './dto/update-workout-post.dto';

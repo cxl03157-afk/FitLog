@@ -18,7 +18,7 @@ export class ExerciseSetsService {
   private async findOneWithOwnership(id: string): Promise<ExerciseSet> {
     const set = await this.exerciseSetRepository.findOne({
       where: { id },
-      relations: ['workoutExercise', 'workoutExercise.workoutPost'],
+      relations: { workoutExercise: { workoutPost: true } },
     });
     if (!set) {
       throw new NotFoundException(`ExerciseSet ${id} not found`);
@@ -26,10 +26,14 @@ export class ExerciseSetsService {
     return set;
   }
 
-  async update(id: string, dto: UpdateSetDto, userId: string): Promise<ExerciseSet> {
+  async update(
+    id: string,
+    dto: UpdateSetDto,
+    userId: string,
+  ): Promise<ExerciseSet> {
     const set = await this.findOneWithOwnership(id);
     if (set.workoutExercise.workoutPost.userId !== userId) {
-      throw new ForbiddenException('Cannot update another user\'s set');
+      throw new ForbiddenException("Cannot update another user's set");
     }
     await this.exerciseSetRepository.update(id, {
       ...(dto.weightKg !== undefined && { weightKg: dto.weightKg }),
@@ -37,13 +41,15 @@ export class ExerciseSetsService {
       ...(dto.isPr !== undefined && { isPr: dto.isPr }),
       ...(dto.memo !== undefined && { memo: dto.memo }),
     });
-    return this.exerciseSetRepository.findOne({ where: { id } }) as Promise<ExerciseSet>;
+    return this.exerciseSetRepository.findOne({
+      where: { id },
+    }) as Promise<ExerciseSet>;
   }
 
   async remove(id: string, userId: string): Promise<void> {
     const set = await this.findOneWithOwnership(id);
     if (set.workoutExercise.workoutPost.userId !== userId) {
-      throw new ForbiddenException('Cannot delete another user\'s set');
+      throw new ForbiddenException("Cannot delete another user's set");
     }
     await this.exerciseSetRepository.delete(id);
   }

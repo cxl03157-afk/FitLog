@@ -7,11 +7,23 @@ import { CommentsService } from './comments.service';
 
 describe('CommentsService', () => {
   let service: CommentsService;
-  let commentRepo: { find: jest.Mock; findOne: jest.Mock; create: jest.Mock; save: jest.Mock; delete: jest.Mock };
+  let commentRepo: {
+    find: jest.Mock;
+    findOne: jest.Mock;
+    create: jest.Mock;
+    save: jest.Mock;
+    delete: jest.Mock;
+  };
   let postRepo: { findOne: jest.Mock };
 
   beforeEach(async () => {
-    commentRepo = { find: jest.fn(), findOne: jest.fn(), create: jest.fn(), save: jest.fn(), delete: jest.fn() };
+    commentRepo = {
+      find: jest.fn(),
+      findOne: jest.fn(),
+      create: jest.fn(),
+      save: jest.fn(),
+      delete: jest.fn(),
+    };
     postRepo = { findOne: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -29,7 +41,9 @@ describe('CommentsService', () => {
     it('throws NotFoundException when post not found', async () => {
       postRepo.findOne.mockResolvedValue(null);
 
-      await expect(service.findByPost('999')).rejects.toThrow(NotFoundException);
+      await expect(service.findByPost('999')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('returns comments for post', async () => {
@@ -46,7 +60,9 @@ describe('CommentsService', () => {
     it('throws NotFoundException when comment not found', async () => {
       commentRepo.findOne.mockResolvedValue(null);
 
-      await expect(service.remove('1', 'user1')).rejects.toThrow(NotFoundException);
+      await expect(service.remove('1', 'user1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('throws ForbiddenException when neither comment owner nor post owner', async () => {
@@ -56,7 +72,9 @@ describe('CommentsService', () => {
         workoutPost: { userId: 'user3' },
       });
 
-      await expect(service.remove('1', 'user1')).rejects.toThrow(ForbiddenException);
+      await expect(service.remove('1', 'user1')).rejects.toThrow(
+        ForbiddenException,
+      );
     });
 
     it('deletes comment when comment owner', async () => {

@@ -23,7 +23,17 @@ export class Goal {
   @Column({ type: 'bigint', name: 'exercise_id' })
   exerciseId: string;
 
-  @Column({ type: 'decimal', precision: 6, scale: 2, name: 'target_weight_kg', nullable: true })
+  @Column({
+    type: 'decimal',
+    precision: 6,
+    scale: 2,
+    name: 'target_weight_kg',
+    nullable: true,
+    transformer: {
+      to: (v: number | null) => v,
+      from: (v: string | null) => (v == null ? v : parseFloat(v)),
+    },
+  })
   targetWeightKg: number | null;
 
   @Column({ type: 'int', name: 'target_reps', nullable: true })

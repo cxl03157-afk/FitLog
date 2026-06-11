@@ -27,7 +27,10 @@ export class FollowsService {
     try {
       return await this.followRepository.save(follow);
     } catch (err) {
-      if (err instanceof QueryFailedError && (err as any).code === '23505') {
+      if (
+        err instanceof QueryFailedError &&
+        (err as QueryFailedError & { code: string }).code === '23505'
+      ) {
         throw new ConflictException('Already following this user');
       }
       throw err;
@@ -49,7 +52,7 @@ export class FollowsService {
     await this.usersService.findById(userId);
     return this.followRepository.find({
       where: { followeeId: userId },
-      relations: ['follower'],
+      relations: { follower: true },
       order: { createdAt: 'DESC' },
     });
   }
@@ -58,7 +61,7 @@ export class FollowsService {
     await this.usersService.findById(userId);
     return this.followRepository.find({
       where: { followerId: userId },
-      relations: ['followee'],
+      relations: { followee: true },
       order: { createdAt: 'DESC' },
     });
   }
