@@ -5,10 +5,11 @@
 
 ## 現状スナップショット
 
-- Phase: **4 完了**・**Issue #10 完了**（ドキュメント移行・PR #11 マージ済み）
-- Issue: 次フェーズ未発行
-- Branch: `main`
-- Status: Phase 5 計画待ち
+- Phase: **5 完了**・PR #13 CI グリーン・レビュー待ち（2026-06-11）
+- NextPhase: **5-1**（パーソナルレコード手動登録）
+- Issue: #12（Phase 5 完了）・Phase 5-1 未発行
+- Branch: `feature/issue-12-phase5-backend-api`（PR #13）
+- Status: PR #13 マージ待ち
 
 ## 技術スタック
 
@@ -16,6 +17,15 @@
 - Backend: NestJS + TypeORM + PostgreSQL 17
 - DB: PostgreSQL 17（docker-compose）※ LocalStack は Phase 9
 - CI: GitHub Actions — Lint + 型チェック + Jest/Vitest（Node 22 強制）
+
+## Phase 5 確定決定事項
+
+| 項目 | 決定 |
+|------|------|
+| exercises 認証 | GET /api/exercises は認証必須（@UseGuards(JwtAuthGuard)） |
+| DECIMAL transformer | pg ドライバーが string 返し → TypeORM transformer で parseFloat |
+| updatedAt 明示更新 | repository.update() では @UpdateDateColumn 非発火 → updatedAt: new Date() |
+| limit 上限 | query DTO に @Max(100) 追加（無制限ページサイズ防止） |
 
 ## Phase 4 確定決定事項
 
@@ -32,7 +42,7 @@
 
 ## NextAction
 
-Phase 5（バックエンド API 作成）の計画を開始する。
+PR #13 マージ後、Phase 5-1（パーソナルレコード手動登録）の計画を立ててから Issue を発行する。
 
 ## 参照ファイル（詳細確認が必要な場合）
 
@@ -41,4 +51,4 @@ Phase 5（バックエンド API 作成）の計画を開始する。
 - 認証仕様: `docs/features/01_auth.md`
 - DB 設計: `docs/database.md`
 - 状態詳細: `docs/handoff.md`
-- Issue: 次フェーズ発行後に更新
+- Issue: #12（Phase 5 完了）・Phase 5-1 未発行

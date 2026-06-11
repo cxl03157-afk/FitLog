@@ -13,7 +13,8 @@
 | 2 | 静的プロトタイプ（Mock）作成 | mock/ 11画面 HTML/CSS/JS | 完了 |
 | 3 | ローカル開発環境構築 | docker-compose、ESLint、Jest/Vitest、CI基盤 | 完了 |
 | 4 | バックエンド基盤 + JWT認証 | NestJS 認証モジュール、RefreshToken（セッション単位） | 完了 |
-| 5 | バックエンド API 作成 | 8機能分の migration/Entity/Service/Controller + Jestテスト | 未着手 |
+| 5 | バックエンド API 作成 | 8機能分の migration/Entity/Service/Controller + Jestテスト | 完了 |
+| 5-1 | パーソナルレコード手動登録 | personal_records テーブル新設 + CRUD API | 未着手 |
 | 6 | フロントエンド基盤 | React Router、Axiosクライアント、トークン管理、Context API | 未着手 |
 | 7 | フロントエンド タイムライン・投稿 | タイムライン・投稿作成・投稿詳細画面 | 未着手 |
 | 8 | フロントエンド コメント・ナイス | コメント・ナイス実装、Vitestテスト | 未着手 |
@@ -49,6 +50,41 @@
 | 集計 | GET `/api/stats/weekly`、GET `/api/stats/monthly` |
 
 - 認可テストを必須化（他人データの更新・削除は常に 403/404 で拒否）
+
+---
+
+### Phase 5-1：パーソナルレコード手動登録
+
+ユーザーが自身の個人記録（PR）を手動で登録・編集・削除できる機能を追加する。
+
+**テーブル設計:** `personal_records`（新規 migration 1本）
+
+| カラム | 型 | 備考 |
+|-------|-----|------|
+| id | UUID | PK |
+| user_id | UUID FK | users(id) |
+| exercise_id | UUID FK | exercises(id) |
+| record_type | VARCHAR | `MAX_WEIGHT` / `MAX_REPS` / `MAX_VOLUME` / `ESTIMATED_1RM` |
+| weight_kg | DECIMAL(6,2) | nullable |
+| reps | INT | nullable |
+| achieved_at | DATE | PR 達成日 |
+| note | VARCHAR(200) | nullable |
+| source_exercise_set_id | UUID FK | exercise_sets(id) nullable（元セットとの任意紐付け） |
+| created_at | TIMESTAMP | |
+
+**エンドポイント:**
+
+| メソッド | パス | 概要 |
+|---------|------|------|
+| GET | `/api/personal-records` | PR 一覧（クエリ: `exerciseId?`, `recordType?`） |
+| POST | `/api/personal-records` | PR 登録 |
+| GET | `/api/personal-records/:id` | PR 詳細 |
+| PUT | `/api/personal-records/:id` | PR 更新 |
+| DELETE | `/api/personal-records/:id` | PR 削除 |
+
+- 認証必須（JwtAuthGuard）・所有者チェック必須
+- exercise_sets からの自動 PR 更新はこのフェーズに含めない
+- Jest ユニットテスト + `docs/features/08_personal_record.md` 新規作成が完了条件
 
 ---
 
