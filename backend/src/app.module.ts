@@ -12,6 +12,7 @@ import { ExercisesModule } from './exercises/exercises.module';
 import { FollowsModule } from './follows/follows.module';
 import { GoalsModule } from './goals/goals.module';
 import { LikesModule } from './likes/likes.module';
+import { PersonalRecordsModule } from './personal-records/personal-records.module';
 import { StatsModule } from './stats/stats.module';
 import { UsersModule } from './users/users.module';
 import { WorkoutExercisesModule } from './workout-exercises/workout-exercises.module';
@@ -53,6 +54,7 @@ import { WorkoutPostsModule } from './workout-posts/workout-posts.module';
     LikesModule,
     FollowsModule,
     GoalsModule,
+    PersonalRecordsModule,
     StatsModule,
   ],
   controllers: [AppController],
