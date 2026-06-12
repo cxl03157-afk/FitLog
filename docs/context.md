@@ -5,11 +5,11 @@
 
 ## 現状スナップショット
 
-- Phase: **5 完了**・PR #13 CI グリーン・レビュー待ち（2026-06-11）
-- NextPhase: **5-1**（パーソナルレコード手動登録）
-- Issue: #12（Phase 5 完了）・Phase 5-1 未発行
-- Branch: `feature/issue-12-phase5-backend-api`（PR #13）
-- Status: PR #13 マージ待ち
+- Phase: **5-1 完了**・PR #15 CI グリーン・レビュー待ち（2026-06-12）
+- NextPhase: 未確定（docs/phase-roadmap.md を確認して Phase 6 の内容を確定）
+- Issue: #14（Phase 5-1 完了）
+- Branch: `feature/issue-14-phase5-1-personal-records`（PR #15）
+- Status: PR #15 CI グリーン・レビュー待ち
 
 ## 技術スタック
 
@@ -42,7 +42,8 @@
 
 ## NextAction
 
-PR #13 マージ後、Phase 5-1（パーソナルレコード手動登録）の計画を立ててから Issue を発行する。
+PR #15 CI グリーン確認 → レビュー承認 → マージ。
+マージ後、docs/phase-roadmap.md を確認してまずは計画を提示し、承認を得てから次フェーズの Issue を発行する。
 
 ## 参照ファイル（詳細確認が必要な場合）
 
@@ -51,4 +52,4 @@ PR #13 マージ後、Phase 5-1（パーソナルレコード手動登録）の�
 - 認証仕様: `docs/features/01_auth.md`
 - DB 設計: `docs/database.md`
 - 状態詳細: `docs/handoff.md`
-- Issue: #12（Phase 5 完了）・Phase 5-1 未発行
+- Issue: #14（Phase 5-1 完了）、#12（Phase 5 / 完了）

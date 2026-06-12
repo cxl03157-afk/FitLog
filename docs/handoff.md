@@ -1,14 +1,15 @@
 # Agent Handoff
 
 ## CurrentPhase
-- Phase 5 complete: バックエンド API（Issue #12）PR #13 CI グリーン・レビュー待ち（2026-06-11）
+- Phase 5-1 complete: パーソナルレコード手動登録 API（Issue #14）PR #15 CI グリーン・レビュー待ち（2026-06-12）
+- Phase 5 complete: バックエンド API（Issue #12）PR #13 マージ済み（2026-06-11）
 - Phase 4 complete: 認証API実装（Issue #8）PR #9 merged（2026-06-10）
 - Phase 3 complete: PR #7 merged, Issue #6 closed
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #12 完了・PR #13 CI グリーン・レビュー待ち（2026-06-11）
-- Phase 5-1（パーソナルレコード手動登録）追加決定
+- Issue #14 完了・PR #15 CI グリーン・レビュー待ち（2026-06-12）
+- Issue #12 完了・PR #13 マージ済み（2026-06-11）
 - Issue #8 完了・PR #9 マージ済み（2026-06-10）
 - Issue #10 完了・PR #11 マージ済み（2026-06-10）
 
@@ -57,19 +58,20 @@
 - (none)
 
 ## ReviewStatus
-- Status: PR #13 CI グリーン・レビュー待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
+- Status: PR #15 CI グリーン・レビュー待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
 
 ## MergeReadiness
-- マージ可（lint ✅ / test ✅ / build ✅ / CI ✅ / レビュー承認待ち）
+- レビュー承認待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
 
 ## NextAction
-PR #13 マージ後、Phase 5-1（パーソナルレコード手動登録）の計画を立ててから Issue を発行する。
+PR #15 CI グリーン確認 → レビュー承認 → マージ。
+マージ後、docs/phase-roadmap.md を確認してまずは計画を提示し、承認を得てから次フェーズの Issue を発行する。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
-- Issue: #12（Phase 5）
-- PR: #13（feature/issue-12-phase5-backend-api）
-- Branch: `feature/issue-12-phase5-backend-api`（main へ PR 中）
+- Issue: #14（Phase 5-1）、#12（Phase 5 / 完了）
+- PR: #15（feature/issue-14-phase5-1-personal-records / CI グリーン・レビュー待ち）、#13（マージ済み）
+- Branch: `feature/issue-14-phase5-1-personal-records`（main へ PR 中）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules
