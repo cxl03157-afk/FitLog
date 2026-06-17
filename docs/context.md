@@ -5,11 +5,11 @@
 
 ## 現状スナップショット
 
-- Phase: **6 完了**・PR #17 CI グリーン・レビュー待ち（2026-06-17）
-- NextPhase: Phase 7（フロントエンド タイムライン・投稿機能）
-- Issue: #16（Phase 6 完了）
-- Branch: `feature/issue-16-phase6-frontend-foundation`（PR #17）
-- Status: PR #17 CI グリーン・レビュー待ち
+- Phase: **7 完了**・PR #19 CI グリーン・レビュー待ち（2026-06-17）
+- NextPhase: Phase 7-1（workout-posts レスポンス passwordHash 漏洩修正）
+- Issue: #18（Phase 7 完了）
+- Branch: `feature/issue-18-phase7-timeline-workout-post`（PR #19）
+- Status: PR #19 CI グリーン・レビュー待ち
 
 ## 技術スタック
 
@@ -17,6 +17,16 @@
 - Backend: NestJS + TypeORM + PostgreSQL 17
 - DB: PostgreSQL 17（docker-compose）※ LocalStack は Phase 9
 - CI: GitHub Actions — Lint + 型チェック + Jest/Vitest（Node 22 強制）
+
+## Phase 7 確定決定事項
+
+| 項目 | 決定 |
+|------|------|
+| trainedOn 初期値 | ローカル日付（new Date() のローカルメソッド使用）。toISOString().slice(0,10) は UTC 基準のため不可 |
+| フォロー中タブ | UI は表示、API 呼び出しなし・Phase 10 プレースホルダー表示 |
+| 削除確認 | window.confirm 禁止。showDeleteConfirm state でインライン表示 |
+| workout-posts user 関係 | passwordHash 漏洩あり → Phase 7-1 で修正 |
+| transaction バグ修正 | dataSource.transaction 内で this.findOne() 呼び出し禁止。createdId を外に持ち出してコミット後に呼ぶ |
 
 ## Phase 6 確定決定事項
 
@@ -53,8 +63,8 @@
 
 ## NextAction
 
-PR #17 レビュー承認 → マージ。
-マージ後、Phase 7（タイムライン・投稿）の計画を提示し、承認を得てから Issue を発行する。
+PR #19 レビュー承認 → マージ。
+マージ後、Phase 7-1（passwordHash 漏洩修正）の Issue を発行して実装する。
 
 ## 参照ファイル（詳細確認が必要な場合）
 
@@ -63,4 +73,4 @@ PR #17 レビュー承認 → マージ。
 - 認証仕様: `docs/features/01_auth.md`
 - DB 設計: `docs/database.md`
 - 状態詳細: `docs/handoff.md`
-- Issue: #16（Phase 6 完了）、#14（Phase 5-1 / 完了）、#12（Phase 5 / 完了）
+- Issue: #18（Phase 7 完了）、#16（Phase 6 / 完了）、#14（Phase 5-1 / 完了）、#12（Phase 5 / 完了）

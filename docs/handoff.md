@@ -1,7 +1,8 @@
 # Agent Handoff
 
 ## CurrentPhase
-- Phase 6 complete: フロントエンド基盤（Issue #16）PR #17 CI グリーン・レビュー待ち（2026-06-17）
+- Phase 7 complete: フロントエンド タイムライン・投稿機能（Issue #18）PR #19 CI グリーン・レビュー待ち（2026-06-17）
+- Phase 6 complete: フロントエンド基盤（Issue #16）PR #17 マージ済み（2026-06-17）
 - Phase 5-1 complete: パーソナルレコード手動登録 API（Issue #14）PR #15 マージ済み（2026-06-12）
 - Phase 5 complete: バックエンド API（Issue #12）PR #13 マージ済み（2026-06-11）
 - Phase 4 complete: 認証API実装（Issue #8）PR #9 merged（2026-06-10）
@@ -9,7 +10,8 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #16 完了・PR #17 CI グリーン・レビュー待ち（2026-06-17）
+- Issue #18 完了・PR #19 CI グリーン・レビュー待ち（2026-06-17）
+- Issue #16 完了・PR #17 マージ済み（2026-06-17）
 - Issue #14 完了・PR #15 マージ済み（2026-06-12）
 - Issue #12 完了・PR #13 マージ済み（2026-06-11）
 - Issue #8 完了・PR #9 マージ済み（2026-06-10）
@@ -59,25 +61,30 @@
 - [Phase 6] Axios interceptor: `/api/auth/refresh` 自体への 401 はリトライしない（originalRequest.url チェックで除外）。_retry フラグで同一リクエストの二重リトライも防止。
 - [Phase 6] フロントエンド CI に Build ステップ追加（tsc -b + vite build）。
 - [Phase 6] .env.local が必須（VITE_API_BASE_URL）。新規クローン時は `cp .env.example .env.local`。README に手順追記済み。
+- [Phase 7] trainedOn はローカル日付で初期化（toISOString().slice(0,10) は UTC 基準のため不可）。
+- [Phase 7] フォロー中タブは UI のみ表示。API 呼び出しは Phase 10 まで行わない。
+- [Phase 7] 削除確認は window.confirm 禁止。showDeleteConfirm state でインライン表示。
+- [Phase 7] workout-posts の user リレーションが passwordHash を含む → Phase 7-1 で ClassSerializerInterceptor + @Exclude() により修正予定。
+- [Phase 7] dataSource.transaction(manager) 内で this.xxxRepository を呼ぶと別コネクションが使われ未コミットデータが見えない。createdId をコールバック外に持ち出してコミット後に findOne() を呼ぶ。
 
 ## OpenQuestions
 - (none)
 
 ## ReviewStatus
-- Status: PR #17 CI グリーン・レビュー待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
+- Status: PR #19 CI グリーン・レビュー待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
 
 ## MergeReadiness
 - レビュー承認待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
 
 ## NextAction
-PR #17 レビュー承認 → マージ。
-マージ後、Phase 7（タイムライン・投稿）の計画を提示し、承認を得てから Issue を発行する。
+PR #19 レビュー承認 → マージ。
+マージ後、Phase 7-1（passwordHash 漏洩修正）の Issue を発行して実装する。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
-- Issue: #16（Phase 6）、#14（Phase 5-1 / 完了）、#12（Phase 5 / 完了）
-- PR: #17（feature/issue-16-phase6-frontend-foundation / CI グリーン・レビュー待ち）、#15（マージ済み）
-- Branch: `feature/issue-16-phase6-frontend-foundation`（main へ PR 中）
+- Issue: #18（Phase 7）、#16（Phase 6 / 完了）、#14（Phase 5-1 / 完了）、#12（Phase 5 / 完了）
+- PR: #19（feature/issue-18-phase7-timeline-workout-post / CI グリーン・レビュー待ち）、#17（マージ済み）
+- Branch: `feature/issue-18-phase7-timeline-workout-post`（main へ PR 中）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules

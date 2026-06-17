@@ -14,9 +14,10 @@
 | 3 | ローカル開発環境構築 | docker-compose、ESLint、Jest/Vitest、CI基盤 | 完了 |
 | 4 | バックエンド基盤 + JWT認証 | NestJS 認証モジュール、RefreshToken（セッション単位） | 完了 |
 | 5 | バックエンド API 作成 | 8機能分の migration/Entity/Service/Controller + Jestテスト | 完了 |
-| 5-1 | パーソナルレコード手動登録 | personal_records テーブル新設 + CRUD API | 未着手 |
-| 6 | フロントエンド基盤 | React Router、Axiosクライアント、トークン管理、Context API | 未着手 |
-| 7 | フロントエンド タイムライン・投稿 | タイムライン・投稿作成・投稿詳細画面 | 未着手 |
+| 5-1 | パーソナルレコード手動登録 | personal_records テーブル新設 + CRUD API | 完了 |
+| 6 | フロントエンド基盤 | React Router、Axiosクライアント、トークン管理、Context API | 完了 |
+| 7 | フロントエンド タイムライン・投稿 | タイムライン・投稿作成・投稿詳細画面 | 完了 |
+| 7-1 | workout-posts passwordHash 漏洩修正 | ClassSerializerInterceptor + @Exclude() | 未着手 |
 | 8 | フロントエンド コメント・ナイス | コメント・ナイス実装、Vitestテスト | 未着手 |
 | 9 | S3 画像アップロード | LocalStack/S3統合、投稿・アバター画像API | 未着手 |
 | 10 | フロントエンド フォロー・プロフィール | プロフィール・ユーザー検索・デバイス管理 | 未着手 |
