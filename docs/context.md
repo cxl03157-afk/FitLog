@@ -5,11 +5,11 @@
 
 ## 現状スナップショット
 
-- Phase: **5-1 完了**・PR #15 CI グリーン・レビュー待ち（2026-06-12）
-- NextPhase: 未確定（docs/phase-roadmap.md を確認して Phase 6 の内容を確定）
-- Issue: #14（Phase 5-1 完了）
-- Branch: `feature/issue-14-phase5-1-personal-records`（PR #15）
-- Status: PR #15 CI グリーン・レビュー待ち
+- Phase: **6 完了**・PR #17 CI グリーン・レビュー待ち（2026-06-17）
+- NextPhase: Phase 7（フロントエンド タイムライン・投稿機能）
+- Issue: #16（Phase 6 完了）
+- Branch: `feature/issue-16-phase6-frontend-foundation`（PR #17）
+- Status: PR #17 CI グリーン・レビュー待ち
 
 ## 技術スタック
 
@@ -17,6 +17,17 @@
 - Backend: NestJS + TypeORM + PostgreSQL 17
 - DB: PostgreSQL 17（docker-compose）※ LocalStack は Phase 9
 - CI: GitHub Actions — Lint + 型チェック + Jest/Vitest（Node 22 強制）
+
+## Phase 6 確定決定事項
+
+| 項目 | 決定 |
+|------|------|
+| User 型 | `{ id, username, displayName, email }` の4フィールド（avatarUrl/bio は login/refresh レスポンス非含有のため Phase 10 で追加） |
+| AccessToken 管理 | モジュールスコープ変数（メモリ保持）。setAccessToken / getAccessToken で AuthContext と共有 |
+| ProtectedRoute / GuestRoute | `<Outlet />` パターン（React Router v6） |
+| Axios interceptor | `/api/auth/refresh` への 401 はリトライしない（無限ループ防止） |
+| フロントエンド CI | Lint + Type Check + Test + **Build** ステップ追加 |
+| .env.local | `.env.example` からコピー必須（`VITE_API_BASE_URL=http://localhost:3000`） |
 
 ## Phase 5 確定決定事項
 
@@ -42,8 +53,8 @@
 
 ## NextAction
 
-PR #15 CI グリーン確認 → レビュー承認 → マージ。
-マージ後、docs/phase-roadmap.md を確認してまずは計画を提示し、承認を得てから次フェーズの Issue を発行する。
+PR #17 レビュー承認 → マージ。
+マージ後、Phase 7（タイムライン・投稿）の計画を提示し、承認を得てから Issue を発行する。
 
 ## 参照ファイル（詳細確認が必要な場合）
 
@@ -52,4 +63,4 @@ PR #15 CI グリーン確認 → レビュー承認 → マージ。
 - 認証仕様: `docs/features/01_auth.md`
 - DB 設計: `docs/database.md`
 - 状態詳細: `docs/handoff.md`
-- Issue: #14（Phase 5-1 完了）、#12（Phase 5 / 完了）
+- Issue: #16（Phase 6 完了）、#14（Phase 5-1 / 完了）、#12（Phase 5 / 完了）

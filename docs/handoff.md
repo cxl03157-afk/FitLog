@@ -1,14 +1,16 @@
 # Agent Handoff
 
 ## CurrentPhase
-- Phase 5-1 complete: パーソナルレコード手動登録 API（Issue #14）PR #15 CI グリーン・レビュー待ち（2026-06-12）
+- Phase 6 complete: フロントエンド基盤（Issue #16）PR #17 CI グリーン・レビュー待ち（2026-06-17）
+- Phase 5-1 complete: パーソナルレコード手動登録 API（Issue #14）PR #15 マージ済み（2026-06-12）
 - Phase 5 complete: バックエンド API（Issue #12）PR #13 マージ済み（2026-06-11）
 - Phase 4 complete: 認証API実装（Issue #8）PR #9 merged（2026-06-10）
 - Phase 3 complete: PR #7 merged, Issue #6 closed
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #14 完了・PR #15 CI グリーン・レビュー待ち（2026-06-12）
+- Issue #16 完了・PR #17 CI グリーン・レビュー待ち（2026-06-17）
+- Issue #14 完了・PR #15 マージ済み（2026-06-12）
 - Issue #12 完了・PR #13 マージ済み（2026-06-11）
 - Issue #8 完了・PR #9 マージ済み（2026-06-10）
 - Issue #10 完了・PR #11 マージ済み（2026-06-10）
@@ -53,25 +55,29 @@
 - [Phase 5] DECIMAL 列（weight_kg 等）は pg ドライバーが string を返す → TypeORM transformer で parseFloat。
 - [Phase 5] repository.update() は @UpdateDateColumn を発火しない → updatedAt: new Date() を明示。
 - [Phase 5-1] personal_records テーブルを新設（exercise_sets の is_pr フラグとは独立した CRUD）。source_exercise_set_id は nullable FK で元セットとの紐付けは任意。
+- [Phase 6] User 型は `{ id, username, displayName, email }` の4フィールド。avatarUrl / bio は login/refresh レスポンス非含有のため Phase 10 で追加。
+- [Phase 6] Axios interceptor: `/api/auth/refresh` 自体への 401 はリトライしない（originalRequest.url チェックで除外）。_retry フラグで同一リクエストの二重リトライも防止。
+- [Phase 6] フロントエンド CI に Build ステップ追加（tsc -b + vite build）。
+- [Phase 6] .env.local が必須（VITE_API_BASE_URL）。新規クローン時は `cp .env.example .env.local`。README に手順追記済み。
 
 ## OpenQuestions
 - (none)
 
 ## ReviewStatus
-- Status: PR #15 CI グリーン・レビュー待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
+- Status: PR #17 CI グリーン・レビュー待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
 
 ## MergeReadiness
 - レビュー承認待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
 
 ## NextAction
-PR #15 CI グリーン確認 → レビュー承認 → マージ。
-マージ後、docs/phase-roadmap.md を確認してまずは計画を提示し、承認を得てから次フェーズの Issue を発行する。
+PR #17 レビュー承認 → マージ。
+マージ後、Phase 7（タイムライン・投稿）の計画を提示し、承認を得てから Issue を発行する。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
-- Issue: #14（Phase 5-1）、#12（Phase 5 / 完了）
-- PR: #15（feature/issue-14-phase5-1-personal-records / CI グリーン・レビュー待ち）、#13（マージ済み）
-- Branch: `feature/issue-14-phase5-1-personal-records`（main へ PR 中）
+- Issue: #16（Phase 6）、#14（Phase 5-1 / 完了）、#12（Phase 5 / 完了）
+- PR: #17（feature/issue-16-phase6-frontend-foundation / CI グリーン・レビュー待ち）、#15（マージ済み）
+- Branch: `feature/issue-16-phase6-frontend-foundation`（main へ PR 中）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules

@@ -1,15 +1,23 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
 import App from '../App';
 
-describe('App', () => {
-  it('renders without crashing', () => {
-    render(<App />);
-    expect(document.body).toBeTruthy();
-  });
+vi.mock('../api/auth', () => ({
+  refresh: vi.fn().mockRejectedValue(new Error('no session')),
+  login: vi.fn(),
+  register: vi.fn(),
+  logout: vi.fn(),
+}));
 
-  it('displays Vite-related content', () => {
+beforeEach(() => {
+  window.history.pushState({}, '', '/login');
+});
+
+describe('App', () => {
+  it('renders login page at /login', async () => {
     render(<App />);
-    expect(screen.getAllByText(/vite/i).length).toBeGreaterThan(0);
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: /fitlog/i })).toBeTruthy();
+    });
   });
 });
