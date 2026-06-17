@@ -60,6 +60,7 @@ npm run start:dev
 
 # 4. フロントエンド（Vite） — port 5173
 cd frontend
+cp .env.example .env.local   # 環境変数を設定（初回のみ）
 npm install
 npm run dev
 ```

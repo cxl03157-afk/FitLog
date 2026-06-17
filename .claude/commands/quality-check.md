@@ -26,12 +26,27 @@ npm test
 ### CI向け実行モード
 - [ ] ウォッチモードではなく単発実行で確認すること（ローカル待ち状態でチェックが止まらないようにする）
 
+### ビルド確認（必須）
+```bash
+cd frontend
+npm run build
+```
+`tsc -b` による型チェックを含む。lint + test が通っても build で型エラーが出る場合があるため必須。
+
 ### チェックポイント
 - [ ] `useEffect` の依存配列に漏れがないか
 - [ ] 使われていない型・コンポーネント・ファイルが残っていないか
 - [ ] axios レスポンスに適切なエラーハンドリングがあるか
 - [ ] AccessToken の 401 エラー時に RefreshToken でリトライしているか
 - [ ] httpOnly Cookie の操作を JS から直接行っていないか
+- [ ] `.env.local` が存在し `VITE_API_BASE_URL` 等の必須環境変数が設定されているか（新規クローン時は `cp .env.example .env.local`）
+
+### Axios interceptor チェックポイント
+リフレッシュトークン付き interceptor を実装・変更した場合は以下を必ず確認すること。
+
+- [ ] `/api/auth/refresh` 自体が 401 を返したとき、再度 refresh を呼ばないようにしているか（無限ループ防止）
+- [ ] `_retry` フラグで同一リクエストの二重リトライを防いでいるか
+- [ ] `isRefreshing` フラグで並列 401 リクエストのキューイングを制御しているか
 
 ---
 
@@ -90,3 +105,5 @@ npx tsc --noEmit
 | S3 sync で `images/` 配下のユーザー画像が削除される | `--exclude "images/*"` を必ず付ける。`--dryrun` で事前確認 |
 | CloudFront 経由の `/api/*` エラーが index.html に変換される | CloudFront Function（spaRouting.js）で `/api/*` を除外 |
 | RefreshToken の Cookie が本番で送信されない | `SameSite=Strict`, `Secure=true`, `Domain` を正しく設定する |
+| `.env.local` がなく `VITE_API_BASE_URL` が `undefined` になり API 呼び出しが全て失敗する | 起動前に `cp .env.example .env.local` を実行。または `client.ts` で `if (!baseURL) throw new Error(...)` を入れて起動時に気づけるようにする |
+| Axios interceptor で `/api/auth/refresh` が 401 を返すと無限ループになる | interceptor のスキップ条件に `originalRequest.url === '/api/auth/refresh'` を追加する |
