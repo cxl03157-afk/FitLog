@@ -53,6 +53,7 @@ type: `feat` / `fix` / `docs` / `refactor` / `test` / `chore`
 - `stash` 適用前に `git status --porcelain` が空（クリーン）であることを必ず確認する
 - 未追跡ファイルがある状態で `stash` を適用しない
 - 作業終了時は `git status` が意図どおり（コミット済み or 変更保留を明示）か確認してからブランチを離れる
+- **push 前にも `git status` でクリーン（またはコミット済み）であることを確認する**
 
 ## エージェントがこのルールを適用するタイミング
 
