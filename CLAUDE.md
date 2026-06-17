@@ -53,6 +53,7 @@ type: `feat` / `fix` / `docs` / `refactor` / `test` / `chore`
 - `stash` 適用前に `git status --porcelain` が空（クリーン）であることを必ず確認する
 - 未追跡ファイルがある状態で `stash` を適用しない
 - 作業終了時は `git status` が意図どおり（コミット済み or 変更保留を明示）か確認してからブランチを離れる
+- **push 前にも `git status` でクリーン（またはコミット済み）であることを確認する**
 
 ## エージェントがこのルールを適用するタイミング
 
@@ -69,8 +70,12 @@ type: `feat` / `fix` / `docs` / `refactor` / `test` / `chore`
   | ステップ | 担当 | 内容 |
   |---------|------|------|
   | 計画 | Claude Code | docs/context.md を読み、NextAction を1つ提案 |
+  | Issue 作成 | Claude Code | **Issue 案（タイトル・目的・完了条件）をユーザーへ提示し承認を得てから発行する** |
   | 実装 | Claude Code | 承認後に実装・テスト。**コミット前にユーザーへ diff とメッセージ案を提示し承認を得る** |
+  | テスト報告 | Claude Code | **テスト完了後、ファイル名・ケース名・pass/fail を含む詳細結果をユーザーへ報告する** |
   | セルフレビュー | Claude Code | `/code-review` で diff を確認、指摘を解消 |
+  | PR 作成 | Claude Code | **`git status` でクリーンを確認 → PR 案をユーザーへ提示し承認を得てから作成する** |
+  | docs 更新 | Claude Code | **CI グリーン確認後、docs 更新内容をユーザーへ提示し承認を得てからコミットする** |
   | マージ | ユーザー承認 | CI グリーン・レビュー承認後にユーザーがマージ |
 
 - `docs/context.md` はフェーズ切替時に必ず最新化する（NextAction・Phase・Branch を書き換える）

@@ -17,7 +17,7 @@
 | 5-1 | パーソナルレコード手動登録 | personal_records テーブル新設 + CRUD API | 完了 |
 | 6 | フロントエンド基盤 | React Router、Axiosクライアント、トークン管理、Context API | 完了 |
 | 7 | フロントエンド タイムライン・投稿 | タイムライン・投稿作成・投稿詳細画面 | 完了 |
-| 7-1 | workout-posts passwordHash 漏洩修正 | ClassSerializerInterceptor + @Exclude() | 未着手 |
+| 7-1 | workout-posts passwordHash 漏洩修正 | ClassSerializerInterceptor + @Exclude() | 完了 |
 | 8 | フロントエンド コメント・ナイス | コメント・ナイス実装、Vitestテスト | 未着手 |
 | 9 | S3 画像アップロード | LocalStack/S3統合、投稿・アバター画像API | 未着手 |
 | 10 | フロントエンド フォロー・プロフィール | プロフィール・ユーザー検索・デバイス管理 | 未着手 |
