@@ -137,3 +137,23 @@ cd backend && npm run build  # 3. TS 型チェック（必須）
 - **lint + test が通っただけで CI グリーン相当と判断しない**
 - ts-jest は型チェックを部分的にスキップするため `npm run build` でしか検出できないエラーがある
   （例: TS1272 isolatedModules エラー、TS2559 TypeORM relations 型エラー）
+
+### 新規エンドポイント追加時の追加チェック
+
+create / update / delete 系エンドポイントを新規追加した場合は以下も必須：
+
+1. **統合テストにそのフローを1件追加する**
+   - ユニットテストはリポジトリをモックするため、`dataSource.transaction()` 内の
+     コネクション不整合バグ等は統合テストでしか検出できない
+   - `cd backend && npx jest --config ./test/jest-integration.json --runInBand --forceExit`
+
+2. **Swagger または curl で実際にリクエストを送り、レスポンスを目視確認する**
+   - Swagger UI: `http://localhost:3000/api/docs`
+   - curl 例（create の場合）:
+     ```bash
+     curl -s -X POST http://localhost:3000/api/workout-posts \
+       -H "Authorization: Bearer <token>" \
+       -H "Content-Type: application/json" \
+       -d '{"title":"テスト","trainedOn":"2026-06-17","exercises":[...]}' | jq .
+     ```
+   - レスポンスに期待するリレーション（exercises, sets 等）が含まれているか確認する
