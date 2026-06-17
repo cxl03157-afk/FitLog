@@ -1,7 +1,8 @@
 # Agent Handoff
 
 ## CurrentPhase
-- Phase 7 complete: フロントエンド タイムライン・投稿機能（Issue #18）PR #19 CI グリーン・レビュー待ち（2026-06-17）
+- Phase 7-1 complete: workout-posts passwordHash 漏洩修正（Issue #20）PR #21 CI グリーン・レビュー待ち（2026-06-17）
+- Phase 7 complete: フロントエンド タイムライン・投稿機能（Issue #18）PR #19 マージ済み（2026-06-17）
 - Phase 6 complete: フロントエンド基盤（Issue #16）PR #17 マージ済み（2026-06-17）
 - Phase 5-1 complete: パーソナルレコード手動登録 API（Issue #14）PR #15 マージ済み（2026-06-12）
 - Phase 5 complete: バックエンド API（Issue #12）PR #13 マージ済み（2026-06-11）
@@ -10,7 +11,8 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #18 完了・PR #19 CI グリーン・レビュー待ち（2026-06-17）
+- Issue #20 完了・PR #21 CI グリーン・レビュー待ち（2026-06-17）
+- Issue #18 完了・PR #19 マージ済み（2026-06-17）
 - Issue #16 完了・PR #17 マージ済み（2026-06-17）
 - Issue #14 完了・PR #15 マージ済み（2026-06-12）
 - Issue #12 完了・PR #13 マージ済み（2026-06-11）
@@ -64,27 +66,30 @@
 - [Phase 7] trainedOn はローカル日付で初期化（toISOString().slice(0,10) は UTC 基準のため不可）。
 - [Phase 7] フォロー中タブは UI のみ表示。API 呼び出しは Phase 10 まで行わない。
 - [Phase 7] 削除確認は window.confirm 禁止。showDeleteConfirm state でインライン表示。
-- [Phase 7] workout-posts の user リレーションが passwordHash を含む → Phase 7-1 で ClassSerializerInterceptor + @Exclude() により修正予定。
+- [Phase 7] workout-posts の user リレーションが passwordHash を含む → Phase 7-1 で修正済み。
 - [Phase 7] dataSource.transaction(manager) 内で this.xxxRepository を呼ぶと別コネクションが使われ未コミットデータが見えない。createdId をコールバック外に持ち出してコミット後に findOne() を呼ぶ。
+- [Phase 7-1] User.passwordHash に @Exclude() + WorkoutPostsController に @UseInterceptors(ClassSerializerInterceptor) を適用。グローバル適用は他エンドポイントへの影響リスクのため回避。
+- [Phase 7-1] @Exclude() は class インスタンス（Object.assign(new User(), {...})）でのみ機能。plain object では除外されない。
+- [Phase 7-1] Controller + supertest テストを追加（74件 pass）。ClassSerializerInterceptor は HTTP パイプライン経由でのみ動作するため、Controller メソッド直接呼び出しでは検証不可。
 
 ## OpenQuestions
 - (none)
 
 ## ReviewStatus
-- Status: PR #19 CI グリーン・レビュー待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
+- Status: PR #21 CI グリーン・レビュー待ち（lint ✅ / test 74件 ✅ / build ✅ / CI ✅）
 
 ## MergeReadiness
 - レビュー承認待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
 
 ## NextAction
-PR #19 レビュー承認 → マージ。
-マージ後、Phase 7-1（passwordHash 漏洩修正）の Issue を発行して実装する。
+PR #21 レビュー承認 → マージ。
+マージ後、Phase 8（フロントエンド コメント・ナイス機能）の Issue を発行して実装する。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
-- Issue: #18（Phase 7）、#16（Phase 6 / 完了）、#14（Phase 5-1 / 完了）、#12（Phase 5 / 完了）
-- PR: #19（feature/issue-18-phase7-timeline-workout-post / CI グリーン・レビュー待ち）、#17（マージ済み）
-- Branch: `feature/issue-18-phase7-timeline-workout-post`（main へ PR 中）
+- Issue: #20（Phase 7-1）、#18（Phase 7 / 完了）、#16（Phase 6 / 完了）、#14（Phase 5-1 / 完了）
+- PR: #21（fix/issue-20-phase7-1-password-hash-leak / CI グリーン・レビュー待ち）、#19（マージ済み）
+- Branch: `fix/issue-20-phase7-1-password-hash-leak`（main へ PR 中）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules
