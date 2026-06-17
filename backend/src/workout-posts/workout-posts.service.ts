@@ -69,7 +69,9 @@ export class WorkoutPostsService {
     dto: CreateWorkoutPostDto,
     userId: string,
   ): Promise<WorkoutPost> {
-    return this.dataSource.transaction(async (manager) => {
+    let createdId = '';
+
+    await this.dataSource.transaction(async (manager) => {
       const post = manager.create(WorkoutPost, {
         userId,
         title: dto.title,
@@ -77,6 +79,7 @@ export class WorkoutPostsService {
         trainedOn: dto.trainedOn,
       });
       const savedPost = await manager.save(post);
+      createdId = savedPost.id;
 
       for (const exerciseDto of dto.exercises) {
         const we = manager.create(WorkoutExercise, {
@@ -98,9 +101,9 @@ export class WorkoutPostsService {
           await manager.save(set);
         }
       }
-
-      return this.findOne(savedPost.id);
     });
+
+    return this.findOne(createdId);
   }
 
   async update(
