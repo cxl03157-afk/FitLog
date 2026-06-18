@@ -54,7 +54,22 @@ type: `feat` / `fix` / `docs` / `refactor` / `test` / `chore`
 - `stash` 適用前に `git status --porcelain` が空（クリーン）であることを必ず確認する
 - 未追跡ファイルがある状態で `stash` を適用しない
 - 作業終了時は `git status` が意図どおり（コミット済み or 変更保留を明示）か確認してからブランチを離れる
-- **push 前にも `git status` でクリーン（またはコミット済み）であることを確認する**
+
+### Push 前チェックリスト（すべての push に適用）
+
+push を実行する前に必ず以下を行う：
+
+1. `git status` を実行する
+2. ユーザーへ以下の形式で報告する：
+   ```
+   - git status: 実行済み
+   - ブランチ: <branch名>
+   - 未コミット変更: あり / なし
+   - push 先: origin/<branch名>
+   - push 対象コミット: <commit hash> <commit message>（複数ある場合は列挙）
+   ```
+3. ユーザーの明示承認を得てから push する
+4. 未コミット変更がある場合は原則 push しない。例外がある場合は理由を明示する
 
 ## エージェントがこのルールを適用するタイミング
 
