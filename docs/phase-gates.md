@@ -31,15 +31,21 @@
 ## 3. 終了時チェック（End Gate）
 
 - [ ] フェーズの完了条件を満たしている（IssueのDoD基準）
-- [ ] 検証結果（テスト/確認項目）を記録した
+- [ ] `/quality-check` の「完了報告前チェック」を全項目確認した
+- [ ] テスト結果を規定フォーマット（Backend / Frontend / E2E）で記録した
+- [ ] 失敗・未実施項目がある場合は「未実施」と明記した
 - [ ] `docs/handoff.md` の `CurrentPhase` / `Status` / `NextAction` を更新した
+- [ ] `docs/context.md` の Phase / Branch / Status / NextAction を更新した
+- [ ] `docs/phase-roadmap.md` のフェーズ一覧で当該フェーズのステータスを「未着手」→「完了」に変更した
 - [ ] 次フェーズの開始条件を1-3行で明記した
 - [ ] PR本文に `Closes #<issue>` が入っている
+- [ ] CLAUDE.md の「Push 前チェックリスト」を実施し、ユーザーの承認を得てから push した
 
 ---
 
 ## 4. 切替直前チェック（Handoff Gate）
 
+- [ ] `doc-sync` スキルを実行してドキュメント差異を確認した（差異があれば修正済み）
 - [ ] 次に読むべきファイルを明記した（`CLAUDE.md`, `docs/handoff.md`, `docs/context.md`, 対象Issue）
 - [ ] 対象Issue番号（`#<issue>`）を明示し、`docs/handoff.md` の `References` の Issue と一致していることを確認した
 - [ ] 次担当向けに「次の1アクション」が1つだけ定義されている

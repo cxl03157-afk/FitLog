@@ -15,13 +15,13 @@ description: Check for divergences between the current implementation and docs/ 
 - `frontend/package.json` — 依存パッケージとバージョン
 - `frontend/src/types/` — 型定義（User, WorkoutPost, Comment, Like, Follow 等）
 - `frontend/src/pages/TimelinePage.tsx` — タイムライン表示仕様
-- `frontend/src/components/WorkoutPostCard.tsx` — 投稿カードの表示仕様
-- `frontend/src/pages/WorkoutPostFormPage.tsx` — 投稿フォーム UI
+- `frontend/src/components/PostCard.tsx` — 投稿カードの表示仕様
+- `frontend/src/pages/WorkoutPostNewPage.tsx` — 投稿フォーム UI
 
 ### バックエンド
 - `backend/package.json` — 依存ライブラリとバージョン
 - `backend/src/auth/**/*.ts` — 認証フロー、セッション管理 API、トークンローテーション実装
-- `backend/src/users/entities/user.entity.ts` — User エンティティ
+- `backend/src/users/user.entity.ts` — User エンティティ
 - `backend/src/workout-posts/entities/workout-post.entity.ts` — WorkoutPost エンティティ
 - `backend/src/exercises/entities/exercise.entity.ts` — Exercise エンティティ
 - `backend/src/exercise-sets/entities/exercise-set.entity.ts` — ExerciseSet エンティティ
@@ -29,8 +29,8 @@ description: Check for divergences between the current implementation and docs/ 
 - `backend/src/likes/entities/like.entity.ts` — Like エンティティ
 - `backend/src/follows/entities/follow.entity.ts` — Follow エンティティ
 - `backend/src/goals/entities/goal.entity.ts` — Goal エンティティ
+- `backend/src/personal-records/entities/personal-record.entity.ts` — PersonalRecord エンティティ
 - `backend/src/workout-posts/workout-posts.controller.ts` — REST API エンドポイント
-- `backend/src/migrations/` — TypeORM マイグレーションファイル
 
 ### ドキュメント
 - `docs/要件定義書.md`
@@ -38,7 +38,7 @@ description: Check for divergences between the current implementation and docs/ 
 - `docs/screens.md`
 - `docs/database.md`
 - `docs/tech-stack.md`
-- `docs/features/01_auth.md` ～ `docs/features/07_goal.md`
+- `docs/features/01_auth.md` ～ `docs/features/08_personal_record.md`
 
 ## Phase 2: 差異レポートを作成する
 

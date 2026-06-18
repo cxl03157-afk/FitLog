@@ -21,6 +21,11 @@ vi.mock('../api/workoutPosts', () => ({
 const mockUseAuth = vi.mocked(AuthContextModule.useAuth);
 const mockFetchWorkoutPosts = vi.mocked(workoutPostsApi.fetchWorkoutPosts);
 
+vi.mock('../api/likes', () => ({
+  addLike: vi.fn(),
+  removeLike: vi.fn(),
+}));
+
 const mockPost: WorkoutPost = {
   id: '1',
   userId: '10',
@@ -28,6 +33,9 @@ const mockPost: WorkoutPost = {
   note: null,
   trainedOn: '2026-06-17',
   createdAt: '2026-06-17T10:00:00Z',
+  likeCount: 0,
+  commentCount: 0,
+  isLiked: false,
   user: { id: '10', username: 'testuser', displayName: 'テストユーザー' },
   workoutExercises: [
     {

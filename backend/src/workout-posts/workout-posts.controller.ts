@@ -40,8 +40,8 @@ export class WorkoutPostsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.workoutPostsService.findOne(id);
+  findOne(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.workoutPostsService.findOne(id, user.sub);
   }
 
   @Put(':id')

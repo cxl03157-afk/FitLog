@@ -135,6 +135,16 @@ DELETE /api/workout-posts/:id を実行
 - 全体タイムライン: 全ユーザーの投稿
 - フォロー中タイムライン: フォロー中ユーザー（自分含む）の投稿
 
+### 投稿レスポンスに含まれる集計フィールド
+
+`GET /api/workout-posts` および `GET /api/workout-posts/:id` のレスポンスには以下のフィールドが含まれる:
+
+| フィールド | 型 | 説明 |
+|---|---|---|
+| likeCount | number | 投稿に付いたナイス数 |
+| commentCount | number | 投稿に付いたコメント数 |
+| isLiked | boolean | リクエストユーザーがナイス済みかどうか |
+
 ### 画像アップロード仕様
 
 - アップロード方式: Multer + AWS SDK v3 サーバー中継（クライアント → バックエンド → S3）

@@ -22,6 +22,15 @@ export type WorkoutExercise = {
   sets: ExerciseSet[];
 };
 
+export type WorkoutComment = {
+  id: string;
+  workoutPostId: string;
+  userId: string;
+  content: string;
+  createdAt: string;
+  user: { id: string; username: string; displayName: string };
+};
+
 export type WorkoutPost = {
   id: string;
   userId: string;
@@ -29,6 +38,9 @@ export type WorkoutPost = {
   note: string | null;
   trainedOn: string;
   createdAt: string;
+  likeCount: number;
+  commentCount: number;
+  isLiked: boolean;
   user: {
     id: string;
     username: string;
