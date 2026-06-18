@@ -103,7 +103,7 @@ describe('WorkoutPosts Integration', () => {
         (p) => p.id === postId,
       );
       expect(post).toBeDefined();
-      const p = post as {
+      const p = post as unknown as {
         likeCount: unknown;
         commentCount: unknown;
         isLiked: unknown;
@@ -123,7 +123,7 @@ describe('WorkoutPosts Integration', () => {
         .expect(200);
 
       const post = (res.body.data as { user: Record<string, unknown> }[]).find(
-        (p) => (p as { id: string }).id === postId,
+        (p) => (p as unknown as { id: string }).id === postId,
       );
       expect(post?.user?.passwordHash).toBeUndefined();
     });
