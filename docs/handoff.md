@@ -1,7 +1,8 @@
 # Agent Handoff
 
 ## CurrentPhase
-- Phase 7-1 complete: workout-posts passwordHash 漏洩修正（Issue #20）PR #21 CI グリーン・レビュー待ち（2026-06-17）
+- Phase 8 complete: フロントエンド コメント・ナイス機能（Issue #22）PR #23 CI グリーン・レビュー待ち（2026-06-18）
+- Phase 7-1 complete: workout-posts passwordHash 漏洩修正（Issue #20）PR #21 マージ済み（2026-06-17）
 - Phase 7 complete: フロントエンド タイムライン・投稿機能（Issue #18）PR #19 マージ済み（2026-06-17）
 - Phase 6 complete: フロントエンド基盤（Issue #16）PR #17 マージ済み（2026-06-17）
 - Phase 5-1 complete: パーソナルレコード手動登録 API（Issue #14）PR #15 マージ済み（2026-06-12）
@@ -11,7 +12,8 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #20 完了・PR #21 CI グリーン・レビュー待ち（2026-06-17）
+- Issue #22 完了・PR #23 CI グリーン・レビュー待ち（2026-06-18）
+- Issue #20 完了・PR #21 マージ済み（2026-06-17）
 - Issue #18 完了・PR #19 マージ済み（2026-06-17）
 - Issue #16 完了・PR #17 マージ済み（2026-06-17）
 - Issue #14 完了・PR #15 マージ済み（2026-06-12）
@@ -71,25 +73,33 @@
 - [Phase 7-1] User.passwordHash に @Exclude() + WorkoutPostsController に @UseInterceptors(ClassSerializerInterceptor) を適用。グローバル適用は他エンドポイントへの影響リスクのため回避。
 - [Phase 7-1] @Exclude() は class インスタンス（Object.assign(new User(), {...})）でのみ機能。plain object では除外されない。
 - [Phase 7-1] Controller + supertest テストを追加（74件 pass）。ClassSerializerInterceptor は HTTP パイプライン経由でのみ動作するため、Controller メソッド直接呼び出しでは検証不可。
+- [Phase 8] likeCount / commentCount / isLiked を GET /api/workout-posts・GET /api/workout-posts/:id レスポンスに追加（サブクエリ方式）。
+- [Phase 8] CommentsController に @UseInterceptors(ClassSerializerInterceptor) を適用。createComment も user リレーション込みで返す。
+- [Phase 8] createComment: save 後に findOneOrFail({ relations: { user: true } }) で再取得（user 未ロード → c.user.displayName TypeError を防止）。
+- [Phase 8] コメント文字数上限 280 文字（@MaxLength(280)）。フロント・バック統一。
+- [Phase 8] ナイストグル 409 Conflict: isLiked=true に寄せ likeCount は prevCount に戻す（楽観的更新の二重加算防止）。
+- [Phase 8] PostCard を <article> 構造に変更。ナイスボタンは <Link> 外に配置（リンク内ボタンの UX 問題回避）。
+- [Phase 8] Playwright クラス判定で includes('orange') 禁止。hover:text-orange-400 も一致するため includes('text-orange-500') または data-testid を使う。
+- [Phase 8] 統合テスト型アサーション: TypeScript が直接 as T を拒否する場合は as unknown as T の二段アサーションに変更。
 
 ## OpenQuestions
 - (none)
 
 ## ReviewStatus
-- Status: PR #21 CI グリーン・レビュー待ち（lint ✅ / test 74件 ✅ / build ✅ / CI ✅）
+- Status: PR #23 CI グリーン・レビュー待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
 
 ## MergeReadiness
 - レビュー承認待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
 
 ## NextAction
-PR #21 レビュー承認 → マージ。
-マージ後、Phase 8（フロントエンド コメント・ナイス機能）の Issue を発行して実装する。
+PR #23 レビュー承認 → マージ。
+マージ後、Phase 9（S3 画像アップロード）の計画案を提示する。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
-- Issue: #20（Phase 7-1）、#18（Phase 7 / 完了）、#16（Phase 6 / 完了）、#14（Phase 5-1 / 完了）
-- PR: #21（fix/issue-20-phase7-1-password-hash-leak / CI グリーン・レビュー待ち）、#19（マージ済み）
-- Branch: `fix/issue-20-phase7-1-password-hash-leak`（main へ PR 中）
+- Issue: #22（Phase 8）、#20（Phase 7-1 / 完了）、#18（Phase 7 / 完了）、#16（Phase 6 / 完了）
+- PR: #23（feature/issue-22-phase8-comment-like / CI グリーン・レビュー待ち）、#21（マージ済み）、#19（マージ済み）
+- Branch: `feature/issue-22-phase8-comment-like`（main へ PR 中）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules

@@ -35,6 +35,8 @@
 - [ ] テスト結果を規定フォーマット（Backend / Frontend / E2E）で記録した
 - [ ] 失敗・未実施項目がある場合は「未実施」と明記した
 - [ ] `docs/handoff.md` の `CurrentPhase` / `Status` / `NextAction` を更新した
+- [ ] `docs/context.md` の Phase / Branch / Status / NextAction を更新した
+- [ ] `docs/phase-roadmap.md` のフェーズ一覧で当該フェーズのステータスを「未着手」→「完了」に変更した
 - [ ] 次フェーズの開始条件を1-3行で明記した
 - [ ] PR本文に `Closes #<issue>` が入っている
 

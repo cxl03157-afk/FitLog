@@ -5,18 +5,31 @@
 
 ## 現状スナップショット
 
-- Phase: **7-1 完了**・PR #21 CI グリーン・レビュー待ち（2026-06-17）
-- NextPhase: Phase 8（フロントエンド コメント・ナイス機能）
-- Issue: #20（Phase 7-1 完了）
-- Branch: `fix/issue-20-phase7-1-password-hash-leak`（PR #21）
-- Status: PR #21 CI グリーン・レビュー待ち
+- Phase: **8 完了**・PR #23 CI グリーン・レビュー待ち（2026-06-18）
+- NextPhase: Phase 9（S3 画像アップロード）
+- Issue: #22（Phase 8 完了）
+- Branch: `feature/issue-22-phase8-comment-like`（PR #23）
+- Status: PR #23 CI グリーン・レビュー待ち
 
 ## 技術スタック
 
-- Frontend: React 18 + Vite + TypeScript + Tailwind CSS **v3**
+- Frontend: React 19 + Vite + TypeScript + Tailwind CSS **v3**
 - Backend: NestJS + TypeORM + PostgreSQL 17
 - DB: PostgreSQL 17（docker-compose）※ LocalStack は Phase 9
 - CI: GitHub Actions — Lint + 型チェック + Jest/Vitest（Node 22 強制）
+
+## Phase 8 確定決定事項
+
+| 項目 | 決定 |
+|------|------|
+| likeCount / commentCount / isLiked | GET /api/workout-posts・GET /api/workout-posts/:id のレスポンスに集計フィールドを追加（サブクエリ方式） |
+| CommentsController | `@UseInterceptors(ClassSerializerInterceptor)` 適用（passwordHash 漏洩防止） |
+| createComment レスポンス | save 後に `findOneOrFail({ relations: { user: true } })` で再取得（user 未ロード → TypeError 防止） |
+| コメント文字数上限 | 280 文字（`@MaxLength(280)`）。フロント・バック統一 |
+| コメント投稿 | 楽観的更新なし。API 成功後のレスポンスを末尾に追加 |
+| ナイストグル 409 処理 | 409 Conflict は isLiked=true に寄せ、likeCount は prevCount に戻して二重加算を防止 |
+| PostCard 構造 | `<article>` でラップ。ナイスボタンは `<Link>` 外に配置 |
+| Playwright クラス判定 | `includes('orange')` 禁止（hover クラスと一致）。`includes('text-orange-500')` または `data-testid` を使う |
 
 ## Phase 7-1 確定決定事項
 
@@ -71,8 +84,8 @@
 
 ## NextAction
 
-PR #21 レビュー承認 → マージ。
-マージ後、Phase 8（フロントエンド コメント・ナイス機能）の Issue を発行して実装する。
+PR #23 CI グリーン確認 → レビュー承認 → マージ。
+マージ後、Phase 9（S3 画像アップロード）の計画案を提示する。
 
 ## 参照ファイル（詳細確認が必要な場合）
 
@@ -81,4 +94,4 @@ PR #21 レビュー承認 → マージ。
 - 認証仕様: `docs/features/01_auth.md`
 - DB 設計: `docs/database.md`
 - 状態詳細: `docs/handoff.md`
-- Issue: #20（Phase 7-1 完了）、#18（Phase 7 / 完了）、#16（Phase 6 / 完了）、#14（Phase 5-1 / 完了）
+- Issue: #22（Phase 8 完了）、#20（Phase 7-1 / 完了）、#18（Phase 7 / 完了）、#16（Phase 6 / 完了）

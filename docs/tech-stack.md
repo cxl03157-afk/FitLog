@@ -5,13 +5,13 @@
 | 技術 | バージョン | 選定理由 |
 |------|-----------|---------|
 | Node.js | 22 LTS | LTS版。フロント・バック共通ランタイム |
-| React | 18 | コンポーネントベース UI。RAISETIMELINE で習得済みのため生産性が高い |
-| TypeScript | 5.x | 型安全性の確保。バックエンドと型定義を揃えやすい |
-| Vite | 5.x | 高速な開発サーバー・ビルドツール |
+| React | 19 | コンポーネントベース UI。RAISETIMELINE で習得済みのため生産性が高い |
+| TypeScript | 6.x | 型安全性の確保。バックエンドと型定義を揃えやすい |
+| Vite | 8.x | 高速な開発サーバー・ビルドツール |
 | Tailwind CSS | 3.x | ユーティリティファーストCSS。MUI（RAISETIMELINE）と異なるアプローチを学ぶ |
 | React Router | v6 | SPA ルーティング |
 | Axios | 1.x | HTTP クライアント。AccessToken 自動付与・401 リトライインターセプターを実装 |
-| Vitest | 1.x | Vite ネイティブテストランナー |
+| Vitest | 4.x | Vite ネイティブテストランナー |
 | Playwright | 1.x | E2E テスト |
 
 ---
@@ -21,9 +21,9 @@
 | 技術 | バージョン | 選定理由 |
 |------|-----------|---------|
 | Node.js | 22 LTS | LTS版。長期サポートで安定 |
-| NestJS | 10.x | Spring Boot に近い Module/Controller/Service/Repository 構成。Java → TypeScript の移行コストが低い |
+| NestJS | 11.x | Spring Boot に近い Module/Controller/Service/Repository 構成。Java → TypeScript の移行コストが低い |
 | TypeScript | 5.x | バックエンドも TypeScript で統一。型ミスをビルド時に検出 |
-| TypeORM | 0.3.x | JPA/Hibernate に近いデコレーター設計。RAISETIMELINE の知識を活かせる |
+| TypeORM | 1.0.x | JPA/Hibernate に近いデコレーター設計。RAISETIMELINE の知識を活かせる |
 | Passport-JWT | — | NestJS 公式の認証ライブラリ。AccessToken + RefreshToken に対応 |
 | class-validator | — | NestJS DTO のバリデーション |
 | @nestjs/swagger | — | OpenAPI 仕様を自動生成。Swagger UI で確認可能 |
