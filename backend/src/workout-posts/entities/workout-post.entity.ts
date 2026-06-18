@@ -43,4 +43,8 @@ export class WorkoutPost {
 
   @OneToMany(() => WorkoutExercise, (we) => we.workoutPost, { cascade: true })
   workoutExercises: WorkoutExercise[];
+
+  likeCount?: number;
+  commentCount?: number;
+  isLiked?: boolean;
 }

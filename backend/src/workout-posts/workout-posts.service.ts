@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { ExerciseSet } from '../exercise-sets/entities/exercise-set.entity';
 import { WorkoutExercise } from '../workout-exercises/entities/workout-exercise.entity';
 import { CreateWorkoutPostDto } from './dto/create-workout-post.dto';
@@ -24,45 +24,71 @@ export class WorkoutPostsService {
     query: QueryWorkoutPostsDto,
     currentUserId: string,
   ): Promise<{ data: WorkoutPost[]; total: number }> {
-    const { page = 1, limit = 20, feed = 'all', userId } = query;
+    const { page = 1, limit = 20 } = query;
 
-    const qb = this.workoutPostRepository
+    const countQb = this.workoutPostRepository.createQueryBuilder('post');
+    this.applyFeedFilter(countQb, query, currentUserId);
+    const total = await countQb.getCount();
+
+    const dataQb = this.workoutPostRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.user', 'user')
       .leftJoinAndSelect('post.workoutExercises', 'we')
       .leftJoinAndSelect('we.exercise', 'exercise')
       .leftJoinAndSelect('we.sets', 'sets')
+      .addSelect(
+        '(SELECT COUNT(*) FROM likes l WHERE l.workout_post_id = post.id)',
+        'likeCount',
+      )
+      .addSelect(
+        '(SELECT COUNT(*) FROM comments c WHERE c.workout_post_id = post.id)',
+        'commentCount',
+      )
+      .addSelect(
+        'EXISTS(SELECT 1 FROM likes lk WHERE lk.workout_post_id = post.id AND lk.user_id = :uid)',
+        'isLiked',
+      )
+      .setParameter('uid', currentUserId)
       .orderBy('post.createdAt', 'DESC')
       .skip((page - 1) * limit)
       .take(limit);
 
-    if (userId) {
-      qb.where('post.userId = :userId', { userId });
-    } else if (feed === 'following') {
-      qb.innerJoin(
-        'follows',
-        'f',
-        'f.followee_id = post.user_id AND f.follower_id = :currentUserId',
-        { currentUserId },
-      );
-    }
+    this.applyFeedFilter(dataQb, query, currentUserId);
 
-    const [data, total] = await qb.getManyAndCount();
-    return { data, total };
+    const { entities, raw } = await dataQb.getRawAndEntities();
+    return {
+      data: entities.map((entity, i) => this.mergeRaw(entity, raw[i])),
+      total,
+    };
   }
 
-  async findOne(id: string): Promise<WorkoutPost> {
-    const post = await this.workoutPostRepository.findOne({
-      where: { id },
-      relations: {
-        user: true,
-        workoutExercises: { exercise: true, sets: true },
-      },
-    });
-    if (!post) {
+  async findOne(id: string, currentUserId = ''): Promise<WorkoutPost> {
+    const { entities, raw } = await this.workoutPostRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.user', 'user')
+      .leftJoinAndSelect('post.workoutExercises', 'we')
+      .leftJoinAndSelect('we.exercise', 'exercise')
+      .leftJoinAndSelect('we.sets', 'sets')
+      .addSelect(
+        '(SELECT COUNT(*) FROM likes l WHERE l.workout_post_id = post.id)',
+        'likeCount',
+      )
+      .addSelect(
+        '(SELECT COUNT(*) FROM comments c WHERE c.workout_post_id = post.id)',
+        'commentCount',
+      )
+      .addSelect(
+        'EXISTS(SELECT 1 FROM likes lk WHERE lk.workout_post_id = post.id AND lk.user_id = :uid)',
+        'isLiked',
+      )
+      .setParameter('uid', currentUserId)
+      .where('post.id = :id', { id })
+      .getRawAndEntities();
+
+    if (entities.length === 0) {
       throw new NotFoundException(`WorkoutPost ${id} not found`);
     }
-    return post;
+    return this.mergeRaw(entities[0], raw[0]);
   }
 
   async create(
@@ -103,7 +129,7 @@ export class WorkoutPostsService {
       }
     });
 
-    return this.findOne(createdId);
+    return this.findOne(createdId, userId);
   }
 
   async update(
@@ -111,7 +137,7 @@ export class WorkoutPostsService {
     dto: UpdateWorkoutPostDto,
     userId: string,
   ): Promise<WorkoutPost> {
-    const post = await this.findOne(id);
+    const post = await this.findOne(id, userId);
     if (post.userId !== userId) {
       throw new ForbiddenException("Cannot update another user's post");
     }
@@ -121,14 +147,45 @@ export class WorkoutPostsService {
       ...(dto.trainedOn !== undefined && { trainedOn: dto.trainedOn }),
       updatedAt: new Date(),
     });
-    return this.findOne(id);
+    return this.findOne(id, userId);
   }
 
   async remove(id: string, userId: string): Promise<void> {
-    const post = await this.findOne(id);
+    const post = await this.findOne(id, userId);
     if (post.userId !== userId) {
       throw new ForbiddenException("Cannot delete another user's post");
     }
     await this.workoutPostRepository.delete(id);
+  }
+
+  private applyFeedFilter(
+    qb: SelectQueryBuilder<WorkoutPost>,
+    query: QueryWorkoutPostsDto,
+    currentUserId: string,
+  ): void {
+    if (query.userId) {
+      qb.where('post.userId = :userId', { userId: query.userId });
+    } else if (query.feed === 'following') {
+      qb.innerJoin(
+        'follows',
+        'f',
+        'f.followee_id = post.user_id AND f.follower_id = :currentUserId',
+        { currentUserId },
+      );
+    }
+  }
+
+  private mergeRaw(entity: WorkoutPost, raw: unknown): WorkoutPost {
+    const r = raw as Record<string, unknown>;
+    entity.likeCount = Number(r.likeCount ?? r.likecount ?? 0);
+    entity.commentCount = Number(r.commentCount ?? r.commentcount ?? 0);
+    const rawIsLiked = r.isLiked ?? r.isliked;
+    entity.isLiked =
+      rawIsLiked === true ||
+      rawIsLiked === 't' ||
+      rawIsLiked === 'true' ||
+      rawIsLiked === '1' ||
+      rawIsLiked === 1;
+    return entity;
   }
 }

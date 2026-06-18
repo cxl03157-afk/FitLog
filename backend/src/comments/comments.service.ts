@@ -48,7 +48,12 @@ export class CommentsService {
       userId,
       content: dto.content,
     });
-    return this.commentRepository.save(comment);
+    const saved = await this.commentRepository.save(comment);
+    const withUser = await this.commentRepository.findOneOrFail({
+      where: { id: saved.id },
+      relations: { user: true },
+    });
+    return withUser;
   }
 
   async remove(id: string, userId: string): Promise<void> {

@@ -4,7 +4,9 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import WorkoutPostDetailPage from '../pages/WorkoutPostDetailPage';
 import * as AuthContextModule from '../contexts/AuthContext';
 import * as workoutPostsApi from '../api/workoutPosts';
-import type { WorkoutPost } from '../types/workout';
+import * as commentsApi from '../api/comments';
+import * as likesApi from '../api/likes';
+import type { WorkoutPost, WorkoutComment } from '../types/workout';
 
 vi.mock('../contexts/AuthContext', async (importOriginal) => {
   const mod = await importOriginal<typeof AuthContextModule>();
@@ -18,8 +20,20 @@ vi.mock('../api/workoutPosts', () => ({
   deleteWorkoutPost: vi.fn(),
 }));
 
+vi.mock('../api/comments', () => ({
+  fetchComments: vi.fn(),
+  createComment: vi.fn(),
+  deleteComment: vi.fn(),
+}));
+
+vi.mock('../api/likes', () => ({
+  addLike: vi.fn(),
+  removeLike: vi.fn(),
+}));
+
 const mockUseAuth = vi.mocked(AuthContextModule.useAuth);
 const mockFetchWorkoutPost = vi.mocked(workoutPostsApi.fetchWorkoutPost);
+const mockFetchComments = vi.mocked(commentsApi.fetchComments);
 
 const POST_OWNER_ID = '10';
 
@@ -28,8 +42,11 @@ const mockPost: WorkoutPost = {
   userId: POST_OWNER_ID,
   title: 'ベンチプレスの日',
   note: 'よかった',
-  trainedOn: '2026-06-17',
-  createdAt: '2026-06-17T10:00:00Z',
+  trainedOn: '2026-06-18',
+  createdAt: '2026-06-18T10:00:00Z',
+  likeCount: 3,
+  commentCount: 2,
+  isLiked: false,
   user: { id: POST_OWNER_ID, username: 'owner', displayName: 'オーナー' },
   workoutExercises: [
     {
@@ -41,6 +58,25 @@ const mockPost: WorkoutPost = {
     },
   ],
 };
+
+const mockComments: WorkoutComment[] = [
+  {
+    id: '100',
+    workoutPostId: '1',
+    userId: '99',
+    content: 'すごい！',
+    createdAt: '2026-06-18T11:00:00Z',
+    user: { id: '99', username: 'other', displayName: 'Others' },
+  },
+  {
+    id: '101',
+    workoutPostId: '1',
+    userId: POST_OWNER_ID,
+    content: '自分のコメント',
+    createdAt: '2026-06-18T12:00:00Z',
+    user: { id: POST_OWNER_ID, username: 'owner', displayName: 'オーナー' },
+  },
+];
 
 const renderDetail = () =>
   render(
@@ -54,6 +90,9 @@ const renderDetail = () =>
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mockFetchComments.mockResolvedValue([]);
+  vi.mocked(likesApi.addLike).mockResolvedValue(undefined);
+  vi.mocked(likesApi.removeLike).mockResolvedValue(undefined);
 });
 
 describe('WorkoutPostDetailPage', () => {
@@ -129,6 +168,42 @@ describe('WorkoutPostDetailPage', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/投稿の取得に失敗しました/)).toBeTruthy();
+    });
+  });
+
+  describe('comments', () => {
+    beforeEach(() => {
+      mockUseAuth.mockReturnValue({
+        user: { id: POST_OWNER_ID, username: 'owner', displayName: 'オーナー', email: 'o@test.com' },
+        isLoading: false,
+        isAuthenticated: true,
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+      });
+      mockFetchWorkoutPost.mockResolvedValue(mockPost);
+      mockFetchComments.mockResolvedValue(mockComments);
+    });
+
+    it('renders comment list', async () => {
+      renderDetail();
+
+      await waitFor(() => {
+        expect(screen.getByText('すごい！')).toBeTruthy();
+      });
+      expect(screen.getByText('自分のコメント')).toBeTruthy();
+    });
+
+    it('shows delete icon only for own comments', async () => {
+      renderDetail();
+
+      await waitFor(() => {
+        expect(screen.getByText('すごい！')).toBeTruthy();
+      });
+
+      // 自分のコメント（comment id=101）には削除ボタン（🗑️）あり
+      const deleteButtons = screen.getAllByLabelText('コメントを削除');
+      expect(deleteButtons).toHaveLength(1);
     });
   });
 });
