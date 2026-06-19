@@ -5,18 +5,32 @@
 
 ## 現状スナップショット
 
-- Phase: **8 完了**・PR #23 CI グリーン・レビュー待ち（2026-06-18）
-- NextPhase: Phase 9（S3 画像アップロード）
-- Issue: #22（Phase 8 完了）
-- Branch: `feature/issue-22-phase8-comment-like`（PR #23）
-- Status: PR #23 CI グリーン・レビュー待ち
+- Phase: **9 完了**・PR #25 CI グリーン・レビュー待ち（2026-06-19）
+- NextPhase: Phase 10（フロントエンド 画像UI）
+- Issue: #24（Phase 9 完了）
+- Branch: `feature/issue-24-phase9-s3-image-upload`（PR #25）
+- Status: PR #25 CI グリーン・レビュー待ち
 
 ## 技術スタック
 
 - Frontend: React 19 + Vite + TypeScript + Tailwind CSS **v3**
 - Backend: NestJS + TypeORM + PostgreSQL 17
-- DB: PostgreSQL 17（docker-compose）※ LocalStack は Phase 9
+- DB: PostgreSQL 17（docker-compose）+ LocalStack 3（S3 エミュレーション、Phase 9 追加）
 - CI: GitHub Actions — Lint + 型チェック + Jest/Vitest（Node 22 強制）
+
+## Phase 9 確定決定事項
+
+| 項目 | 決定 |
+|------|------|
+| S3 モジュール | @Global() 不使用。WorkoutPostsModule / UsersModule で明示的にインポート |
+| Multer storage | memoryStorage（S3 中継のため） |
+| ファイル検証 | fileFilter（mimetype）+ limits.fileSize（10MB）。MIME は image/jpeg・png・webp のみ許可 |
+| S3 key 形式 | `images/posts/{postId}/{uuid}.{ext}` / `images/avatars/{userId}/{uuid}.{ext}` |
+| 表示 URL | `IMAGE_BASE_URL + "/" + imageKey`（DB に URL は保存しない） |
+| 本番切り替え | AWS_S3_ENDPOINT を省略するだけで実 AWS S3 に接続する設計 |
+| アップロードエラー時 | アップロード済みキーを deleteMany でロールバック。rollback 失敗はログのみ、元例外を再 throw |
+| remove() のエラー | S3 削除失敗はログのみ、DB 削除は継続 |
+| TypeORM select | FindOptionsSelect は配列不可（TS2559）→ オブジェクト形式 `{ field: true }` が必須 |
 
 ## Phase 8 確定決定事項
 
@@ -84,8 +98,8 @@
 
 ## NextAction
 
-PR #23 CI グリーン確認 → レビュー承認 → マージ。
-マージ後、Phase 9（S3 画像アップロード）の計画案を提示する。
+PR #25 CI グリーン確認 → レビュー承認 → マージ。
+マージ後、Phase 10（フロントエンド 画像UI）の計画案を提示する。
 
 ## 参照ファイル（詳細確認が必要な場合）
 
@@ -94,4 +108,4 @@ PR #23 CI グリーン確認 → レビュー承認 → マージ。
 - 認証仕様: `docs/features/01_auth.md`
 - DB 設計: `docs/database.md`
 - 状態詳細: `docs/handoff.md`
-- Issue: #22（Phase 8 完了）、#20（Phase 7-1 / 完了）、#18（Phase 7 / 完了）、#16（Phase 6 / 完了）
+- Issue: #24（Phase 9 完了）、#22（Phase 8 / 完了）、#20（Phase 7-1 / 完了）、#18（Phase 7 / 完了）、#16（Phase 6 / 完了）

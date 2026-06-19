@@ -1,7 +1,15 @@
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { S3Service } from '../s3/s3.service';
+import { PostImage } from './entities/post-image.entity';
 import { WorkoutPost } from './entities/workout-post.entity';
 import { WorkoutPostsService } from './workout-posts.service';
 
@@ -17,8 +25,18 @@ const mockPost = (userId = '1') =>
     createdAt: new Date(),
     updatedAt: null,
     workoutExercises: [],
+    postImages: [],
     user: { id: userId },
   }) as unknown as WorkoutPost;
+
+const mockFile = (mimetype = 'image/jpeg', size = 1024): Express.Multer.File =>
+  ({
+    fieldname: 'images',
+    originalname: 'test.jpg',
+    mimetype,
+    size,
+    buffer: Buffer.from('data'),
+  }) as Express.Multer.File;
 
 describe('WorkoutPostsService', () => {
   let service: WorkoutPostsService;
@@ -27,27 +45,28 @@ describe('WorkoutPostsService', () => {
     delete: jest.Mock;
     createQueryBuilder: jest.Mock;
   };
-  let dataSource: { transaction: jest.Mock };
-  let mockQb: {
-    leftJoinAndSelect: jest.Mock;
-    addSelect: jest.Mock;
-    setParameter: jest.Mock;
-    where: jest.Mock;
-    orderBy: jest.Mock;
-    skip: jest.Mock;
-    take: jest.Mock;
-    innerJoin: jest.Mock;
-    getCount: jest.Mock;
-    getRawAndEntities: jest.Mock;
+  let postImageRepository: {
+    count: jest.Mock;
+    create: jest.Mock;
+    save: jest.Mock;
+    find: jest.Mock;
   };
+  let s3Service: { upload: jest.Mock; deleteMany: jest.Mock };
+  let dataSource: { transaction: jest.Mock };
+  let mockQb: Record<string, jest.Mock>;
+  let loggerErrorSpy: jest.SpyInstance;
 
   beforeEach(async () => {
+    loggerErrorSpy = jest
+      .spyOn(Logger.prototype, 'error')
+      .mockImplementation(() => {});
     mockQb = {
       leftJoinAndSelect: jest.fn().mockReturnThis(),
       addSelect: jest.fn().mockReturnThis(),
       setParameter: jest.fn().mockReturnThis(),
       where: jest.fn().mockReturnThis(),
       orderBy: jest.fn().mockReturnThis(),
+      addOrderBy: jest.fn().mockReturnThis(),
       skip: jest.fn().mockReturnThis(),
       take: jest.fn().mockReturnThis(),
       innerJoin: jest.fn().mockReturnThis(),
@@ -60,18 +79,50 @@ describe('WorkoutPostsService', () => {
       delete: jest.fn(),
       createQueryBuilder: jest.fn().mockReturnValue(mockQb),
     };
+    postImageRepository = {
+      count: jest.fn(),
+      create: jest.fn(),
+      save: jest.fn(),
+      find: jest.fn(),
+    };
+    s3Service = {
+      upload: jest.fn(),
+      deleteMany: jest.fn(),
+    };
     dataSource = { transaction: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         WorkoutPostsService,
         { provide: getRepositoryToken(WorkoutPost), useValue: repository },
+        {
+          provide: getRepositoryToken(PostImage),
+          useValue: postImageRepository,
+        },
         { provide: DataSource, useValue: dataSource },
+        { provide: S3Service, useValue: s3Service },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn().mockReturnValue('http://localhost:4566/fitlog'),
+          },
+        },
       ],
     }).compile();
 
     service = module.get(WorkoutPostsService);
   });
+
+  afterEach(() => {
+    loggerErrorSpy.mockRestore();
+  });
+
+  const setFindOneMock = (post: WorkoutPost) => {
+    mockQb.getRawAndEntities.mockResolvedValue({
+      entities: [post],
+      raw: [RAW_DEFAULT],
+    });
+  };
 
   describe('findAll', () => {
     it('returns posts with computed fields as numbers', async () => {
@@ -144,10 +195,7 @@ describe('WorkoutPostsService', () => {
 
   describe('update', () => {
     it('throws ForbiddenException when updating another user post', async () => {
-      mockQb.getRawAndEntities.mockResolvedValue({
-        entities: [mockPost('2')],
-        raw: [RAW_DEFAULT],
-      });
+      setFindOneMock(mockPost('2'));
 
       await expect(
         service.update('10', { title: 'updated' }, '1'),
@@ -155,11 +203,7 @@ describe('WorkoutPostsService', () => {
     });
 
     it('updates post when owner', async () => {
-      const post = mockPost('1');
-      mockQb.getRawAndEntities.mockResolvedValue({
-        entities: [post],
-        raw: [RAW_DEFAULT],
-      });
+      setFindOneMock(mockPost('1'));
       repository.update.mockResolvedValue(undefined);
 
       await service.update('10', { title: 'updated' }, '1');
@@ -177,10 +221,7 @@ describe('WorkoutPostsService', () => {
 
   describe('remove', () => {
     it('throws ForbiddenException when deleting another user post', async () => {
-      mockQb.getRawAndEntities.mockResolvedValue({
-        entities: [mockPost('2')],
-        raw: [RAW_DEFAULT],
-      });
+      setFindOneMock(mockPost('2'));
 
       await expect(service.remove('10', '1')).rejects.toThrow(
         ForbiddenException,
@@ -188,15 +229,116 @@ describe('WorkoutPostsService', () => {
     });
 
     it('deletes post when owner', async () => {
-      mockQb.getRawAndEntities.mockResolvedValue({
-        entities: [mockPost('1')],
-        raw: [RAW_DEFAULT],
-      });
+      setFindOneMock(mockPost('1'));
+      postImageRepository.find.mockResolvedValue([]);
       repository.delete.mockResolvedValue(undefined);
 
       await service.remove('10', '1');
 
       expect(repository.delete).toHaveBeenCalledWith('10');
+    });
+
+    it('continues DB delete even when S3 delete fails', async () => {
+      setFindOneMock(mockPost('1'));
+      postImageRepository.find.mockResolvedValue([
+        { imageKey: 'images/posts/10/a.jpg' },
+      ]);
+      s3Service.deleteMany.mockRejectedValue(new Error('S3 unreachable'));
+      repository.delete.mockResolvedValue(undefined);
+
+      await service.remove('10', '1');
+
+      expect(repository.delete).toHaveBeenCalledWith('10');
+      expect(loggerErrorSpy).toHaveBeenCalledWith(
+        'S3 delete failed on post removal (postId=10)',
+        expect.any(Error),
+      );
+    });
+  });
+
+  describe('uploadImages', () => {
+    it('uploads files and returns updated post', async () => {
+      setFindOneMock(mockPost('1'));
+      postImageRepository.count.mockResolvedValue(0);
+      postImageRepository.create.mockImplementation((data: object) => data);
+      postImageRepository.save.mockResolvedValue(undefined);
+      s3Service.upload.mockResolvedValue(undefined);
+
+      const result = await service.uploadImages('10', '1', [mockFile()]);
+
+      expect(s3Service.upload).toHaveBeenCalledTimes(1);
+      expect(postImageRepository.save).toHaveBeenCalledTimes(1);
+      expect(result).toBeDefined();
+    });
+
+    it('throws ForbiddenException when uploading to another user post', async () => {
+      setFindOneMock(mockPost('2'));
+
+      await expect(
+        service.uploadImages('10', '1', [mockFile()]),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('throws BadRequestException when total exceeds 4 images', async () => {
+      setFindOneMock(mockPost('1'));
+      postImageRepository.count.mockResolvedValue(3);
+
+      await expect(
+        service.uploadImages('10', '1', [mockFile(), mockFile()]),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('rolls back uploaded S3 keys when S3 upload fails mid-way', async () => {
+      setFindOneMock(mockPost('1'));
+      postImageRepository.count.mockResolvedValue(0);
+      postImageRepository.create.mockImplementation((data: object) => data);
+      s3Service.upload
+        .mockResolvedValueOnce(undefined)
+        .mockRejectedValueOnce(new Error('S3 error'));
+      s3Service.deleteMany.mockResolvedValue(undefined);
+
+      await expect(
+        service.uploadImages('10', '1', [mockFile(), mockFile()]),
+      ).rejects.toThrow('S3 error');
+
+      expect(s3Service.deleteMany).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.stringMatching(/^images\/posts\/10\/.+\.jpg$/),
+        ]),
+      );
+    });
+
+    it('rolls back uploaded S3 keys when DB INSERT fails', async () => {
+      setFindOneMock(mockPost('1'));
+      postImageRepository.count.mockResolvedValue(0);
+      postImageRepository.create.mockImplementation((data: object) => data);
+      postImageRepository.save.mockRejectedValue(new Error('DB error'));
+      s3Service.upload.mockResolvedValue(undefined);
+      s3Service.deleteMany.mockResolvedValue(undefined);
+
+      await expect(
+        service.uploadImages('10', '1', [mockFile()]),
+      ).rejects.toThrow('DB error');
+
+      expect(s3Service.deleteMany).toHaveBeenCalledTimes(1);
+    });
+
+    it('rethrows original error even when rollback deleteMany fails', async () => {
+      setFindOneMock(mockPost('1'));
+      postImageRepository.count.mockResolvedValue(0);
+      postImageRepository.create.mockImplementation((data: object) => data);
+      postImageRepository.save.mockRejectedValue(new Error('DB error'));
+      s3Service.upload.mockResolvedValue(undefined);
+      s3Service.deleteMany.mockRejectedValue(new Error('rollback failed'));
+
+      await expect(
+        service.uploadImages('10', '1', [mockFile()]),
+      ).rejects.toThrow('DB error');
+
+      expect(loggerErrorSpy).toHaveBeenCalledWith(
+        'S3 rollback failed after upload error',
+        expect.any(Error),
+      );
     });
   });
 });

@@ -1,24 +1,45 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { randomUUID } from 'crypto';
 import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { ExerciseSet } from '../exercise-sets/entities/exercise-set.entity';
+import { S3Service } from '../s3/s3.service';
 import { WorkoutExercise } from '../workout-exercises/entities/workout-exercise.entity';
 import { CreateWorkoutPostDto } from './dto/create-workout-post.dto';
 import { QueryWorkoutPostsDto } from './dto/query-workout-posts.dto';
 import { UpdateWorkoutPostDto } from './dto/update-workout-post.dto';
+import { PostImage } from './entities/post-image.entity';
 import { WorkoutPost } from './entities/workout-post.entity';
+
+const MIME_TO_EXT: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+};
 
 @Injectable()
 export class WorkoutPostsService {
+  private readonly logger = new Logger(WorkoutPostsService.name);
+  private readonly imageBaseUrl: string;
+
   constructor(
     @InjectRepository(WorkoutPost)
     private readonly workoutPostRepository: Repository<WorkoutPost>,
+    @InjectRepository(PostImage)
+    private readonly postImageRepository: Repository<PostImage>,
     private readonly dataSource: DataSource,
-  ) {}
+    private readonly s3Service: S3Service,
+    private readonly config: ConfigService,
+  ) {
+    this.imageBaseUrl = config.get<string>('IMAGE_BASE_URL', '');
+  }
 
   async findAll(
     query: QueryWorkoutPostsDto,
@@ -36,6 +57,7 @@ export class WorkoutPostsService {
       .leftJoinAndSelect('post.workoutExercises', 'we')
       .leftJoinAndSelect('we.exercise', 'exercise')
       .leftJoinAndSelect('we.sets', 'sets')
+      .leftJoinAndSelect('post.postImages', 'pi')
       .addSelect(
         '(SELECT COUNT(*) FROM likes l WHERE l.workout_post_id = post.id)',
         'likeCount',
@@ -50,6 +72,7 @@ export class WorkoutPostsService {
       )
       .setParameter('uid', currentUserId)
       .orderBy('post.createdAt', 'DESC')
+      .addOrderBy('pi.displayOrder', 'ASC')
       .skip((page - 1) * limit)
       .take(limit);
 
@@ -57,7 +80,9 @@ export class WorkoutPostsService {
 
     const { entities, raw } = await dataQb.getRawAndEntities();
     return {
-      data: entities.map((entity, i) => this.mergeRaw(entity, raw[i])),
+      data: entities.map((entity, i) =>
+        this.mergeRaw(this.attachImageUrls(entity), raw[i]),
+      ),
       total,
     };
   }
@@ -69,6 +94,7 @@ export class WorkoutPostsService {
       .leftJoinAndSelect('post.workoutExercises', 'we')
       .leftJoinAndSelect('we.exercise', 'exercise')
       .leftJoinAndSelect('we.sets', 'sets')
+      .leftJoinAndSelect('post.postImages', 'pi')
       .addSelect(
         '(SELECT COUNT(*) FROM likes l WHERE l.workout_post_id = post.id)',
         'likeCount',
@@ -83,12 +109,13 @@ export class WorkoutPostsService {
       )
       .setParameter('uid', currentUserId)
       .where('post.id = :id', { id })
+      .addOrderBy('pi.displayOrder', 'ASC')
       .getRawAndEntities();
 
     if (entities.length === 0) {
       throw new NotFoundException(`WorkoutPost ${id} not found`);
     }
-    return this.mergeRaw(entities[0], raw[0]);
+    return this.mergeRaw(this.attachImageUrls(entities[0]), raw[0]);
   }
 
   async create(
@@ -155,7 +182,85 @@ export class WorkoutPostsService {
     if (post.userId !== userId) {
       throw new ForbiddenException("Cannot delete another user's post");
     }
+
+    const images = await this.postImageRepository.find({
+      where: { workoutPostId: id },
+      select: { imageKey: true },
+    });
+
+    if (images.length > 0) {
+      try {
+        await this.s3Service.deleteMany(images.map((img) => img.imageKey));
+      } catch (err) {
+        this.logger.error(
+          `S3 delete failed on post removal (postId=${id})`,
+          err,
+        );
+      }
+    }
+
     await this.workoutPostRepository.delete(id);
+  }
+
+  async uploadImages(
+    postId: string,
+    userId: string,
+    files: Express.Multer.File[],
+  ): Promise<WorkoutPost> {
+    const post = await this.findOne(postId, userId);
+    if (post.userId !== userId) {
+      throw new ForbiddenException(
+        "Cannot upload images to another user's post",
+      );
+    }
+
+    const existingCount = await this.postImageRepository.count({
+      where: { workoutPostId: postId },
+    });
+    if (existingCount + files.length > 4) {
+      throw new BadRequestException(
+        `Cannot exceed 4 images per post. Current: ${existingCount}, Adding: ${files.length}`,
+      );
+    }
+
+    const uploadedKeys: string[] = [];
+    try {
+      const imageEntities: PostImage[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const ext = MIME_TO_EXT[file.mimetype] ?? 'bin';
+        const key = `images/posts/${postId}/${randomUUID()}.${ext}`;
+        await this.s3Service.upload(key, file.buffer, file.mimetype);
+        uploadedKeys.push(key);
+        imageEntities.push(
+          this.postImageRepository.create({
+            workoutPostId: postId,
+            imageKey: key,
+            displayOrder: existingCount + i,
+          }),
+        );
+      }
+      await this.postImageRepository.save(imageEntities);
+    } catch (err) {
+      try {
+        await this.s3Service.deleteMany(uploadedKeys);
+      } catch (rollbackErr) {
+        this.logger.error('S3 rollback failed after upload error', rollbackErr);
+      }
+      throw err;
+    }
+
+    return this.findOne(postId, userId);
+  }
+
+  private attachImageUrls(post: WorkoutPost): WorkoutPost {
+    if (post.postImages) {
+      post.postImages = post.postImages.map((img) => ({
+        ...img,
+        imageUrl: `${this.imageBaseUrl}/${img.imageKey}`,
+      }));
+    }
+    return post;
   }
 
   private applyFeedFilter(

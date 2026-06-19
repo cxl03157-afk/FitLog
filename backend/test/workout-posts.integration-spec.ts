@@ -5,6 +5,13 @@ import { DataSource } from 'typeorm';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
+import { S3Service } from '../src/s3/s3.service';
+
+const mockS3Service = {
+  upload: jest.fn().mockResolvedValue(undefined),
+  deleteMany: jest.fn().mockResolvedValue(undefined),
+  deleteOne: jest.fn().mockResolvedValue(undefined),
+};
 
 describe('WorkoutPosts Integration', () => {
   let app: INestApplication<App>;
@@ -29,7 +36,10 @@ describe('WorkoutPosts Integration', () => {
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(S3Service)
+      .useValue(mockS3Service)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     app.setGlobalPrefix('api');
@@ -233,6 +243,82 @@ describe('WorkoutPosts Integration', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ content: 'あ'.repeat(280) })
         .expect(201);
+    });
+  });
+
+  describe('POST /api/workout-posts/:id/images', () => {
+    beforeEach(() => {
+      mockS3Service.upload.mockResolvedValue(undefined);
+      mockS3Service.deleteMany.mockResolvedValue(undefined);
+    });
+
+    it('uploads an image and returns post with images[]', async () => {
+      const res = await request(app.getHttpServer())
+        .post(`/api/workout-posts/${postId}/images`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .attach('images', Buffer.from('fake-image-data'), {
+          filename: 'test.jpg',
+          contentType: 'image/jpeg',
+        })
+        .expect(201);
+
+      const body = res.body as {
+        id: string;
+        postImages: {
+          imageKey: string;
+          imageUrl: string;
+          displayOrder: number;
+        }[];
+      };
+      expect(body.id).toBe(postId);
+      expect(Array.isArray(body.postImages)).toBe(true);
+      expect(body.postImages.length).toBeGreaterThan(0);
+      expect(body.postImages[0].imageKey).toMatch(
+        /^images\/posts\/.+\/.+\.jpg$/,
+      );
+      expect(body.postImages[0].displayOrder).toBe(0);
+      expect(mockS3Service.upload).toHaveBeenCalled();
+    });
+
+    it('returns 400 when no file is provided', async () => {
+      await request(app.getHttpServer())
+        .post(`/api/workout-posts/${postId}/images`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(400);
+    });
+
+    it('returns 400 when unsupported MIME type is provided', async () => {
+      await request(app.getHttpServer())
+        .post(`/api/workout-posts/${postId}/images`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .attach('images', Buffer.from('fake-gif-data'), {
+          filename: 'test.gif',
+          contentType: 'image/gif',
+        })
+        .expect(400);
+    });
+
+    it('returns 400 when file exceeds 10MB', async () => {
+      const oversizedBuffer = Buffer.alloc(10 * 1024 * 1024 + 1);
+      await request(app.getHttpServer())
+        .post(`/api/workout-posts/${postId}/images`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .attach('images', oversizedBuffer, {
+          filename: 'large.jpg',
+          contentType: 'image/jpeg',
+        })
+        .expect(400);
+    });
+
+    it('does not include user.passwordHash in response', async () => {
+      const res = await request(app.getHttpServer())
+        .get(`/api/workout-posts/${postId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+
+      expect(
+        (res.body as { user: Record<string, unknown> }).user.passwordHash,
+      ).toBeUndefined();
     });
   });
 });

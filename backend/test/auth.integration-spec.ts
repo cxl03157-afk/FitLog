@@ -6,6 +6,13 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 import { REFRESH_COOKIE_NAME } from '../src/common/constants/auth.constants';
+import { S3Service } from '../src/s3/s3.service';
+
+const mockS3Service = {
+  upload: jest.fn().mockResolvedValue(undefined),
+  deleteMany: jest.fn().mockResolvedValue(undefined),
+  deleteOne: jest.fn().mockResolvedValue(undefined),
+};
 
 describe('Auth Integration (register/login/refresh)', () => {
   let app: INestApplication<App>;
@@ -26,7 +33,10 @@ describe('Auth Integration (register/login/refresh)', () => {
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(S3Service)
+      .useValue(mockS3Service)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     app.setGlobalPrefix('api');
