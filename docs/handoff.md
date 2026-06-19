@@ -1,7 +1,8 @@
 # Agent Handoff
 
 ## CurrentPhase
-- Phase 8 complete: フロントエンド コメント・ナイス機能（Issue #22）PR #23 CI グリーン・レビュー待ち（2026-06-18）
+- Phase 9 complete: S3 画像アップロード バックエンド + LocalStack（Issue #24）PR #25 CI グリーン・レビュー待ち（2026-06-19）
+- Phase 8 complete: フロントエンド コメント・ナイス機能（Issue #22）PR #23 マージ済み（2026-06-18）
 - Phase 7-1 complete: workout-posts passwordHash 漏洩修正（Issue #20）PR #21 マージ済み（2026-06-17）
 - Phase 7 complete: フロントエンド タイムライン・投稿機能（Issue #18）PR #19 マージ済み（2026-06-17）
 - Phase 6 complete: フロントエンド基盤（Issue #16）PR #17 マージ済み（2026-06-17）
@@ -12,7 +13,8 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #22 完了・PR #23 CI グリーン・レビュー待ち（2026-06-18）
+- Issue #24 完了・PR #25 CI グリーン・レビュー待ち（2026-06-19）
+- Issue #22 完了・PR #23 マージ済み（2026-06-18）
 - Issue #20 完了・PR #21 マージ済み（2026-06-17）
 - Issue #18 完了・PR #19 マージ済み（2026-06-17）
 - Issue #16 完了・PR #17 マージ済み（2026-06-17）
@@ -81,25 +83,32 @@
 - [Phase 8] PostCard を <article> 構造に変更。ナイスボタンは <Link> 外に配置（リンク内ボタンの UX 問題回避）。
 - [Phase 8] Playwright クラス判定で includes('orange') 禁止。hover:text-orange-400 も一致するため includes('text-orange-500') または data-testid を使う。
 - [Phase 8] 統合テスト型アサーション: TypeScript が直接 as T を拒否する場合は as unknown as T の二段アサーションに変更。
+- [Phase 9] S3 モジュールは @Global() 不使用。WorkoutPostsModule / UsersModule で明示的にインポート（依存関係の可視化）。
+- [Phase 9] Multer は memoryStorage。fileFilter で image/jpeg・png・webp のみ許可、limits.fileSize 10MB。
+- [Phase 9] S3 key: `images/posts/{postId}/{uuid}.{ext}` / `images/avatars/{userId}/{uuid}.{ext}`。URL は IMAGE_BASE_URL + key で生成（DB に URL を保存しない）。
+- [Phase 9] AWS_S3_ENDPOINT が未設定なら実 AWS S3 へ接続。LocalStack は endpoint + forcePathStyle=true で切り替え。
+- [Phase 9] uploadImages エラー: アップロード済みキーを deleteMany でロールバック。rollback 失敗はログのみ、元例外を再 throw。remove() の S3 削除失敗もログのみ、DB 削除は継続。
+- [Phase 9] TypeORM FindOptionsSelect は配列形式不可（TS2559）→ `{ field: true }` のオブジェクト形式が必須。
+- [Phase 9] 統合テストのユーザー名は DB の 20文字上限に注意（`av_${Date.now()}` = 16文字で適合）。
 
 ## OpenQuestions
 - (none)
 
 ## ReviewStatus
-- Status: PR #23 CI グリーン・レビュー待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
+- Status: PR #25 CI グリーン・レビュー待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
 
 ## MergeReadiness
 - レビュー承認待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
 
 ## NextAction
-PR #23 レビュー承認 → マージ。
-マージ後、Phase 9（S3 画像アップロード）の計画案を提示する。
+PR #25 レビュー承認 → マージ。
+マージ後、Phase 10（フロントエンド 画像UI）の計画案を提示する。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
-- Issue: #22（Phase 8）、#20（Phase 7-1 / 完了）、#18（Phase 7 / 完了）、#16（Phase 6 / 完了）
-- PR: #23（feature/issue-22-phase8-comment-like / CI グリーン・レビュー待ち）、#21（マージ済み）、#19（マージ済み）
-- Branch: `feature/issue-22-phase8-comment-like`（main へ PR 中）
+- Issue: #24（Phase 9）、#22（Phase 8 / 完了）、#20（Phase 7-1 / 完了）、#18（Phase 7 / 完了）、#16（Phase 6 / 完了）
+- PR: #25（feature/issue-24-phase9-s3-image-upload / CI グリーン・レビュー待ち）、#23（マージ済み）、#21（マージ済み）、#19（マージ済み）
+- Branch: `feature/issue-24-phase9-s3-image-upload`（main へ PR 中）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules

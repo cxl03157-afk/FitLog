@@ -295,7 +295,7 @@ GET /api/auth/sessions を実行
 ### プロフィール画像
 
 - [ ] アバター画像は S3 に保存し、image_key を DB 管理する（URL は保存しない）
-- [ ] アバター画像は JPEG / PNG を許可し、最大ファイルサイズは 5MB
+- [ ] アバター画像は JPEG / PNG / WebP を許可し、最大ファイルサイズは 10MB
 - [ ] アバター未設定時はデフォルトアイコンを表示
 - [ ] S3 key: `images/avatars/{userId}/{uuid}.{ext}`
 
@@ -314,4 +314,4 @@ GET /api/auth/sessions を実行
 | DELETE | `/api/auth/sessions` | 全端末ログアウト | 必要 |
 | GET | `/api/users/:id` | プロフィール取得 | 必要 |
 | PUT | `/api/users/me` | プロフィール更新 | 必要 |
-| POST | `/api/users/me/avatar` | アバター画像アップロード | 必要 |
+| PATCH | `/api/users/me/avatar` | アバター画像アップロード | 必要 |
