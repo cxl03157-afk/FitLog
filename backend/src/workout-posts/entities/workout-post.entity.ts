@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { WorkoutExercise } from '../../workout-exercises/entities/workout-exercise.entity';
 import { User } from '../../users/user.entity';
+import { PostImage } from './post-image.entity';
 
 @Entity('workout_posts')
 @Index('idx_workout_posts_user_id', ['userId'])
@@ -43,6 +44,9 @@ export class WorkoutPost {
 
   @OneToMany(() => WorkoutExercise, (we) => we.workoutPost, { cascade: true })
   workoutExercises: WorkoutExercise[];
+
+  @OneToMany(() => PostImage, (pi) => pi.workoutPost)
+  postImages: PostImage[];
 
   likeCount?: number;
   commentCount?: number;
