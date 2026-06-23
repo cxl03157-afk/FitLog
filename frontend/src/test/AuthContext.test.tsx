@@ -107,6 +107,25 @@ describe('AuthContext', () => {
     expect(screen.getByTestId('authenticated').textContent).toBe('true');
   });
 
+  it('profile completion failure → login is maintained and avatarUrl stays null', async () => {
+    vi.mocked(authApi.refresh).mockResolvedValue({
+      accessToken: 'tok',
+      user: { id: '1', username: 'taro', displayName: 'Taro', email: 'a@b.com' },
+    });
+    vi.mocked(usersApi.getProfile).mockRejectedValue(new Error('network error'));
+
+    render(
+      <AuthProvider>
+        <TestConsumer />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('authenticated').textContent).toBe('true');
+      expect(screen.getByTestId('user').textContent).toBe('taro');
+    });
+  });
+
   it('clears user after logout', async () => {
     vi.mocked(authApi.refresh).mockResolvedValue({
       accessToken: 'tok',

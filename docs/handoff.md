@@ -109,6 +109,15 @@
 - [Phase 10 / 10-3] 投稿後に POST /:id/images が失敗した場合も投稿 DB は維持。タイムラインへ遷移してトースト「投稿は保存されましたが、画像のアップロードに失敗しました」を表示（5秒後自動消去）。再試行 UI は Phase 10 スコープ外。
 - [Phase 10 / 10-3] PostCard・WorkoutPostDetailPage に postImages グリッド表示追加（1枚: grid-cols-1、2-4枚: grid-cols-2）。TimelinePage は `useLocation().state.toast` でトーストを表示。
 - [Phase 10 / 10-3] テスト結果: lint PASS / unit 44 PASS（+16件）/ tsc PASS / build PASS（2026-06-23）。
+- [Phase 10 / 10-4] ProfilePage（`pages/stubs/ProfilePage.tsx`）を完全実装。ローディング・404・エラー・正常の4状態対応。
+- [Phase 10 / 10-4] アバター表示: `avatarUrl` あり → `<img>`、なし → 表示名イニシャル円（取得不可時は `?`）。
+- [Phase 10 / 10-4] 自分のプロフィール: 「プロフィールを編集」ボタン → インラインモーダル（表示名・bio）+ アバター変更ボタン（モーダル内）。他ユーザー: フォロー/フォロー中ボタン。
+- [Phase 10 / 10-4] フォロー操作: API 成功時のみ followerCount ±1。409（既フォロー）→ isFollowing=true に寄せるが件数は変化しない。404 on unfollow → isFollowing=false に寄せるが件数は変化しない。
+- [Phase 10 / 10-4] アバター更新成功: `uploadAvatar` → `updateCurrentUser({ avatarUrl })` で NavBar 即時反映。失敗: モーダル内エラー表示・既存アバター維持。
+- [Phase 10 / 10-4] `useEffect` の setState を同期的に effect 本体で呼ぶ代わりに cleanup 関数でリセット（`react-hooks/set-state-in-effect` lint エラー回避）。`cancelled` フラグで旧フェッチのレース防止。
+- [Phase 10 / 10-4] アバター input.value は `handleAvatarSelect` 冒頭で同期的に `= ''` リセット（同一ファイルの再選択対応）。
+- [Phase 10 / 10-4] テスト結果: lint PASS / unit 68 PASS（23 ProfilePage + 5 AuthContext + 40 other）/ tsc PASS / build PASS（2026-06-23）。
+- [Phase 10 / 10-4] Playwright スポット確認（13項目 PASS / 2026-06-23）: 自分のプロフィール表示（イニシャル・統計・編集ボタン）・表示名 bio 編集の画面反映・アバターアップロード後の &lt;img&gt; 切り替えと NavBar 即時反映・他ユーザープロフィール（フォローボタン）・フォロー→followerCount+1・フォロー解除→followerCount-1・フォロワー/フォロー中リンク先 URL・投稿一覧/0件表示。
 
 ## OpenQuestions
 - (none)
@@ -120,7 +129,7 @@
 - レビュー承認待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
 
 ## NextAction
-Sub-phase 10-3 コミット承認後 → Sub-phase 10-4（プロフィール・アバター UI）実装へ進む。
+Sub-phase 10-4 コミット承認後 → Sub-phase 10-5（フォロー一覧・検索・フォロー中タイムライン）実装へ進む。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
