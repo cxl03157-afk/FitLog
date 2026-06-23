@@ -46,17 +46,19 @@ const mockPost: WorkoutPost = {
       sets: [{ id: '1', setNumber: 1, weightKg: 60, reps: 10, isPr: false, memo: null }],
     },
   ],
+  postImages: [],
 };
 
 beforeEach(() => {
   vi.clearAllMocks();
   mockUseAuth.mockReturnValue({
-    user: { id: '1', username: 'user', displayName: 'User', email: 'u@test.com' },
+    user: { id: '1', username: 'user', displayName: 'User', email: 'u@test.com', avatarUrl: null, bio: null },
     isLoading: false,
     isAuthenticated: true,
     login: vi.fn(),
     register: vi.fn(),
     logout: vi.fn(),
+    updateCurrentUser: vi.fn(),
   });
 });
 

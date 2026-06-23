@@ -3,6 +3,7 @@ import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import * as authApi from '../api/auth';
+import * as usersApi from '../api/users';
 import { setAccessToken } from '../api/client';
 
 vi.mock('../api/auth', () => ({
@@ -10,6 +11,10 @@ vi.mock('../api/auth', () => ({
   login: vi.fn(),
   register: vi.fn(),
   logout: vi.fn(),
+}));
+
+vi.mock('../api/users', () => ({
+  getProfile: vi.fn(),
 }));
 
 const TestConsumer = () => {
@@ -25,9 +30,22 @@ const TestConsumer = () => {
   );
 };
 
+const mockProfile = {
+  id: '1',
+  username: 'taro',
+  displayName: 'Taro',
+  bio: null,
+  avatarUrl: null,
+  postCount: 0,
+  followerCount: 0,
+  followingCount: 0,
+  isFollowing: false,
+};
+
 beforeEach(() => {
   vi.clearAllMocks();
   setAccessToken(null);
+  vi.mocked(usersApi.getProfile).mockResolvedValue(mockProfile);
 });
 
 describe('AuthContext', () => {

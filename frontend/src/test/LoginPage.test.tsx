@@ -22,6 +22,7 @@ beforeEach(() => {
     login: mockLogin,
     register: vi.fn(),
     logout: vi.fn(),
+    updateCurrentUser: vi.fn(),
   });
 });
 

@@ -27,12 +27,13 @@ const mockExercises: Exercise[] = [
 beforeEach(() => {
   vi.clearAllMocks();
   mockUseAuth.mockReturnValue({
-    user: { id: '1', username: 'user', displayName: 'User', email: 'u@test.com' },
+    user: { id: '1', username: 'user', displayName: 'User', email: 'u@test.com', avatarUrl: null, bio: null },
     isLoading: false,
     isAuthenticated: true,
     login: vi.fn(),
     register: vi.fn(),
     logout: vi.fn(),
+    updateCurrentUser: vi.fn(),
   });
   mockFetchExercises.mockResolvedValue(mockExercises);
 });

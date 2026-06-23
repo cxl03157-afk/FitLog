@@ -4,7 +4,8 @@ import type { CreateWorkoutPostDto, WorkoutPost, WorkoutPostsResponse } from '..
 export type FetchWorkoutPostsParams = {
   page?: number;
   limit?: number;
-  feed?: 'all';
+  feed?: 'all' | 'following';
+  userId?: string;
 };
 
 export const fetchWorkoutPosts = (params: FetchWorkoutPostsParams): Promise<WorkoutPostsResponse> =>

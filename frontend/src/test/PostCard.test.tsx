@@ -34,6 +34,7 @@ const basePost: WorkoutPost = {
   isLiked: false,
   user: { id: '10', username: 'tester', displayName: 'テスター' },
   workoutExercises: [],
+  postImages: [],
 };
 
 const renderCard = (post: WorkoutPost = basePost) =>

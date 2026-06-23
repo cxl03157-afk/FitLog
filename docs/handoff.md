@@ -96,6 +96,15 @@
 - [Phase 10 / 10-1] PATCH /api/users/me/profile: `displayName` は trim 後 MinLength(1)（空白のみ→400）。`bio` は空文字・trim後空文字→null 変換。空 DTO は no-op。未知フィールドは 400（forbidNonWhitelisted）。
 - [Phase 10 / 10-1] getFollowers / getFollowing: 旧 `Follow[]` 返却から `FollowUserDto[]` に変更。QueryBuilder + EXISTS サブクエリで isFollowing を一括取得（N+1 回避）。avatarUrl を含む。存在しないユーザーは 404（usersService.findById が throw）。存在するユーザーでフォロワーなしは 200 + 空配列。
 - [Phase 10 / 10-1] テスト結果: lint PASS / unit 114 PASS / build PASS / integration 21 PASS（2026-06-23）。
+- [Phase 10 / 10-2] `types/auth.ts`: `AuthUser`（auth API が返す基本4フィールド）を分離し、`User = AuthUser & { avatarUrl: string|null, bio: string|null }` に拡張。`AuthResponse.user` は `AuthUser` 型。
+- [Phase 10 / 10-2] `types/workout.ts`: `PostImageItem = { id, imageKey, displayOrder, imageUrl }` 追加。`WorkoutPost.postImages: PostImageItem[]` 追加。
+- [Phase 10 / 10-2] `types/user.ts`（新規）: `UserProfile`・`SearchUser`・`FollowUser` 型定義。
+- [Phase 10 / 10-2] `api/workoutPosts.ts`: `FetchWorkoutPostsParams` に `feed?: 'all' | 'following'`・`userId?: string` 追加。
+- [Phase 10 / 10-2] `api/users.ts`（新規）: `getProfile`・`searchUsers`・`updateProfile`・`uploadAvatar`。
+- [Phase 10 / 10-2] `api/follows.ts`（新規）: `followUser`・`unfollowUser`・`getFollowers`・`getFollowing`。
+- [Phase 10 / 10-2] `api/sessions.ts`（新規）: `SessionInfo`・`getSessions`・`revokeSession`・`revokeAllOtherSessions`。
+- [Phase 10 / 10-2] `AuthContext`: login/register 直後に `avatarUrl: null, bio: null` でセット後、非同期で `getProfile` を呼びプロフィール補完。`updateCurrentUser` を context に公開（外部コンポーネントから部分更新可能）。補完失敗: 401 のみ認証クリア、それ以外はコンソールエラーのみでログイン維持。`setUser` 関数形式で更新するため stale closure の上書きは発生しない。
+- [Phase 10 / 10-2] テスト結果: lint PASS / unit 28 PASS / build PASS（2026-06-23）。
 
 ## OpenQuestions
 - (none)
@@ -107,7 +116,7 @@
 - レビュー承認待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
 
 ## NextAction
-Sub-phase 10-1 コミット承認後 → Sub-phase 10-2（フロントエンド型・API クライアント）実装へ進む。
+Sub-phase 10-2 コミット承認後 → Sub-phase 10-3（投稿画像 UI）実装へ進む。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
