@@ -31,7 +31,7 @@ const TimelinePage = () => {
   useEffect(() => {
     let cancelled = false;
 
-    fetchWorkoutPosts({ page: 1, limit: LIMIT, feed: 'all' })
+    fetchWorkoutPosts({ page: 1, limit: LIMIT, feed: activeTab })
       .then((res) => {
         if (cancelled) return;
         setPosts(res.data);
@@ -48,14 +48,19 @@ const TimelinePage = () => {
 
     return () => {
       cancelled = true;
+      setPosts([]);
+      setLoading(true);
+      setError(null);
+      setPage(1);
+      setTotal(0);
     };
-  }, []);
+  }, [activeTab]);
 
   const handleLoadMore = async () => {
     const nextPage = page + 1;
     setLoadingMore(true);
     try {
-      const res = await fetchWorkoutPosts({ page: nextPage, limit: LIMIT, feed: 'all' });
+      const res = await fetchWorkoutPosts({ page: nextPage, limit: LIMIT, feed: activeTab });
       setPosts((prev) => [...prev, ...res.data]);
       setTotal(res.total);
       setPage(nextPage);
@@ -111,50 +116,40 @@ const TimelinePage = () => {
           </button>
         </div>
 
-        {/* フォロー中タブ: Phase 10 プレースホルダー */}
-        {activeTab === 'following' && (
+        {loading && (
+          <div className="text-center py-16 text-gray-400">読み込み中...</div>
+        )}
+
+        {error && !loading && (
+          <div className="text-center py-16 text-red-500">{error}</div>
+        )}
+
+        {!loading && !error && posts.length === 0 && (
           <div className="text-center py-16 text-gray-400">
-            <p>フォロー中タイムラインは Phase 10 で実装予定です。</p>
+            {activeTab === 'following'
+              ? 'フォロー中のユーザーの投稿はありません。'
+              : 'まだ投稿がありません。最初の投稿をしてみましょう！'}
           </div>
         )}
 
-        {/* 全体タブ */}
-        {activeTab === 'all' && (
-          <>
-            {loading && (
-              <div className="text-center py-16 text-gray-400">読み込み中...</div>
-            )}
+        {!loading && posts.length > 0 && (
+          <div className="flex flex-col gap-4">
+            {posts.map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </div>
+        )}
 
-            {error && !loading && (
-              <div className="text-center py-16 text-red-500">{error}</div>
-            )}
-
-            {!loading && !error && posts.length === 0 && (
-              <div className="text-center py-16 text-gray-400">
-                まだ投稿がありません。最初の投稿をしてみましょう！
-              </div>
-            )}
-
-            {!loading && posts.length > 0 && (
-              <div className="flex flex-col gap-4">
-                {posts.map((post) => (
-                  <PostCard key={post.id} post={post} />
-                ))}
-              </div>
-            )}
-
-            {hasMore && !loading && (
-              <div className="mt-6 text-center">
-                <button
-                  onClick={() => void handleLoadMore()}
-                  disabled={loadingMore}
-                  className="bg-white border border-gray-300 hover:border-gray-400 disabled:opacity-50 text-gray-700 font-medium py-2 px-6 rounded-lg transition"
-                >
-                  {loadingMore ? '読み込み中...' : 'もっと見る'}
-                </button>
-              </div>
-            )}
-          </>
+        {hasMore && !loading && (
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => void handleLoadMore()}
+              disabled={loadingMore}
+              className="bg-white border border-gray-300 hover:border-gray-400 disabled:opacity-50 text-gray-700 font-medium py-2 px-6 rounded-lg transition"
+            >
+              {loadingMore ? '読み込み中...' : 'もっと見る'}
+            </button>
+          </div>
         )}
       </div>
 

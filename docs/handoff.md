@@ -118,6 +118,12 @@
 - [Phase 10 / 10-4] アバター input.value は `handleAvatarSelect` 冒頭で同期的に `= ''` リセット（同一ファイルの再選択対応）。
 - [Phase 10 / 10-4] テスト結果: lint PASS / unit 68 PASS（23 ProfilePage + 5 AuthContext + 40 other）/ tsc PASS / build PASS（2026-06-23）。
 - [Phase 10 / 10-4] Playwright スポット確認（13項目 PASS / 2026-06-23）: 自分のプロフィール表示（イニシャル・統計・編集ボタン）・表示名 bio 編集の画面反映・アバターアップロード後の &lt;img&gt; 切り替えと NavBar 即時反映・他ユーザープロフィール（フォローボタン）・フォロー→followerCount+1・フォロー解除→followerCount-1・フォロワー/フォロー中リンク先 URL・投稿一覧/0件表示。
+- [Phase 10 / 10-5] UserCard（`components/UserCard.tsx`）新規作成。アバター（avatarUrl あり → img / なし → イニシャル円、取得不可時は `?`）・表示名・`@username`・フォローボタン（自分自身には非表示）。カード全体が `/users/:id` リンク。フォローボタンはリンク外に配置（クリックでプロフィール遷移しない）。エラーメッセージは3秒後に自動消去（useEffect cleanup でタイマーをクリア）。フォロー API 成功まで isFollowing を変更しない（非楽観的更新）。409 → isFollowing=true に寄せる / 404 → isFollowing=false に寄せる / その他 → 元の状態を維持しエラーメッセージ表示。
+- [Phase 10 / 10-5] FollowersPage / FollowingPage（スタブ→実装）。getFollowers / getFollowing を呼び UserCard で一覧表示。0件・404・その他 API エラーをそれぞれ表示。タブ切替は Link（`/users/:id/followers` ↔ `/users/:id/following`）。useEffect cleanup で cancelled フラグ + setState リセット（react-hooks/set-state-in-effect 対応）。
+- [Phase 10 / 10-5] SearchPage（スタブ→実装）。入力 300ms デバウンス + AbortController（新しいリクエスト開始時に旧リクエストを abort）。trim 後 2文字以上の場合のみ `GET /api/users/search` を呼ぶ。2文字未満に戻した際はデバウンスタイマーをキャンセルし controller.abort() + 結果・エラー・ローディングをすべてクリア。キャンセルされたリクエストではエラー表示しない（cancelled フラグで判定）。自分自身の結果にフォローボタン非表示（UserCard の isSelf チェック）。`api/users.ts` の `searchUsers` に AbortSignal パラメータを追加。
+- [Phase 10 / 10-5] TimelinePage フォロー中タブ有効化。useEffect の依存配列を `[activeTab]` に変更し `feed: activeTab` でフェッチ。タブ切替時に cleanup（cancelled=true + 各 state リセット）→ 旧リクエスト結果が新しいタブを上書きしない。handleLoadMore も `activeTab` を参照するため二重呼び出しなし。フォロー中 0件時は「フォロー中のユーザーの投稿はありません。」を表示。
+- [Phase 10 / 10-5] テスト結果: lint PASS / unit 107 PASS（12 UserCard + 11 FollowersPage/FollowingPage + 10 SearchPage + 10 TimelinePage + 23 ProfilePage + 16 WorkoutPostNewPage + 25 other）/ tsc PASS / build PASS（2026-06-23）。
+- [Phase 10 / 10-5] Playwright スポット確認（11項目 PASS / 2026-06-23）: フォロワー0件表示・フォロー中0件表示・ユーザー検索（e2espot2 表示）・自分自身にフォローボタンなし・検索結果からプロフィール遷移・フォロー成功（ボタン「フォロー中」）・フォロワー一覧に e2espot1 表示・フォロー中一覧に e2espot2 表示・フォロー中タイムラインに投稿表示・フォロー解除成功・フォロー解除後タイムラインから消える。
 
 ## OpenQuestions
 - (none)
@@ -129,7 +135,7 @@
 - レビュー承認待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
 
 ## NextAction
-Sub-phase 10-4 コミット承認後 → Sub-phase 10-5（フォロー一覧・検索・フォロー中タイムライン）実装へ進む。
+Sub-phase 10-5 コミット承認後 → Sub-phase 10-6（デバイス管理 SessionsPage）実装へ進む。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`

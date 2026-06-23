@@ -22,9 +22,13 @@ export type UploadAvatarResponse = {
 export const getProfile = (userId: string): Promise<UserProfile> =>
   apiClient.get<UserProfile>(`/api/users/${userId}`).then((r) => r.data);
 
-export const searchUsers = (username: string, limit?: number): Promise<SearchUser[]> =>
+export const searchUsers = (
+  username: string,
+  limit?: number,
+  signal?: AbortSignal,
+): Promise<SearchUser[]> =>
   apiClient
-    .get<SearchUser[]>('/api/users/search', { params: { username, limit } })
+    .get<SearchUser[]>('/api/users/search', { params: { username, limit }, signal })
     .then((r) => r.data);
 
 export const updateProfile = (dto: UpdateProfileDto): Promise<UpdateProfileResponse> =>
