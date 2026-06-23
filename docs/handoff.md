@@ -105,6 +105,10 @@
 - [Phase 10 / 10-2] `api/sessions.ts`（新規）: `SessionInfo`・`getSessions`・`revokeSession`・`revokeAllOtherSessions`。
 - [Phase 10 / 10-2] `AuthContext`: login/register 直後に `avatarUrl: null, bio: null` でセット後、非同期で `getProfile` を呼びプロフィール補完。`updateCurrentUser` を context に公開（外部コンポーネントから部分更新可能）。補完失敗: 401 のみ認証クリア、それ以外はコンソールエラーのみでログイン維持。`setUser` 関数形式で更新するため stale closure の上書きは発生しない。
 - [Phase 10 / 10-2] テスト結果: lint PASS / unit 28 PASS / build PASS（2026-06-23）。
+- [Phase 10 / 10-3] 投稿画像 UI 実装。画像は最大4枚・JPEG/PNG/WebP・各10MB以下。0バイト・重複ファイル（名前+サイズ+lastModified が同一）は選択時に除外。一部不正ファイルがあっても有効ファイルは保持して送信続行。Object URL は削除時に対象のみ個別 revoke、アンマウント時は `selectedImagesRef` 経由で全残存 URL を一括解放（stale closure 回避）。
+- [Phase 10 / 10-3] 投稿後に POST /:id/images が失敗した場合も投稿 DB は維持。タイムラインへ遷移してトースト「投稿は保存されましたが、画像のアップロードに失敗しました」を表示（5秒後自動消去）。再試行 UI は Phase 10 スコープ外。
+- [Phase 10 / 10-3] PostCard・WorkoutPostDetailPage に postImages グリッド表示追加（1枚: grid-cols-1、2-4枚: grid-cols-2）。TimelinePage は `useLocation().state.toast` でトーストを表示。
+- [Phase 10 / 10-3] テスト結果: lint PASS / unit 44 PASS（+16件）/ tsc PASS / build PASS（2026-06-23）。
 
 ## OpenQuestions
 - (none)
@@ -116,7 +120,7 @@
 - レビュー承認待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
 
 ## NextAction
-Sub-phase 10-2 コミット承認後 → Sub-phase 10-3（投稿画像 UI）実装へ進む。
+Sub-phase 10-3 コミット承認後 → Sub-phase 10-4（プロフィール・アバター UI）実装へ進む。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`

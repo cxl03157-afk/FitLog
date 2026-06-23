@@ -16,6 +16,7 @@ vi.mock('../api/workoutPosts', () => ({
   fetchWorkoutPost: vi.fn(),
   createWorkoutPost: vi.fn(),
   deleteWorkoutPost: vi.fn(),
+  uploadPostImages: vi.fn(),
 }));
 
 const mockUseAuth = vi.mocked(AuthContextModule.useAuth);

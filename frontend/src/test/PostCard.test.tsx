@@ -88,6 +88,30 @@ describe('PostCard', () => {
     });
   });
 
+  it('shows image thumbnails when postImages is non-empty', () => {
+    const postWithImages: WorkoutPost = {
+      ...basePost,
+      postImages: [
+        { id: 'img1', imageKey: 'images/posts/1/abc.jpg', displayOrder: 0, imageUrl: 'http://localhost:4566/fitlog/images/posts/1/abc.jpg' },
+        { id: 'img2', imageKey: 'images/posts/1/def.jpg', displayOrder: 1, imageUrl: 'http://localhost:4566/fitlog/images/posts/1/def.jpg' },
+      ],
+    };
+    renderCard(postWithImages);
+
+    const images = document.querySelectorAll('img[src]');
+    expect(images.length).toBeGreaterThanOrEqual(2);
+    expect((images[0] as HTMLImageElement).src).toContain('abc.jpg');
+    expect((images[1] as HTMLImageElement).src).toContain('def.jpg');
+  });
+
+  it('hides image area when postImages is empty', () => {
+    renderCard({ ...basePost, postImages: [] });
+
+    // No <img> elements should be present (no thumbnails)
+    const images = document.querySelectorAll('img[src]');
+    expect(images.length).toBe(0);
+  });
+
   it('handles 409 conflict: sets isLiked=true and does not double-count', async () => {
     const axiosError = {
       isAxiosError: true,

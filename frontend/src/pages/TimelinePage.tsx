@@ -3,13 +3,14 @@ import NavBar from '../components/NavBar';
 import PostCard from '../components/PostCard';
 import { fetchWorkoutPosts } from '../api/workoutPosts';
 import type { WorkoutPost } from '../types/workout';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 type Tab = 'all' | 'following';
 
 const LIMIT = 20;
 
 const TimelinePage = () => {
+  const location = useLocation();
   const [posts, setPosts] = useState<WorkoutPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,6 +18,15 @@ const TimelinePage = () => {
   const [total, setTotal] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('all');
+  const [toast, setToast] = useState<string | null>(
+    (location.state as { toast?: string } | null)?.toast ?? null,
+  );
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 5000);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   useEffect(() => {
     let cancelled = false;
@@ -63,6 +73,20 @@ const TimelinePage = () => {
       <NavBar />
 
       <div className="max-w-xl mx-auto px-4 py-6">
+        {toast && (
+          <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800 flex items-center justify-between">
+            <span>{toast}</span>
+            <button
+              type="button"
+              onClick={() => setToast(null)}
+              className="ml-2 text-yellow-600 hover:text-yellow-800 leading-none"
+              aria-label="トーストを閉じる"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         {/* タブ */}
         <div className="flex border-b border-gray-200 mb-6">
           <button
