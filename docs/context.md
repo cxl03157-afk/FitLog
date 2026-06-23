@@ -5,11 +5,10 @@
 
 ## 現状スナップショット
 
-- Phase: **9 完了**・PR #25 CI グリーン・レビュー待ち（2026-06-19）
-- NextPhase: Phase 10（フロントエンド 画像UI）
-- Issue: #24（Phase 9 完了）
-- Branch: `feature/issue-24-phase9-s3-image-upload`（PR #25）
-- Status: PR #25 CI グリーン・レビュー待ち
+- Phase: **10 進行中**（フロントエンド フォロー・プロフィール・画像UI）
+- Issue: #26（Phase 10）
+- Branch: `feature/issue-26-phase10-frontend`
+- Status: Sub-phase 10-1（Backend User API）実装中
 
 ## 技術スタック
 
@@ -96,10 +95,22 @@
 | 機微情報マスキング | token/cookie/password をログでマスク |
 | CORS | フロントエンドのオリジンのみ許可 |
 
+## Phase 10 確定決定事項
+
+| 項目 | 決定 |
+|------|------|
+| follows service N+1 回避 | getFollowers/getFollowing を QueryBuilder + LEFT JOIN に変更し isFollowing を一括取得 |
+| 現在端末ログアウト | logout API（POST /api/auth/logout）のみ使用。finally で AuthContext クリア → /login |
+| logout 失敗時 | エラートースト表示、finally で強制 AuthContext クリア。HttpOnly Cookie は残る可能性あり |
+| E2E username 形式 | `e2e${workerIndex.toString(36)}${Date.now().toString(36)}.slice(0,20)`（英数字のみ、20文字以内） |
+| Search DTO | @IsString @Transform(trim) @Matches(/\S/) @MaxLength(20)。limit: @Type(Number) @IsInt @Min(1) @Max(50) default=20 |
+| bio 空文字処理 | 空文字 or trim後空文字 → null として保存 |
+| 画像 API 失敗後 | 投稿は維持してタイムラインへ。トースト「投稿は保存されましたが画像のアップロードに失敗しました」 |
+| Object URL 管理 | SelectedImage = { file, previewUrl }。削除は個別 revoke、アンマウントは ref 経由で全解放 |
+
 ## NextAction
 
-PR #25 CI グリーン確認 → レビュー承認 → マージ。
-マージ後、Phase 10（フロントエンド 画像UI）の計画案を提示する。
+Sub-phase 10-1（Backend User API）実装 → テスト → コミット承認依頼。
 
 ## 参照ファイル（詳細確認が必要な場合）
 
@@ -108,4 +119,4 @@ PR #25 CI グリーン確認 → レビュー承認 → マージ。
 - 認証仕様: `docs/features/01_auth.md`
 - DB 設計: `docs/database.md`
 - 状態詳細: `docs/handoff.md`
-- Issue: #24（Phase 9 完了）、#22（Phase 8 / 完了）、#20（Phase 7-1 / 完了）、#18（Phase 7 / 完了）、#16（Phase 6 / 完了）
+- Issue: #26（Phase 10）、#24（Phase 9 / 完了）、#22（Phase 8 / 完了）、#20（Phase 7-1 / 完了）、#18（Phase 7 / 完了）、#16（Phase 6 / 完了）

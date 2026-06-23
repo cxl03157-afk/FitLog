@@ -12,7 +12,37 @@ import { Repository } from 'typeorm';
 import { BCRYPT_SALT_ROUNDS } from '../common/constants/auth.constants';
 import { S3Service } from '../s3/s3.service';
 import { RegisterDto } from './dto/register.dto';
+import { SearchUsersDto } from './dto/search-users.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { User } from './user.entity';
+
+export interface UserProfileDto {
+  id: string;
+  username: string;
+  displayName: string;
+  bio: string | null;
+  avatarUrl: string | null;
+  postCount: number;
+  followerCount: number;
+  followingCount: number;
+  isFollowing: boolean;
+}
+
+export interface SearchUserDto {
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl: string | null;
+  isFollowing: boolean;
+}
+
+export interface UpdateProfileResponseDto {
+  id: string;
+  username: string;
+  displayName: string;
+  bio: string | null;
+  avatarUrl: string | null;
+}
 
 const MIME_TO_EXT: Record<string, string> = {
   'image/jpeg': 'jpg',
@@ -72,6 +102,125 @@ export class UsersService {
     });
 
     return this.usersRepository.save(user);
+  }
+
+  async getProfile(
+    userId: string,
+    currentUserId: string,
+  ): Promise<UserProfileDto> {
+    const row = await this.usersRepository
+      .createQueryBuilder('u')
+      .select('u.id', 'id')
+      .addSelect('u.username', 'username')
+      .addSelect('u.displayName', 'displayName')
+      .addSelect('u.bio', 'bio')
+      .addSelect('u.avatarKey', 'avatarKey')
+      .addSelect(
+        '(SELECT COUNT(*)::int FROM workout_posts WHERE user_id = u.id)',
+        'postCount',
+      )
+      .addSelect(
+        '(SELECT COUNT(*)::int FROM follows WHERE followee_id = u.id)',
+        'followerCount',
+      )
+      .addSelect(
+        '(SELECT COUNT(*)::int FROM follows WHERE follower_id = u.id)',
+        'followingCount',
+      )
+      .addSelect(
+        `EXISTS(SELECT 1 FROM follows WHERE follower_id = :currentUserId AND followee_id = u.id)`,
+        'isFollowingRaw',
+      )
+      .where('u.id = :userId', { userId })
+      .setParameter('currentUserId', currentUserId)
+      .getRawOne<{
+        id: string;
+        username: string;
+        displayName: string;
+        bio: string | null;
+        avatarKey: string | null;
+        postCount: number;
+        followerCount: number;
+        followingCount: number;
+        isFollowingRaw: boolean;
+      }>();
+
+    if (!row) {
+      throw new NotFoundException('User not found');
+    }
+
+    return {
+      id: row.id,
+      username: row.username,
+      displayName: row.displayName,
+      bio: row.bio,
+      avatarUrl: row.avatarKey ? `${this.imageBaseUrl}/${row.avatarKey}` : null,
+      postCount: Number(row.postCount),
+      followerCount: Number(row.followerCount),
+      followingCount: Number(row.followingCount),
+      isFollowing: row.isFollowingRaw === true && userId !== currentUserId,
+    };
+  }
+
+  async searchUsers(
+    dto: SearchUsersDto,
+    currentUserId: string,
+  ): Promise<SearchUserDto[]> {
+    const limit = dto.limit ?? 20;
+    const rows = await this.usersRepository
+      .createQueryBuilder('u')
+      .select('u.id', 'id')
+      .addSelect('u.username', 'username')
+      .addSelect('u.displayName', 'displayName')
+      .addSelect('u.avatarKey', 'avatarKey')
+      .addSelect(
+        `EXISTS(SELECT 1 FROM follows WHERE follower_id = :currentUserId AND followee_id = u.id)`,
+        'isFollowing',
+      )
+      .where('u.username ILIKE :pattern', { pattern: `%${dto.username}%` })
+      .setParameter('currentUserId', currentUserId)
+      .orderBy('u.username', 'ASC')
+      .limit(limit)
+      .getRawMany<{
+        id: string;
+        username: string;
+        displayName: string;
+        avatarKey: string | null;
+        isFollowing: boolean;
+      }>();
+
+    return rows.map((row) => ({
+      id: row.id,
+      username: row.username,
+      displayName: row.displayName,
+      avatarUrl: row.avatarKey ? `${this.imageBaseUrl}/${row.avatarKey}` : null,
+      isFollowing: row.isFollowing === true,
+    }));
+  }
+
+  async updateProfile(
+    userId: string,
+    dto: UpdateProfileDto,
+  ): Promise<UpdateProfileResponseDto> {
+    const updates: Partial<User> = {};
+    if (dto.displayName !== undefined) updates.displayName = dto.displayName;
+    if (dto.bio !== undefined) updates.bio = dto.bio ?? null;
+
+    if (Object.keys(updates).length > 0) {
+      updates.updatedAt = new Date();
+      await this.usersRepository.update(userId, updates);
+    }
+
+    const updated = await this.findById(userId);
+    return {
+      id: updated.id,
+      username: updated.username,
+      displayName: updated.displayName,
+      bio: updated.bio,
+      avatarUrl: updated.avatarKey
+        ? `${this.imageBaseUrl}/${updated.avatarKey}`
+        : null,
+    };
   }
 
   async uploadAvatar(

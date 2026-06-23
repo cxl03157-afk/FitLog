@@ -90,6 +90,12 @@
 - [Phase 9] uploadImages エラー: アップロード済みキーを deleteMany でロールバック。rollback 失敗はログのみ、元例外を再 throw。remove() の S3 削除失敗もログのみ、DB 削除は継続。
 - [Phase 9] TypeORM FindOptionsSelect は配列形式不可（TS2559）→ `{ field: true }` のオブジェクト形式が必須。
 - [Phase 9] 統合テストのユーザー名は DB の 20文字上限に注意（`av_${Date.now()}` = 16文字で適合）。
+- [Phase 10 / 10-1] `GET /api/users/:id`（プロフィール取得）・`GET /api/users/search`（ユーザー検索）・`PATCH /api/users/me/profile`（プロフィール更新）の 3 エンドポイントを UsersController / UsersService に追加。
+- [Phase 10 / 10-1] GET /api/users/:id: postCount / followerCount / followingCount を EXISTS サブクエリで一括取得。avatarUrl は `IMAGE_BASE_URL + "/" + avatarKey`（null なら null）。自分自身は isFollowing=false。存在しないユーザーは 404。
+- [Phase 10 / 10-1] GET /api/users/search バリデーション: `@IsString @Transform(trim) @Matches(/\S/) @MaxLength(20)` / limit: `@Type(Number) @IsInt @Min(1) @Max(50) default=20`。trim 後の ILIKE 検索。2文字未満制限はフロントエンドのみ。
+- [Phase 10 / 10-1] PATCH /api/users/me/profile: `displayName` は trim 後 MinLength(1)（空白のみ→400）。`bio` は空文字・trim後空文字→null 変換。空 DTO は no-op。未知フィールドは 400（forbidNonWhitelisted）。
+- [Phase 10 / 10-1] getFollowers / getFollowing: 旧 `Follow[]` 返却から `FollowUserDto[]` に変更。QueryBuilder + EXISTS サブクエリで isFollowing を一括取得（N+1 回避）。avatarUrl を含む。存在しないユーザーは 404（usersService.findById が throw）。存在するユーザーでフォロワーなしは 200 + 空配列。
+- [Phase 10 / 10-1] テスト結果: lint PASS / unit 114 PASS / build PASS / integration 21 PASS（2026-06-23）。
 
 ## OpenQuestions
 - (none)
@@ -101,14 +107,13 @@
 - レビュー承認待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
 
 ## NextAction
-PR #25 レビュー承認 → マージ。
-マージ後、Phase 10（フロントエンド 画像UI）の計画案を提示する。
+Sub-phase 10-1 コミット承認後 → Sub-phase 10-2（フロントエンド型・API クライアント）実装へ進む。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
-- Issue: #24（Phase 9）、#22（Phase 8 / 完了）、#20（Phase 7-1 / 完了）、#18（Phase 7 / 完了）、#16（Phase 6 / 完了）
-- PR: #25（feature/issue-24-phase9-s3-image-upload / CI グリーン・レビュー待ち）、#23（マージ済み）、#21（マージ済み）、#19（マージ済み）
-- Branch: `feature/issue-24-phase9-s3-image-upload`（main へ PR 中）
+- Issue: #26（Phase 10 / 進行中）、#24（Phase 9 / 完了）、#22（Phase 8 / 完了）、#20（Phase 7-1 / 完了）、#18（Phase 7 / 完了）、#16（Phase 6 / 完了）
+- PR: #25（Phase 9 / マージ済み）、#23（マージ済み）、#21（マージ済み）、#19（マージ済み）
+- Branch: `feature/issue-26-phase10-frontend`（Phase 10 実装中）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules

@@ -3,12 +3,26 @@ import {
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { QueryFailedError } from 'typeorm';
+import { QueryFailedError, SelectQueryBuilder } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { Follow } from './entities/follow.entity';
 import { FollowsService } from './follows.service';
+
+const mockFollowQb = () => {
+  const qb = {} as jest.Mocked<SelectQueryBuilder<Follow>>;
+  const chain = (): jest.Mocked<SelectQueryBuilder<Follow>> => qb;
+  qb.innerJoin = jest.fn(chain);
+  qb.select = jest.fn(chain);
+  qb.addSelect = jest.fn(chain);
+  qb.where = jest.fn(chain);
+  qb.setParameter = jest.fn(chain);
+  qb.orderBy = jest.fn(chain);
+  qb.getRawMany = jest.fn();
+  return qb;
+};
 
 describe('FollowsService', () => {
   let service: FollowsService;
@@ -18,6 +32,7 @@ describe('FollowsService', () => {
     save: jest.Mock;
     delete: jest.Mock;
     find: jest.Mock;
+    createQueryBuilder: jest.Mock;
   };
   let usersService: { findById: jest.Mock };
 
@@ -28,6 +43,7 @@ describe('FollowsService', () => {
       save: jest.fn(),
       delete: jest.fn(),
       find: jest.fn(),
+      createQueryBuilder: jest.fn(),
     };
     usersService = { findById: jest.fn() };
 
@@ -36,6 +52,12 @@ describe('FollowsService', () => {
         FollowsService,
         { provide: getRepositoryToken(Follow), useValue: followRepo },
         { provide: UsersService, useValue: usersService },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn().mockReturnValue('http://localhost:4566/fitlog'),
+          },
+        },
       ],
     }).compile();
 
@@ -79,6 +101,114 @@ describe('FollowsService', () => {
       followRepo.findOne.mockResolvedValue(null);
 
       await expect(service.unfollow('user2', 'user1')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('getFollowers', () => {
+    it('returns followers with avatarUrl and isFollowing', async () => {
+      usersService.findById.mockResolvedValue({ id: 'user2' });
+      const qb = mockFollowQb();
+      qb.getRawMany.mockResolvedValue([
+        {
+          id: 'user1',
+          username: 'alice',
+          displayName: 'Alice',
+          avatarKey: 'images/avatars/user1/abc.jpg',
+          isFollowing: true,
+        },
+      ]);
+      followRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getFollowers('user2', 'me');
+
+      expect(result).toHaveLength(1);
+      expect(result[0].avatarUrl).toContain('images/avatars/user1/abc.jpg');
+      expect(result[0].isFollowing).toBe(true);
+    });
+
+    it('returns avatarUrl=null when avatarKey is null', async () => {
+      usersService.findById.mockResolvedValue({ id: 'user2' });
+      const qb = mockFollowQb();
+      qb.getRawMany.mockResolvedValue([
+        {
+          id: 'user1',
+          username: 'alice',
+          displayName: 'Alice',
+          avatarKey: null,
+          isFollowing: false,
+        },
+      ]);
+      followRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getFollowers('user2', 'me');
+
+      expect(result[0].avatarUrl).toBeNull();
+    });
+
+    it('returns empty array when user has no followers', async () => {
+      usersService.findById.mockResolvedValue({ id: 'user2' });
+      const qb = mockFollowQb();
+      qb.getRawMany.mockResolvedValue([]);
+      followRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getFollowers('user2', 'me');
+
+      expect(result).toHaveLength(0);
+    });
+
+    it('throws NotFoundException for non-existent user', async () => {
+      usersService.findById.mockRejectedValue(
+        new NotFoundException('User not found'),
+      );
+
+      await expect(service.getFollowers('nonexistent', 'me')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('uses a single query (no N+1)', async () => {
+      usersService.findById.mockResolvedValue({ id: 'user2' });
+      const qb = mockFollowQb();
+      qb.getRawMany.mockResolvedValue([]);
+      followRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getFollowers('user2', 'me');
+
+      expect(followRepo.createQueryBuilder).toHaveBeenCalledTimes(1);
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(qb.getRawMany).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('getFollowing', () => {
+    it('returns following users with avatarUrl and isFollowing', async () => {
+      usersService.findById.mockResolvedValue({ id: 'user1' });
+      const qb = mockFollowQb();
+      qb.getRawMany.mockResolvedValue([
+        {
+          id: 'user2',
+          username: 'bob',
+          displayName: 'Bob',
+          avatarKey: null,
+          isFollowing: false,
+        },
+      ]);
+      followRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getFollowing('user1', 'me');
+
+      expect(result).toHaveLength(1);
+      expect(result[0].isFollowing).toBe(false);
+    });
+
+    it('throws NotFoundException for non-existent user', async () => {
+      usersService.findById.mockRejectedValue(
+        new NotFoundException('User not found'),
+      );
+
+      await expect(service.getFollowing('nonexistent', 'me')).rejects.toThrow(
         NotFoundException,
       );
     });

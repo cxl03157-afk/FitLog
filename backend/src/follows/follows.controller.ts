@@ -30,12 +30,12 @@ export class FollowsController {
   }
 
   @Get('users/:id/followers')
-  getFollowers(@Param('id') id: string) {
-    return this.followsService.getFollowers(id);
+  getFollowers(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.followsService.getFollowers(id, user.sub);
   }
 
   @Get('users/:id/following')
-  getFollowing(@Param('id') id: string) {
-    return this.followsService.getFollowing(id);
+  getFollowing(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.followsService.getFollowing(id, user.sub);
   }
 }
