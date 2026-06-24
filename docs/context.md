@@ -6,9 +6,9 @@
 ## 現状スナップショット
 
 - Phase: **11 完了**（週間/月間集計・目標設定）
-- Issue: #28（Phase 11）— PR 作成前
+- Issue: #28（Phase 11）— PR #29 オープン（CI グリーン・マージ承認待ち）
 - Branch: `feature/issue-28-phase11-stats-goals`
-- Status: Sub-phase 11-1〜11-5 コミット完了。品質ゲート・Playwright E2E PASS。PR 作成待ち。
+- Status: PR #29 CI 全3ジョブ PASS。マージ承認後に main へ切り替え → Phase 12 開始。
 
 ## 技術スタック
 
@@ -63,8 +63,9 @@
 
 ## NextAction
 
-Sub-phase 11-5 完了 → push + PR 作成（`feature/issue-28-phase11-stats-goals` → `main`、Closes #28）。
-PR マージ後は Phase 12（API 仕様書・Swagger 整備）へ。
+PR #29 CI グリーン確認済み。ユーザー承認後に PR #29 をマージ。
+マージ後: main へ切り替えて pull → Issue #28 自動クローズ確認 → Phase 12 開始。
+Phase 12 開始時の doc-sync ゲートで `personal_records` テーブルを `docs/database.md` へ追記する（Issue 本文と完了条件にも明記すること）。
 
 ## 参照ファイル（詳細確認が必要な場合）
 

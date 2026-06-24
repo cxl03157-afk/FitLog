@@ -2,7 +2,7 @@
 
 ## CurrentPhase
 - **Phase 11 完了**: 週間/月間集計・目標設定（Issue #28 / Branch: `feature/issue-28-phase11-stats-goals`）
-  - Sub-phase 11-1〜11-5 すべて完了・コミット済み。PR 作成待ち。
+  - Sub-phase 11-1〜11-5 すべて完了・コミット済み。PR #29 オープン・CI グリーン・マージ承認待ち。
 - **Phase 10 完了**: フロントエンド フォロー・プロフィール・画像UI（Issue #26 / PR #27 マージ済み 2026-06-24）
 - Phase 9 complete: S3 画像アップロード バックエンド + LocalStack（Issue #24）PR #25 マージ済み（2026-06-19）
 - Phase 8 complete: フロントエンド コメント・ナイス機能（Issue #22）PR #23 マージ済み（2026-06-18）
@@ -16,7 +16,7 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #28: オープン（Phase 11 完了・PR 作成待ち）
+- Issue #28: オープン（PR #29 CI グリーン・マージ承認待ち）
 - Issue #26 完了・PR #27 マージ済み（2026-06-24）
 - Issue #24 完了・PR #25 マージ済み（2026-06-19）
 - Issue #22 完了・PR #23 マージ済み（2026-06-18）
@@ -37,6 +37,8 @@
 | 11-3 | `61c6253` | feat: implement StatsPage charts and exercise metrics |
 | 11-4 | `0fbfc77` | feat: implement GoalsPage management and filter tabs |
 | 11-5 | `02973ff` | test: add Phase 11 e2e coverage and finalize documentation |
+| docs | `9f0e25d` | docs: finalize Phase 11 handoff before PR |
+| fix  | `6ed09c7` | fix: remove useless escape in phase11 e2e spec |
 
 ## Phase10CommitHistory（次セッション引き継ぎ用）
 
@@ -54,7 +56,7 @@
 
 ## UncommittedChanges
 
-Sub-phase 11-5 コミット後はクリーン状態の予定。`.claude/settings.json` は今後もいかなるコミットにも含めない。
+`.claude/settings.json` のみ未コミット（今後もいかなるコミットにも含めない）。
 次セッション開始時は最初に `git status --short` を実行して作業ツリーを確認すること。
 
 ## TestResults（Sub-phase 11-5 完了時点）
@@ -109,6 +111,23 @@ dist/assets/index.js: 724.64 kB (gzip: 215.32 kB)
 ### テストデータ後処理
 
 Playwright テストは各シナリオで専用 E2E ユーザーを作成。ユーザーおよびデータはテスト完了後も DB に残存するが、すべて E2E 専用アカウントのため本番影響なし。
+
+## CIResults（PR #29 / 2026-06-24）
+
+### 初回 push 後 CI（失敗）
+
+- `frontend/e2e/phase11.spec.ts` 90行目で `no-useless-escape` エラー（ESLint）
+- 末尾の `\"` を `"` へ修正してコミット `6ed09c7`（`fix: remove useless escape in phase11 e2e spec`）
+
+### 再実行 CI（全 PASS）
+
+| ジョブ | 結果 | 所要時間 |
+|-------|------|---------|
+| Lint, Type Check & Test (1) | PASS | 44s |
+| Lint, Type Check & Test (2) | PASS | 41s |
+| Lint, Type Check & Test (3) | PASS | 1m13s |
+
+PR #29 はマージ可能状態（2026-06-24 確認済み）。
 
 ## TestResults（Sub-phase 10-6 完了時点）
 
@@ -270,21 +289,27 @@ Playwright テストは各シナリオで専用 E2E ユーザーを作成。ユ�
 - (none)
 
 ## ReviewStatus
-- Phase 11: PR 未作成（Sub-phase 11-5 完了・PR 作成待ち）
+- Phase 11: PR #29 オープン・CI 全 PASS（2026-06-24）・マージ承認待ち
 - Phase 10: PR #27 マージ済み（2026-06-24）
 - Phase 9: PR #25 マージ済み（2026-06-19）
 
 ## MergeReadiness
-- Phase 11: 全品質ゲート PASS・Playwright E2E PASS・docs 更新済み。push + PR 作成後にマージ可能。
+- Phase 11: 全品質ゲート PASS・Playwright E2E PASS・docs 更新済み・CI グリーン。ユーザー承認後にマージ可能。
 
 ## NextAction
-Sub-phase 11-5 コミット承認 → push → PR 作成（Closes #28）→ CI グリーン確認 → ユーザーがマージ → Phase 12（API 仕様書・Swagger 整備）開始。
+1. ユーザーが PR #29 をマージ（`feature/issue-28-phase11-stats-goals` → `main`）
+2. `git checkout main && git pull` でローカルを最新化
+3. Issue #28 が自動クローズされたことを確認（`Closes #28` により）
+4. `feature/issue-28-phase11-stats-goals` ブランチの削除は任意
+5. `.claude/settings.json` は引き続きコミット対象外
+6. Phase 12（API 仕様書・Swagger 整備）の計画確認を開始
+7. Phase 12 開始時の doc-sync ゲートで `personal_records` テーブルを `docs/database.md` へ追記（Issue 本文と完了条件にも明記すること）
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
-- Issue: #28（Phase 11 / 進行中）、#26（Phase 10 / 完了）、#24（Phase 9 / 完了）、#22（Phase 8 / 完了）
-- PR: #27（Phase 10 / マージ済み）、#25（Phase 9 / マージ済み）
-- Branch: `feature/issue-28-phase11-stats-goals`（Phase 11 実装中）
+- Issue: #28（Phase 11 / PR #29 マージ待ち）、#26（Phase 10 / 完了）、#24（Phase 9 / 完了）、#22（Phase 8 / 完了）
+- PR: #29（Phase 11 / CI グリーン・マージ待ち）、#27（Phase 10 / マージ済み）、#25（Phase 9 / マージ済み）
+- Branch: `feature/issue-28-phase11-stats-goals`（Phase 11 / マージ待ち）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules
