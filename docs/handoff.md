@@ -1,9 +1,11 @@
 # Agent Handoff
 
 ## CurrentPhase
-- **Phase 10 進行中**: フロントエンド フォロー・プロフィール・画像UI（Issue #26 / Branch: `feature/issue-26-phase10-frontend`）
-  - Sub-phase 10-1〜10-6 コミット済み。10-7（NavBar アバター・最終統合・Playwright E2E）が残タスク。
-  - PR・push・merge はいずれも未実施（ユーザー承認待ち）。
+- **Phase 10 完了・マージ直前**: フロントエンド フォロー・プロフィール・画像UI（Issue #26 / PR #27）
+  - Sub-phase 10-1〜10-7 すべて完了。
+  - CI 3ジョブ PASS（2026-06-24）・レビュー確認済み。
+  - Phase 10 完了ドキュメントを PR #27 へ追加後、再実行 CI と最終 merge 承認を行う。
+- **Phase 11 未着手**: 週間/月間集計・目標設定
 - Phase 9 complete: S3 画像アップロード バックエンド + LocalStack（Issue #24）PR #25 マージ済み（2026-06-19）
 - Phase 8 complete: フロントエンド コメント・ナイス機能（Issue #22）PR #23 マージ済み（2026-06-18）
 - Phase 7-1 complete: workout-posts passwordHash 漏洩修正（Issue #20）PR #21 マージ済み（2026-06-17）
@@ -16,7 +18,8 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #26 進行中・PR 未作成（Sub-phase 10-7 完了後に作成予定）
+- Issue #26: PR #27 マージ時にクローズ予定（現在オープン）
+- PR #27: CI・レビュー確認済み、Phase 10 完了ドキュメント追加待ち
 - Issue #24 完了・PR #25 マージ済み（2026-06-19）
 - Issue #22 完了・PR #23 マージ済み（2026-06-18）
 - Issue #20 完了・PR #21 マージ済み（2026-06-17）
@@ -37,21 +40,20 @@
 | 10-4 | `55422a5` | feat: implement Phase 10-4 profile and avatar UI |
 | 10-5 | `690bd8c` | feat: implement Phase 10-5 follow and search UI |
 | 10-6 | `cf6fb1f` | feat: implement Phase 10-6 session management UI |
-| 10-7 | 未コミット | NavBar アバター・最終統合・Playwright E2E |
+| 10-7 | `f162009` | feat: implement Phase 10-7 NavBar avatar and Playwright E2E |
+| docs | `5f19d8d` | docs: prepare Phase 10 for review |
+| fix  | `dbce453` | test: fix QueryBuilder mock types in backend specs |
 
-## UncommittedChanges（次セッション引き継ぎ用）
+## UncommittedChanges
 
 ```
  M .claude/settings.json   ← コミット対象外（常に除外）
- M docs/context.md         ← Phase 10-7 残タスク・NextAction 更新。Phase 10 コミット候補
- M docs/handoff.md         ← 次セッション向け引き継ぎ更新。Phase 10 コミット候補
+ M docs/context.md         ← Phase 10 完了・マージ直前状態へ更新（コミット9候補）
+ M docs/handoff.md         ← Phase 10 完了・マージ直前状態へ更新（コミット9候補）
+ M docs/phase-roadmap.md   ← Phase 10「完了」へ更新（コミット9候補）
 ```
 
-- Sub-phase 10-1〜10-6 はコミット済み（コミットハッシュは上記 `Phase10CommitHistory` 参照）。
-- Sub-phase 10-7 は未着手（次セッションで実装開始）。
-- push・PR 作成・merge はすべて未承認・未実施。
-- `docs/handoff.md` と `docs/context.md` は Sub-phase 10-7 完了時のコミットに含める候補。
-- `.claude/settings.json` は Claude Code のローカル設定のため、今後もいかなるコミットにも含めない。
+- `.claude/settings.json` は今後もいかなるコミットにも含めない。
 - 次セッション開始時は最初に `git status --short` を実行して作業ツリーを確認すること。
 
 ## TestResults（Sub-phase 10-6 完了時点）
@@ -79,14 +81,15 @@
   計画ファイル（`/Users/user/.claude/plans/happy-beaming-cat.md`）の Sub-phase 10-7 参照。
   6シナリオ: 画像付き投稿・プロフィール更新・アバター更新・フォロー中タイムライン・ユーザー検索遷移・別セッション削除。
 
-## ApprovalStatus（次セッション引き継ぎ用）
+## ApprovalStatus
 
 | 操作 | 状態 | 備考 |
 |------|------|------|
-| Sub-phase 10-1〜10-6 コミット | **承認済み・実施済み** | 各 git commit が完了 |
-| push | **未承認・未実施** | Sub-phase 10-7 完了後にユーザーへ確認 |
-| PR 作成 | **未承認・未実施** | push 後に最終 doc-sync → PR 案提示 |
-| マージ | **未承認・未実施** | CI グリーン・レビュー承認後にユーザーがマージ |
+| Sub-phase 10-1〜10-7 コミット | **承認済み・実施済み** | f162009・5f19d8d・dbce453 を含む全コミット完了 |
+| push | **承認済み・実施済み** | origin/feature/issue-26-phase10-frontend へ push 済み |
+| PR 作成 | **承認済み・実施済み** | PR #27 オープン中 |
+| 完了ドキュメント追加 push | **コミット待ち** | コミット9（本ファイル含む3ファイル）承認後に push |
+| マージ | **未承認・未実施** | CI 再確認・ユーザー最終承認後にマージ |
 
 ## SourceOfTruthOrder
 1. `CLAUDE.md` (workflow and guardrails)
@@ -204,21 +207,14 @@
 - (none)
 
 ## ReviewStatus
-- Phase 10 PR: 未作成（Sub-phase 10-7 完了後に作成予定）
+- Phase 10: PR #27 オープン。CI 3ジョブ PASS（2026-06-24）・レビュー確認済み。マージ直前の完了ドキュメント更新中。
 - Phase 9: PR #25 マージ済み（2026-06-19）
 
 ## MergeReadiness
-- Phase 10: Sub-phase 10-7 + 全体品質チェック + 最終 doc-sync + Playwright E2E 6シナリオ PASS が揃ってから PR 案をユーザーへ提示する
+- Phase 10: 実装・品質ゲート・doc-sync・Playwright E2E・CI・レビュー確認完了。完了ドキュメント追加後の CI 再確認とユーザー最終承認をもって merge 可能。
 
 ## NextAction
-Sub-phase 10-7 を開始する。実装内容:
-1. NavBar に `user.avatarUrl` 反映（あり→`<img>`・なし→イニシャル円、取得不可は `?`・`/users/:myId` へリンク）
-2. 全体品質チェック（backend lint/test/build/integration・frontend lint/tsc/test/build）
-3. 最終 doc-sync
-4. Playwright 自動 E2E 6シナリオ（画像付き投稿・プロフィール更新・アバター更新・フォロー中タイムライン・ユーザー検索遷移・別セッション削除）
-5. コミット案（diff+メッセージ）を提示してユーザー承認を得る（`.claude/settings.json` は対象外）
-6. push 前チェックリスト報告 → ユーザー承認後に push
-7. PR 案を提示してユーザー承認を得てから作成する
+Phase 10 完了ドキュメントをコミットして PR #27 へ追加 push → 再実行 CI を確認 → ユーザーへ最終 merge 承認を依頼 → merge → main 同期と Issue #26 クローズを確認 → Phase 11 開始。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`

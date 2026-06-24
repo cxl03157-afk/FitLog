@@ -5,10 +5,10 @@
 
 ## 現状スナップショット
 
-- Phase: **10 進行中**（フロントエンド フォロー・プロフィール・画像UI）
-- Issue: #26（Phase 10）
-- Branch: `feature/issue-26-phase10-frontend`
-- Status: Sub-phase 10-1〜10-6 コミット済み。Sub-phase 10-7（NavBar アバター・最終統合・Playwright E2E）が残タスク
+- Phase: **10 完了・マージ準備完了 → 11 未着手**（週間/月間集計・目標設定）
+- Issue: #26（Phase 10 / PR #27 マージ時にクローズ予定）
+- Branch: `feature/issue-26-phase10-frontend`（PR #27 マージ直前）
+- Status: Phase 10 全 Sub-phase（10-1〜10-7）完了。CI 3ジョブ PASS・レビュー確認済み。PR #27 の最終マージ待ち。
 
 ## 技術スタック
 
@@ -110,7 +110,7 @@
 
 ## NextAction
 
-Sub-phase 10-7 開始: NavBar アバター反映 → 全体品質チェック → 最終 doc-sync → Playwright E2E 6シナリオ → コミット承認依頼 → push 承認依頼 → PR 案提示。
+Phase 10 完了ドキュメントをコミットして PR #27 へ追加 push → 再実行 CI を確認 → ユーザーへ最終 merge 承認を依頼 → merge → main 同期と Issue #26 クローズを確認 → Phase 11 開始。
 
 ## 参照ファイル（詳細確認が必要な場合）
 
