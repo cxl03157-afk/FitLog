@@ -12,15 +12,22 @@ import { Follow } from './entities/follow.entity';
 import { FollowsService } from './follows.service';
 
 const mockFollowQb = () => {
-  const qb = {} as jest.Mocked<SelectQueryBuilder<Follow>>;
-  const chain = (): jest.Mocked<SelectQueryBuilder<Follow>> => qb;
-  qb.innerJoin = jest.fn(chain);
-  qb.select = jest.fn(chain);
-  qb.addSelect = jest.fn(chain);
-  qb.where = jest.fn(chain);
-  qb.setParameter = jest.fn(chain);
-  qb.orderBy = jest.fn(chain);
-  qb.getRawMany = jest.fn();
+  const stubs = {
+    innerJoin: jest.fn(),
+    select: jest.fn(),
+    addSelect: jest.fn(),
+    where: jest.fn(),
+    setParameter: jest.fn(),
+    orderBy: jest.fn(),
+    getRawMany: jest.fn(),
+  };
+  const qb = stubs as unknown as jest.Mocked<SelectQueryBuilder<Follow>>;
+  stubs.innerJoin.mockReturnValue(qb);
+  stubs.select.mockReturnValue(qb);
+  stubs.addSelect.mockReturnValue(qb);
+  stubs.where.mockReturnValue(qb);
+  stubs.setParameter.mockReturnValue(qb);
+  stubs.orderBy.mockReturnValue(qb);
   return qb;
 };
 

@@ -30,16 +30,23 @@ const mockFile = (): Express.Multer.File =>
   }) as Express.Multer.File;
 
 const mockQb = () => {
-  const qb = {} as jest.Mocked<SelectQueryBuilder<User>>;
-  const chain = (): jest.Mocked<SelectQueryBuilder<User>> => qb;
-  qb.select = jest.fn(chain);
-  qb.addSelect = jest.fn(chain);
-  qb.where = jest.fn(chain);
-  qb.setParameter = jest.fn(chain);
-  qb.orderBy = jest.fn(chain);
-  qb.limit = jest.fn(chain);
-  qb.getRawOne = jest.fn();
-  qb.getRawMany = jest.fn();
+  const stubs = {
+    select: jest.fn(),
+    addSelect: jest.fn(),
+    where: jest.fn(),
+    setParameter: jest.fn(),
+    orderBy: jest.fn(),
+    limit: jest.fn(),
+    getRawOne: jest.fn(),
+    getRawMany: jest.fn(),
+  };
+  const qb = stubs as unknown as jest.Mocked<SelectQueryBuilder<User>>;
+  stubs.select.mockReturnValue(qb);
+  stubs.addSelect.mockReturnValue(qb);
+  stubs.where.mockReturnValue(qb);
+  stubs.setParameter.mockReturnValue(qb);
+  stubs.orderBy.mockReturnValue(qb);
+  stubs.limit.mockReturnValue(qb);
   return qb;
 };
 
