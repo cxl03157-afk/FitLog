@@ -111,6 +111,20 @@ erDiagram
         timestamp updated_at
     }
 
+    personal_records {
+        bigint id PK
+        bigint user_id FK
+        bigint exercise_id FK
+        varchar record_type
+        decimal weight_kg
+        int reps
+        date achieved_at
+        varchar note
+        bigint source_exercise_set_id FK
+        timestamp created_at
+        timestamp updated_at
+    }
+
     users ||--o{ refresh_tokens : "発行される"
     users ||--o{ workout_posts : "投稿する"
     users ||--o{ comments : "コメントする"
@@ -118,6 +132,7 @@ erDiagram
     users ||--o{ follows : "フォローする（follower）"
     users ||--o{ follows : "フォローされる（followee）"
     users ||--o{ goals : "目標を設定する"
+    users ||--o{ personal_records : "PRを登録する"
     workout_posts ||--o{ workout_exercises : "種目を含む"
     workout_posts ||--o{ post_images : "画像を持つ"
     workout_posts ||--o{ comments : "コメントされる"
@@ -125,6 +140,8 @@ erDiagram
     workout_exercises ||--o{ exercise_sets : "セットを持つ"
     exercises ||--o{ workout_exercises : "使用される"
     exercises ||--o{ goals : "目標対象になる"
+    exercises ||--o{ personal_records : "PR対象になる"
+    exercise_sets o|--o{ personal_records : "参照元（任意）"
 ```
 
 ---
@@ -326,6 +343,32 @@ erDiagram
 
 ---
 
+### 2-12. personal_records（パーソナルレコード）
+
+| カラム名 | 型 | 制約 | 備考 |
+|---|---|---|---|
+| id | BIGSERIAL | PRIMARY KEY | |
+| user_id | BIGINT | NOT NULL, FOREIGN KEY → users(id) | ON DELETE CASCADE |
+| exercise_id | BIGINT | NOT NULL, FOREIGN KEY → exercises(id) | ON DELETE RESTRICT（指定なし→デフォルト） |
+| record_type | VARCHAR(20) | NOT NULL, CHECK (record_type IN ('MAX_WEIGHT', 'MAX_REPS')) | |
+| weight_kg | DECIMAL(6,2) | NULL | MAX_WEIGHT 時に使用 |
+| reps | INT | NULL | MAX_REPS 時に使用 |
+| achieved_at | DATE | NOT NULL | PR 達成日 |
+| note | VARCHAR(200) | NULL | 最大 200 文字 |
+| source_exercise_set_id | BIGINT | NULL, FOREIGN KEY → exercise_sets(id) | ON DELETE SET NULL。1つの exercise_set から複数の personal_record が参照可能（UNIQUE 制約なし） |
+| created_at | TIMESTAMP | NOT NULL, DEFAULT NOW() | |
+| updated_at | TIMESTAMP | NOT NULL, DEFAULT NOW() | |
+
+**制約:**
+- CHECK(`record_type` IN ('MAX_WEIGHT', 'MAX_REPS'))
+- UNIQUE 制約なし
+
+**インデックス:**
+- `idx_personal_records_user_id` ON `personal_records(user_id)`
+- `idx_personal_records_exercise_id` ON `personal_records(exercise_id)`
+
+---
+
 ## 3. リレーション一覧
 
 | リレーション | 種別 | 説明 |
@@ -343,3 +386,6 @@ erDiagram
 | workout_exercises → exercise_sets | 1:N | 1 種目に複数のセット記録を持つ |
 | exercises → workout_exercises | 1:N | 1 種目マスタが複数の投稿種目で使用される |
 | exercises → goals | 1:N | 1 種目マスタが複数の目標の対象になる |
+| users → personal_records | 1:N | 1 ユーザーが複数のパーソナルレコードを持つ |
+| exercises → personal_records | 1:N | 1 種目マスタが複数のパーソナルレコードの対象になる |
+| exercise_sets → personal_records | 任意参照（0:N） | personal_record が任意で exercise_set を参照する（source_exercise_set_id nullable FK、UNIQUE 制約なし） |
