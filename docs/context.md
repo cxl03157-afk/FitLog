@@ -5,10 +5,10 @@
 
 ## 現状スナップショット
 
-- Phase: **11 完了**（週間/月間集計・目標設定）
-- Issue: #28（Phase 11）— PR #29 オープン（CI グリーン・マージ承認待ち）
-- Branch: `feature/issue-28-phase11-stats-goals`
-- Status: PR #29 CI 全3ジョブ PASS。マージ承認後に main へ切り替え → Phase 12 開始。
+- Phase: **12 実装・検証完了**（API仕様書・Swagger整備）
+- Issue: #30（Phase 12）— PR #31 オープン（CI グリーン・マージ承認待ち）
+- Branch: `feature/issue-30-phase12-swagger`
+- Status: lint / unit test（147件）/ integration test（21件）/ build / CI PASS。Swagger UI・OpenAPI JSON・/code-review 確認済み。PR #31 マージ承認待ち。
 
 ## 技術スタック
 
@@ -33,6 +33,18 @@
 | CreateGoalDto 制約 | `targetWeightKg`: `@Min(0.01) @Max(1000)` / `targetReps`: `@Min(1) @Max(10000)` |
 | date.util.ts | `getJstToday()` を `common/utils/date.util.ts` に切り出し（テストで jest.mock 可能） |
 | 既知ドキュメント差異 | `docs/database.md` に Phase 5-1 追加済みの `personal_records` テーブルが未記載。Phase 11 スコープ外のため修正しない。Phase 12 開始時の doc-sync ゲートで Entity・Migration と照合して追記する |
+
+## Phase 12 確定決定事項
+
+| 項目 | 決定 |
+|------|------|
+| Swagger 整備対象 | 全12コントローラー・全16 DTO |
+| @ApiBearerAuth 付与単位 | AuthController のみメソッド単位（register/login/refresh は認証不要）、他11コントローラーはクラス単位 |
+| ファイルアップロード Swagger | `PATCH /users/me/avatar` と `POST /workout-posts/:id/images` に `@ApiConsumes('multipart/form-data')` + `@ApiBody` を追加 |
+| docs/database.md | personal_records テーブルを Phase 12 で追記（Phase 11 doc-sync 持ち越し） |
+| docs/features/02_workout_post.md | API パス・userId 型の誤記を A分類（ドキュメントのみ）修正 |
+| /code-review 指摘5件 | logout 201/revokeSession 404/likes 409/PR update 400/revokeAllOtherSessions number schema を追加修正済み |
+| スコープ外差異 | docs/tech-stack.md の Jest 29.x→30.x・Recharts 未記載は Phase 13 doc-sync ゲートで対処 |
 
 ## Phase 10 確定決定事項
 
@@ -63,9 +75,9 @@
 
 ## NextAction
 
-PR #29 CI グリーン確認済み。ユーザー承認後に PR #29 をマージ。
-マージ後: main へ切り替えて pull → Issue #28 自動クローズ確認 → Phase 12 開始。
-Phase 12 開始時の doc-sync ゲートで `personal_records` テーブルを `docs/database.md` へ追記する（Issue 本文と完了条件にも明記すること）。
+PR #31 CI グリーン確認済み。ユーザー承認後に PR #31 をマージ。
+マージ後: main へ切り替えて pull → Issue #30 自動クローズ確認 → Phase 13 開始。
+Phase 13 開始時の doc-sync ゲートで `docs/tech-stack.md`（Jest 30.x・Recharts 追記）を対処する。
 
 ## 参照ファイル（詳細確認が必要な場合）
 
@@ -73,6 +85,6 @@ Phase 12 開始時の doc-sync ゲートで `personal_records` テーブルを `
 - 全体フェーズ計画（Phase 1〜18）: `docs/phase-roadmap.md`
 - 認証仕様: `docs/features/01_auth.md`
 - DB 設計: `docs/database.md`
-- 統計仕様: `docs/features/06_statistics.md`
+- Swagger 仕様: `http://localhost:3000/api/docs`（バックエンド起動時）
 - 状態詳細: `docs/handoff.md`
-- Issue: #28（Phase 11）、#26（Phase 10 / 完了）、#24（Phase 9 / 完了）、#22（Phase 8 / 完了）
+- Issue: #30（Phase 12）、#28（Phase 11 / 完了）、#26（Phase 10 / 完了）、#24（Phase 9 / 完了）

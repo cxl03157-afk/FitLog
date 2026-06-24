@@ -1,8 +1,10 @@
 # Agent Handoff
 
 ## CurrentPhase
+- **Phase 12 実装・検証完了**: API仕様書・Swagger整備（Issue #30 / Branch: `feature/issue-30-phase12-swagger`）
+  - 全12コントローラー Swagger 整備・全16 DTO @ApiProperty 追加・docs/database.md personal_records 追記・docs/features 差異修正・/code-review 指摘5件修正。PR #31 オープン・CI グリーン・マージ承認待ち。
 - **Phase 11 完了**: 週間/月間集計・目標設定（Issue #28 / Branch: `feature/issue-28-phase11-stats-goals`）
-  - Sub-phase 11-1〜11-5 すべて完了・コミット済み。PR #29 オープン・CI グリーン・マージ承認待ち。
+  - Sub-phase 11-1〜11-5 すべて完了・コミット済み。PR #29 マージ済み（2026-06-24）。
 - **Phase 10 完了**: フロントエンド フォロー・プロフィール・画像UI（Issue #26 / PR #27 マージ済み 2026-06-24）
 - Phase 9 complete: S3 画像アップロード バックエンド + LocalStack（Issue #24）PR #25 マージ済み（2026-06-19）
 - Phase 8 complete: フロントエンド コメント・ナイス機能（Issue #22）PR #23 マージ済み（2026-06-18）
@@ -16,7 +18,8 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #28: オープン（PR #29 CI グリーン・マージ承認待ち）
+- Issue #30: オープン（PR #31 CI グリーン・マージ承認待ち）
+- Issue #28: 完了・PR #29 マージ済み（2026-06-24）
 - Issue #26 完了・PR #27 マージ済み（2026-06-24）
 - Issue #24 完了・PR #25 マージ済み（2026-06-19）
 - Issue #22 完了・PR #23 マージ済み（2026-06-18）
@@ -27,6 +30,16 @@
 - Issue #12 完了・PR #13 マージ済み（2026-06-11）
 - Issue #8 完了・PR #9 マージ済み（2026-06-10）
 - Issue #10 完了・PR #11 マージ済み（2026-06-10）
+
+## Phase12CommitHistory（次セッション引き継ぎ用）
+
+| コミットハッシュ | 内容 |
+|--------------|------|
+| `b18ed47` | docs: add personal_records table to docs/database.md |
+| `fab1309` | feat: add Swagger decorators to all controllers and @ApiProperty to all DTOs |
+| `8ad54e1` | docs: fix API path and userId type in 02_workout_post.md |
+| `4b3344a` | fix: align Swagger responses with API behavior |
+| `（本コミット）` | docs: update handoff and context for Phase 12 completion |
 
 ## Phase11CommitHistory（次セッション引き継ぎ用）
 
@@ -56,8 +69,26 @@
 
 ## UncommittedChanges
 
-`.claude/settings.json` のみ未コミット（今後もいかなるコミットにも含めない）。
+`.claude/settings.json` のみ未コミット（今後もいかなるコミットにも含めない）。PR #31 の差分にも含まれていないことを全4コミットの変更ファイルで確認済み。
 次セッション開始時は最初に `git status --short` を実行して作業ツリーを確認すること。
+
+## TestResults（Phase 12 完了時点）
+
+| チェック | 結果 |
+|---------|------|
+| Backend lint | PASS |
+| Backend unit test | PASS（16 suites / 147 tests） |
+| Backend integration test | PASS（3 suites / 21 tests） |
+| Backend build | PASS |
+| Frontend | 変更なし（スコープ外） |
+| Swagger UI / OpenAPI JSON | 全実装ルート確認済み。5箇所（201/404/409/400/number schema）を OpenAPI JSON で検証済み |
+| /code-review 再実施 | 新規問題なし |
+
+## CIResults（PR #31 / 2026-06-24）
+
+| ジョブ | 結果 | 所要時間 |
+|-------|------|---------|
+| Lint, Type Check & Test | PASS | 1m16s |
 
 ## TestResults（Sub-phase 11-5 完了時点）
 
@@ -289,27 +320,28 @@ PR #29 はマージ可能状態（2026-06-24 確認済み）。
 - (none)
 
 ## ReviewStatus
-- Phase 11: PR #29 オープン・CI 全 PASS（2026-06-24）・マージ承認待ち
+- Phase 12: PR #31 オープン・CI グリーン（2026-06-24）・マージ承認待ち
+- Phase 11: PR #29 マージ済み（2026-06-24）
 - Phase 10: PR #27 マージ済み（2026-06-24）
 - Phase 9: PR #25 マージ済み（2026-06-19）
 
 ## MergeReadiness
-- Phase 11: 全品質ゲート PASS・Playwright E2E PASS・docs 更新済み・CI グリーン。ユーザー承認後にマージ可能。
+- Phase 12: 全品質ゲート PASS・docs 更新済み・CI グリーン。ユーザー承認後にマージ可能。
 
 ## NextAction
-1. ユーザーが PR #29 をマージ（`feature/issue-28-phase11-stats-goals` → `main`）
+1. ユーザーが PR #31 をマージ（`feature/issue-30-phase12-swagger` → `main`）
 2. `git checkout main && git pull` でローカルを最新化
-3. Issue #28 が自動クローズされたことを確認（`Closes #28` により）
-4. `feature/issue-28-phase11-stats-goals` ブランチの削除は任意
+3. Issue #30 が自動クローズされたことを確認（`Closes #30` により）
+4. `feature/issue-30-phase12-swagger` ブランチの削除は任意
 5. `.claude/settings.json` は引き続きコミット対象外
-6. Phase 12（API 仕様書・Swagger 整備）の計画確認を開始
-7. Phase 12 開始時の doc-sync ゲートで `personal_records` テーブルを `docs/database.md` へ追記（Issue 本文と完了条件にも明記すること）
+6. Phase 13（アプリ全体の調整）の計画確認を開始
+7. Phase 13 開始時の doc-sync ゲートで `docs/tech-stack.md`（Jest 30.x・Recharts 追記）を対処する
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
-- Issue: #28（Phase 11 / PR #29 マージ待ち）、#26（Phase 10 / 完了）、#24（Phase 9 / 完了）、#22（Phase 8 / 完了）
-- PR: #29（Phase 11 / CI グリーン・マージ待ち）、#27（Phase 10 / マージ済み）、#25（Phase 9 / マージ済み）
-- Branch: `feature/issue-28-phase11-stats-goals`（Phase 11 / マージ待ち）
+- Issue: #30（Phase 12 / PR #31 マージ待ち）、#28（Phase 11 / 完了）、#26（Phase 10 / 完了）、#24（Phase 9 / 完了）
+- PR: #31（Phase 12 / CI グリーン・マージ待ち）、#29（Phase 11 / マージ済み）、#27（Phase 10 / マージ済み）
+- Branch: `feature/issue-30-phase12-swagger`（Phase 12 / マージ待ち）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules
