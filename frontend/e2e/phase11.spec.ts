@@ -87,7 +87,7 @@ async function fetchExercises(
     throw new Error(
       'No exercises in DB. Seed first:\n' +
         "docker exec -it fitlog-postgres psql -U fitlog -d fitlog -c " +
-        '"INSERT INTO exercises (name, category) VALUES (\'ベンチプレス\', \'胸\'), (\'スクワット\', \'脚\');\"',
+        '"INSERT INTO exercises (name, category) VALUES (\'ベンチプレス\', \'胸\'), (\'スクワット\', \'脚\');"',
     );
   }
   return data.map((e) => ({ id: String(e.id), name: e.name }));
