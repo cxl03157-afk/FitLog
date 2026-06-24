@@ -83,6 +83,7 @@
 | GET | `/api/workout-posts/:id/likes/count` | ナイス！数取得 | 必要 |
 | GET | `/api/stats/weekly` | 週間集計 | 必要 |
 | GET | `/api/stats/monthly` | 月間集計 | 必要 |
+| GET | `/api/stats/exercise/:exerciseId` | 種目別集計（最大値推移） | 必要 |
 | GET | `/api/goals` | 目標一覧 | 必要 |
 | POST | `/api/goals` | 目標作成 | 必要 |
 | PUT | `/api/goals/:id` | 目標更新 | 必要 |

@@ -5,10 +5,10 @@
 
 ## 現状スナップショット
 
-- Phase: **10 完了・マージ準備完了 → 11 未着手**（週間/月間集計・目標設定）
-- Issue: #26（Phase 10 / PR #27 マージ時にクローズ予定）
-- Branch: `feature/issue-26-phase10-frontend`（PR #27 マージ直前）
-- Status: Phase 10 全 Sub-phase（10-1〜10-7）完了。CI 3ジョブ PASS・レビュー確認済み。PR #27 の最終マージ待ち。
+- Phase: **11 完了**（週間/月間集計・目標設定）
+- Issue: #28（Phase 11）— PR #29 オープン（CI グリーン・マージ承認待ち）
+- Branch: `feature/issue-28-phase11-stats-goals`
+- Status: PR #29 CI 全3ジョブ PASS。マージ承認後に main へ切り替え → Phase 12 開始。
 
 ## 技術スタック
 
@@ -16,6 +16,36 @@
 - Backend: NestJS + TypeORM + PostgreSQL 17
 - DB: PostgreSQL 17（docker-compose）+ LocalStack 3（S3 エミュレーション、Phase 9 追加）
 - CI: GitHub Actions — Lint + 型チェック + Jest/Vitest（Node 22 強制）
+
+## Phase 11 確定決定事項（11-1 完了時点）
+
+| 項目 | 決定 |
+|------|------|
+| 週間・月間集計 | バックエンドが 12 期間固定配列を生成して返す（0補完あり・昇順） |
+| 週間 period | 月曜始まり（`DATE_TRUNC('week', ...)` ISO 標準）。`YYYY-MM-DD` 形式 |
+| 月間 period | `YYYY-MM` 形式 |
+| totalVolume | `SUM(weight_kg × reps)`。自重（weight_kg=0）はボリューム不参加 |
+| 種目別 metric | `weight`（weight_kg>0）→ `reps`（reps>=1）→ `none` の優先順 |
+| 混在時ルール | 加重記録（weight_kg>0）が 1 件でもあれば `metric: 'weight'` 優先。自重のみの日は records から除外 |
+| `limit` の意味 | 直近トレーニング日数（1〜90、デフォルト 30）。セット数・投稿数ではない |
+| 目標期限バリデーション | JST 基準（`Date.now() + 9h` オフセット）で本日以降。`new Date('YYYY-MM-DD')` UTC 解釈を回避 |
+| 相関バリデーション | `targetWeightKg` と `targetReps` の両方 null → 400 BadRequestException |
+| CreateGoalDto 制約 | `targetWeightKg`: `@Min(0.01) @Max(1000)` / `targetReps`: `@Min(1) @Max(10000)` |
+| date.util.ts | `getJstToday()` を `common/utils/date.util.ts` に切り出し（テストで jest.mock 可能） |
+| 既知ドキュメント差異 | `docs/database.md` に Phase 5-1 追加済みの `personal_records` テーブルが未記載。Phase 11 スコープ外のため修正しない。Phase 12 開始時の doc-sync ゲートで Entity・Migration と照合して追記する |
+
+## Phase 10 確定決定事項
+
+| 項目 | 決定 |
+|------|------|
+| follows service N+1 回避 | getFollowers/getFollowing を QueryBuilder + LEFT JOIN に変更し isFollowing を一括取得 |
+| 現在端末ログアウト | logout API（POST /api/auth/logout）のみ使用。finally で AuthContext クリア → /login |
+| logout 失敗時 | エラートースト表示、finally で強制 AuthContext クリア。HttpOnly Cookie は残る可能性あり |
+| E2E username 形式 | `e2e${workerIndex.toString(36)}${Date.now().toString(36)}.slice(0,20)`（英数字のみ、20文字以内） |
+| Search DTO | @IsString @Transform(trim) @Matches(/\S/) @MaxLength(20)。limit: @Type(Number) @IsInt @Min(1) @Max(50) default=20 |
+| bio 空文字処理 | 空文字 or trim後空文字 → null として保存 |
+| 画像 API 失敗後 | 投稿は維持してタイムラインへ。トースト「投稿は保存されましたが画像のアップロードに失敗しました」 |
+| Object URL 管理 | SelectedImage = { file, previewUrl }。削除は個別 revoke、アンマウントは ref 経由で全解放 |
 
 ## Phase 9 確定決定事項
 
@@ -31,86 +61,11 @@
 | remove() のエラー | S3 削除失敗はログのみ、DB 削除は継続 |
 | TypeORM select | FindOptionsSelect は配列不可（TS2559）→ オブジェクト形式 `{ field: true }` が必須 |
 
-## Phase 8 確定決定事項
-
-| 項目 | 決定 |
-|------|------|
-| likeCount / commentCount / isLiked | GET /api/workout-posts・GET /api/workout-posts/:id のレスポンスに集計フィールドを追加（サブクエリ方式） |
-| CommentsController | `@UseInterceptors(ClassSerializerInterceptor)` 適用（passwordHash 漏洩防止） |
-| createComment レスポンス | save 後に `findOneOrFail({ relations: { user: true } })` で再取得（user 未ロード → TypeError 防止） |
-| コメント文字数上限 | 280 文字（`@MaxLength(280)`）。フロント・バック統一 |
-| コメント投稿 | 楽観的更新なし。API 成功後のレスポンスを末尾に追加 |
-| ナイストグル 409 処理 | 409 Conflict は isLiked=true に寄せ、likeCount は prevCount に戻して二重加算を防止 |
-| PostCard 構造 | `<article>` でラップ。ナイスボタンは `<Link>` 外に配置 |
-| Playwright クラス判定 | `includes('orange')` 禁止（hover クラスと一致）。`includes('text-orange-500')` または `data-testid` を使う |
-
-## Phase 7-1 確定決定事項
-
-| 項目 | 決定 |
-|------|------|
-| 修正スコープ | passwordHash のみ @Exclude()。他フィールド（email/avatarKey 等）は対象外 |
-| 適用範囲 | WorkoutPostsController のみ（グローバル適用は他エンドポイントへの影響リスクのため回避） |
-| テスト方針 | Controller + supertest で HTTP レスポンスを検証（ClassSerializerInterceptor は HTTP パイプライン経由でのみ動作） |
-| User インスタンス | Object.assign(new User(), {...}) 必須（plain object では @Exclude() が機能しない） |
-
-## Phase 7 確定決定事項
-
-| 項目 | 決定 |
-|------|------|
-| trainedOn 初期値 | ローカル日付（new Date() のローカルメソッド使用）。toISOString().slice(0,10) は UTC 基準のため不可 |
-| フォロー中タブ | UI は表示、API 呼び出しなし・Phase 10 プレースホルダー表示 |
-| 削除確認 | window.confirm 禁止。showDeleteConfirm state でインライン表示 |
-| transaction バグ修正 | dataSource.transaction 内で this.findOne() 呼び出し禁止。createdId を外に持ち出してコミット後に呼ぶ |
-
-## Phase 6 確定決定事項
-
-| 項目 | 決定 |
-|------|------|
-| User 型 | `{ id, username, displayName, email }` の4フィールド（avatarUrl/bio は login/refresh レスポンス非含有のため Phase 10 で追加） |
-| AccessToken 管理 | モジュールスコープ変数（メモリ保持）。setAccessToken / getAccessToken で AuthContext と共有 |
-| ProtectedRoute / GuestRoute | `<Outlet />` パターン（React Router v6） |
-| Axios interceptor | `/api/auth/refresh` への 401 はリトライしない（無限ループ防止） |
-| フロントエンド CI | Lint + Type Check + Test + **Build** ステップ追加 |
-| .env.local | `.env.example` からコピー必須（`VITE_API_BASE_URL=http://localhost:3000`） |
-
-## Phase 5 確定決定事項
-
-| 項目 | 決定 |
-|------|------|
-| exercises 認証 | GET /api/exercises は認証必須（@UseGuards(JwtAuthGuard)） |
-| DECIMAL transformer | pg ドライバーが string 返し → TypeORM transformer で parseFloat |
-| updatedAt 明示更新 | repository.update() では @UpdateDateColumn 非発火 → updatedAt: new Date() |
-| limit 上限 | query DTO に @Max(100) 追加（無制限ページサイズ防止） |
-
-## Phase 4 確定決定事項
-
-| 項目 | 決定 |
-|------|------|
-| Cookie | HttpOnly, SameSite=Strict, Path=/api/auth |
-| Cookie Secure | 本番: true、ローカル: false（NODE_ENV で切り替え） |
-| DELETE /api/auth/sessions | 現在端末を除く全セッションを無効化 |
-| レート制限 | login: 10回/分、refresh: 20回/分（IP + email 識別） |
-| トークン削除保持期間 | revoked_at / expires_at から 30 日後 |
-| 監査ログ | NestJS Logger JSON 形式（専用テーブル不要） |
-| 機微情報マスキング | token/cookie/password をログでマスク |
-| CORS | フロントエンドのオリジンのみ許可 |
-
-## Phase 10 確定決定事項
-
-| 項目 | 決定 |
-|------|------|
-| follows service N+1 回避 | getFollowers/getFollowing を QueryBuilder + LEFT JOIN に変更し isFollowing を一括取得 |
-| 現在端末ログアウト | logout API（POST /api/auth/logout）のみ使用。finally で AuthContext クリア → /login |
-| logout 失敗時 | エラートースト表示、finally で強制 AuthContext クリア。HttpOnly Cookie は残る可能性あり |
-| E2E username 形式 | `e2e${workerIndex.toString(36)}${Date.now().toString(36)}.slice(0,20)`（英数字のみ、20文字以内） |
-| Search DTO | @IsString @Transform(trim) @Matches(/\S/) @MaxLength(20)。limit: @Type(Number) @IsInt @Min(1) @Max(50) default=20 |
-| bio 空文字処理 | 空文字 or trim後空文字 → null として保存 |
-| 画像 API 失敗後 | 投稿は維持してタイムラインへ。トースト「投稿は保存されましたが画像のアップロードに失敗しました」 |
-| Object URL 管理 | SelectedImage = { file, previewUrl }。削除は個別 revoke、アンマウントは ref 経由で全解放 |
-
 ## NextAction
 
-Phase 10 完了ドキュメントをコミットして PR #27 へ追加 push → 再実行 CI を確認 → ユーザーへ最終 merge 承認を依頼 → merge → main 同期と Issue #26 クローズを確認 → Phase 11 開始。
+PR #29 CI グリーン確認済み。ユーザー承認後に PR #29 をマージ。
+マージ後: main へ切り替えて pull → Issue #28 自動クローズ確認 → Phase 12 開始。
+Phase 12 開始時の doc-sync ゲートで `personal_records` テーブルを `docs/database.md` へ追記する（Issue 本文と完了条件にも明記すること）。
 
 ## 参照ファイル（詳細確認が必要な場合）
 
@@ -118,5 +73,6 @@ Phase 10 完了ドキュメントをコミットして PR #27 へ追加 push →
 - 全体フェーズ計画（Phase 1〜18）: `docs/phase-roadmap.md`
 - 認証仕様: `docs/features/01_auth.md`
 - DB 設計: `docs/database.md`
+- 統計仕様: `docs/features/06_statistics.md`
 - 状態詳細: `docs/handoff.md`
-- Issue: #26（Phase 10）、#24（Phase 9 / 完了）、#22（Phase 8 / 完了）、#20（Phase 7-1 / 完了）、#18（Phase 7 / 完了）、#16（Phase 6 / 完了）
+- Issue: #28（Phase 11）、#26（Phase 10 / 完了）、#24（Phase 9 / 完了）、#22（Phase 8 / 完了）

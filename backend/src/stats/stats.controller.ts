@@ -1,8 +1,9 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 import { StatsService } from './stats.service';
+import { ExerciseStatsQueryDto } from './dto/exercise-stats-query.dto';
 
 @Controller('stats')
 @UseGuards(JwtAuthGuard)
@@ -22,8 +23,13 @@ export class StatsController {
   @Get('exercise/:exerciseId')
   getExerciseStats(
     @Param('exerciseId') exerciseId: string,
+    @Query() query: ExerciseStatsQueryDto,
     @CurrentUser() user: JwtPayload,
   ) {
-    return this.statsService.getExerciseStats(user.sub, exerciseId);
+    return this.statsService.getExerciseStats(
+      user.sub,
+      exerciseId,
+      query.limit,
+    );
   }
 }

@@ -1,11 +1,9 @@
 # Agent Handoff
 
 ## CurrentPhase
-- **Phase 10 完了・マージ直前**: フロントエンド フォロー・プロフィール・画像UI（Issue #26 / PR #27）
-  - Sub-phase 10-1〜10-7 すべて完了。
-  - CI 3ジョブ PASS（2026-06-24）・レビュー確認済み。
-  - Phase 10 完了ドキュメントを PR #27 へ追加後、再実行 CI と最終 merge 承認を行う。
-- **Phase 11 未着手**: 週間/月間集計・目標設定
+- **Phase 11 完了**: 週間/月間集計・目標設定（Issue #28 / Branch: `feature/issue-28-phase11-stats-goals`）
+  - Sub-phase 11-1〜11-5 すべて完了・コミット済み。PR #29 オープン・CI グリーン・マージ承認待ち。
+- **Phase 10 完了**: フロントエンド フォロー・プロフィール・画像UI（Issue #26 / PR #27 マージ済み 2026-06-24）
 - Phase 9 complete: S3 画像アップロード バックエンド + LocalStack（Issue #24）PR #25 マージ済み（2026-06-19）
 - Phase 8 complete: フロントエンド コメント・ナイス機能（Issue #22）PR #23 マージ済み（2026-06-18）
 - Phase 7-1 complete: workout-posts passwordHash 漏洩修正（Issue #20）PR #21 マージ済み（2026-06-17）
@@ -18,8 +16,8 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #26: PR #27 マージ時にクローズ予定（現在オープン）
-- PR #27: CI・レビュー確認済み、Phase 10 完了ドキュメント追加待ち
+- Issue #28: オープン（PR #29 CI グリーン・マージ承認待ち）
+- Issue #26 完了・PR #27 マージ済み（2026-06-24）
 - Issue #24 完了・PR #25 マージ済み（2026-06-19）
 - Issue #22 完了・PR #23 マージ済み（2026-06-18）
 - Issue #20 完了・PR #21 マージ済み（2026-06-17）
@@ -29,6 +27,18 @@
 - Issue #12 完了・PR #13 マージ済み（2026-06-11）
 - Issue #8 完了・PR #9 マージ済み（2026-06-10）
 - Issue #10 完了・PR #11 マージ済み（2026-06-10）
+
+## Phase11CommitHistory（次セッション引き継ぎ用）
+
+| Sub-phase | コミットハッシュ | 内容 |
+|-----------|--------------|------|
+| 11-1 | `b8475b7` | feat: implement sub-phase 11-1 stats and goal validation |
+| 11-2 | `c31f650` | feat: add recharts and stats and goals API clients |
+| 11-3 | `61c6253` | feat: implement StatsPage charts and exercise metrics |
+| 11-4 | `0fbfc77` | feat: implement GoalsPage management and filter tabs |
+| 11-5 | `02973ff` | test: add Phase 11 e2e coverage and finalize documentation |
+| docs | `9f0e25d` | docs: finalize Phase 11 handoff before PR |
+| fix  | `6ed09c7` | fix: remove useless escape in phase11 e2e spec |
 
 ## Phase10CommitHistory（次セッション引き継ぎ用）
 
@@ -46,15 +56,78 @@
 
 ## UncommittedChanges
 
+`.claude/settings.json` のみ未コミット（今後もいかなるコミットにも含めない）。
+次セッション開始時は最初に `git status --short` を実行して作業ツリーを確認すること。
+
+## TestResults（Sub-phase 11-5 完了時点）
+
+| チェック | 結果 |
+|---------|------|
+| Backend lint | PASS |
+| Backend unit test | PASS（16 suites / 147 tests） |
+| Backend integration test | PASS（3 suites / 21 tests） |
+| Backend build | PASS |
+| Frontend lint | PASS |
+| Frontend unit test | PASS（16 files / 211 tests）|
+| Frontend build | PASS（バンドル警告あり ※後述） |
+
+### Frontend build 警告（Recharts バンドルサイズ）
+
 ```
- M .claude/settings.json   ← コミット対象外（常に除外）
- M docs/context.md         ← Phase 10 完了・マージ直前状態へ更新（コミット9候補）
- M docs/handoff.md         ← Phase 10 完了・マージ直前状態へ更新（コミット9候補）
- M docs/phase-roadmap.md   ← Phase 10「完了」へ更新（コミット9候補）
+(!) Some chunks are larger than 500 kB after minification.
+dist/assets/index.js: 724.64 kB (gzip: 215.32 kB)
 ```
 
-- `.claude/settings.json` は今後もいかなるコミットにも含めない。
-- 次セッション開始時は最初に `git status --short` を実行して作業ツリーを確認すること。
+- Recharts の SVG 描画エンジンを含むため 724 kB（非圧縮）/ 215 kB（gzip）になる。
+- gzip 後 215 kB はブラウザの通常転送サイズとして許容範囲（目安: 300 kB 未満）。
+- 将来のバンドル最適化候補（特定 Phase に未割当）: Recharts の dynamic import または tree-shaking が有効。
+- 今回は対応不要と判断。
+
+### Playwright E2E 確認（Sub-phase 11-5、4シナリオ PASS / 2026-06-24）
+
+| # | 確認項目 | 結果 | 方法 |
+|---|---------|------|------|
+| 1 | StatsPage: 週間タブがデフォルト選択 | PASS | Playwright |
+| 2 | StatsPage: 月間タブへ切り替え | PASS | Playwright |
+| 3 | StatsPage: 一部0の期間でもグラフ表示 | PASS | Playwright |
+| 4 | StatsPage: 全期間0のユーザーで空状態メッセージ | PASS | Playwright（新規ユーザーで確認） |
+| 5 | StatsPage: 加重種目で「最大重量の推移」表示 | PASS | Playwright |
+| 6 | StatsPage: 自重種目で「最大回数の推移」表示 | PASS | Playwright（2種目以上ある場合） |
+| 7 | StatsPage: 記録なし種目で専用メッセージ | PASS | Playwright |
+| 8 | StatsPage: APIエラー時のエラー表示 | 未実施 | Vitest unit test でカバー済み |
+| 9 | GoalsPage: 目標を作成できる | PASS | Playwright |
+| 10 | GoalsPage: 重量のみ/回数のみ/両方の目標作成 | PASS | Playwright |
+| 11 | GoalsPage: 重量・回数両方未入力でエラー | PASS | Playwright |
+| 12 | GoalsPage: 過去日の期限でエラー | PASS | Playwright |
+| 13 | GoalsPage: フィルタタブ絞り込み | PASS | Playwright |
+| 14 | GoalsPage: 達成に変更 | PASS | Playwright |
+| 15 | GoalsPage: 放棄 | PASS | Playwright |
+| 16 | GoalsPage: 放棄確認キャンセル | PASS | Playwright |
+| 17 | GoalsPage: 削除 | PASS | Playwright |
+| 18 | GoalsPage: 削除確認キャンセル | PASS | Playwright |
+| 19 | GoalsPage: API処理中の二重送信防止 | 未実施 | Vitest unit test でカバー済み（disabled state 検証） |
+| 20 | GoalsPage: API失敗時の状態維持 | 未実施 | Vitest unit test でカバー済み（cardErrors・modalError 検証） |
+
+### テストデータ後処理
+
+Playwright テストは各シナリオで専用 E2E ユーザーを作成。ユーザーおよびデータはテスト完了後も DB に残存するが、すべて E2E 専用アカウントのため本番影響なし。
+
+## CIResults（PR #29 / 2026-06-24）
+
+### 初回 push 後 CI（失敗）
+
+- `frontend/e2e/phase11.spec.ts` 90行目で `no-useless-escape` エラー（ESLint）
+- 末尾の `\"` を `"` へ修正してコミット `6ed09c7`（`fix: remove useless escape in phase11 e2e spec`）
+
+### 再実行 CI（全 PASS）
+
+| ジョブ | 結果 | 所要時間 |
+|-------|------|---------|
+| Lint, Type Check & Test (1) | PASS | 44s |
+| Lint, Type Check & Test (2) | PASS | 41s |
+| Lint, Type Check & Test (3) | PASS | 1m13s |
+
+PR #29 はマージ可能状態（2026-06-24 確認済み）。
 
 ## TestResults（Sub-phase 10-6 完了時点）
 
@@ -203,24 +276,40 @@
 - [Phase 10 / 10-6] `docs/features/01_auth.md` に `GET /api/auth/sessions` レスポンスフィールド仕様・logout 失敗時のフロントエンド動作（auth 常にクリア・Cookie 残存可能性・再認証の可能性・エラー表示方式）を追記。
 - [Phase 10 / 10-6] テスト結果: lint PASS / unit 133 PASS（20 SessionsPage + 3 NavBar + 6 LoginPage + 6 AuthContext + 98 other）/ tsc PASS / build PASS（2026-06-23）。
 
+- [Phase 11 / 11-1] 週間・月間集計はバックエンドが 12 期間固定配列を生成して返す（0補完あり）。週は月曜始まり（`DATE_TRUNC('week', ...)`）、period は `YYYY-MM-DD` / `YYYY-MM` 形式。データなし期間は `{ period, postCount: 0, totalVolume: 0 }`。
+- [Phase 11 / 11-1] 種目別集計は metric 自動切り替え: `weight_kg > 0` の記録があれば `metric: 'weight'`、なければ `reps >= 1` で `metric: 'reps'`、どちらもなければ `metric: 'none'`。DB は pg ドライバーが decimal を文字列で返す可能性があるため `Number()` で必ず明示変換する。
+- [Phase 11 / 11-1] 自重記録（weight_kg=0）と加重記録（weight_kg>0）が混在する場合: `metric: 'weight'` を優先。加重記録がある日のみ `records` に含め、自重のみの日は除外する。
+- [Phase 11 / 11-1] `limit` パラメータは「直近トレーニング日数」（`trained_on` の DISTINCT 日付で最新 N 日）。セット数・投稿数ではない。範囲: 1〜90、デフォルト 30。
+- [Phase 11 / 11-1] 目標期限（deadline）のバリデーションは JST 基準。`Date.now() + 9 * 3600 * 1000` でオフセット加算後 ISO スライスで `YYYY-MM-DD` を取得。`new Date('YYYY-MM-DD')` の UTC 解釈（0時のずれ）を回避。バックエンドの `getJstToday()` を `src/common/utils/date.util.ts` に切り出してテストで `jest.mock` 可能にする。
+- [Phase 11 / 11-1] `create()` 相関バリデーション: `targetWeightKg == null && targetReps == null` → `BadRequestException`。DTO バリデーション: `targetWeightKg` は `@Min(0.01) @Max(1000)`、`targetReps` は `@Min(1) @Max(10000)`。
+- [Phase 11 / 11-1] `update()` でも `dto.deadline` が指定された場合は JST 過去日チェックを実施。
+- [Phase 11 / 11-1] 既知ドキュメント差異: `docs/database.md` に Phase 5-1 で追加済みの `personal_records` テーブルが未記載。Phase 11 ではスコープ外のため修正しない。Phase 12 開始時の doc-sync ゲートで既存 Entity・Migration と `docs/database.md` を照合し、カラム・型・主キー/外部キー・制約・リレーション・削除動作を追記する。必要に応じて `docs/features/08_personal_record.md` との整合も確認する。Phase 12 の Issue 本文と完了条件にもこの doc-sync 対応を明記する。
+
 ## OpenQuestions
 - (none)
 
 ## ReviewStatus
-- Phase 10: PR #27 オープン。CI 3ジョブ PASS（2026-06-24）・レビュー確認済み。マージ直前の完了ドキュメント更新中。
+- Phase 11: PR #29 オープン・CI 全 PASS（2026-06-24）・マージ承認待ち
+- Phase 10: PR #27 マージ済み（2026-06-24）
 - Phase 9: PR #25 マージ済み（2026-06-19）
 
 ## MergeReadiness
-- Phase 10: 実装・品質ゲート・doc-sync・Playwright E2E・CI・レビュー確認完了。完了ドキュメント追加後の CI 再確認とユーザー最終承認をもって merge 可能。
+- Phase 11: 全品質ゲート PASS・Playwright E2E PASS・docs 更新済み・CI グリーン。ユーザー承認後にマージ可能。
 
 ## NextAction
-Phase 10 完了ドキュメントをコミットして PR #27 へ追加 push → 再実行 CI を確認 → ユーザーへ最終 merge 承認を依頼 → merge → main 同期と Issue #26 クローズを確認 → Phase 11 開始。
+1. ユーザーが PR #29 をマージ（`feature/issue-28-phase11-stats-goals` → `main`）
+2. `git checkout main && git pull` でローカルを最新化
+3. Issue #28 が自動クローズされたことを確認（`Closes #28` により）
+4. `feature/issue-28-phase11-stats-goals` ブランチの削除は任意
+5. `.claude/settings.json` は引き続きコミット対象外
+6. Phase 12（API 仕様書・Swagger 整備）の計画確認を開始
+7. Phase 12 開始時の doc-sync ゲートで `personal_records` テーブルを `docs/database.md` へ追記（Issue 本文と完了条件にも明記すること）
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
-- Issue: #26（Phase 10 / 進行中）、#24（Phase 9 / 完了）、#22（Phase 8 / 完了）、#20（Phase 7-1 / 完了）、#18（Phase 7 / 完了）、#16（Phase 6 / 完了）
-- PR: #25（Phase 9 / マージ済み）、#23（マージ済み）、#21（マージ済み）、#19（マージ済み）
-- Branch: `feature/issue-26-phase10-frontend`（Phase 10 実装中）
+- Issue: #28（Phase 11 / PR #29 マージ待ち）、#26（Phase 10 / 完了）、#24（Phase 9 / 完了）、#22（Phase 8 / 完了）
+- PR: #29（Phase 11 / CI グリーン・マージ待ち）、#27（Phase 10 / マージ済み）、#25（Phase 9 / マージ済み）
+- Branch: `feature/issue-28-phase11-stats-goals`（Phase 11 / マージ待ち）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules

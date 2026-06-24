@@ -11,8 +11,8 @@ import ProfilePage from './pages/stubs/ProfilePage';
 import FollowersPage from './pages/stubs/FollowersPage';
 import FollowingPage from './pages/stubs/FollowingPage';
 import SearchPage from './pages/stubs/SearchPage';
-import StatsPage from './pages/stubs/StatsPage';
-import GoalsPage from './pages/stubs/GoalsPage';
+import StatsPage from './pages/StatsPage';
+import GoalsPage from './pages/GoalsPage';
 import SessionsPage from './pages/stubs/SessionsPage';
 
 const App = () => (
