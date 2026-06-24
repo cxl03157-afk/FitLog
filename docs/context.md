@@ -5,10 +5,10 @@
 
 ## 現状スナップショット
 
-- Phase: **11 進行中**（週間/月間集計・目標設定）— Sub-phase 11-1 完了・11-2 未着手
-- Issue: #28（Phase 11）
+- Phase: **11 完了**（週間/月間集計・目標設定）
+- Issue: #28（Phase 11）— PR 作成前
 - Branch: `feature/issue-28-phase11-stats-goals`
-- Status: Sub-phase 11-1・11-2・11-3 コミット完了。11-4（GoalsPage 実装）完了・コミット準備中。次は 11-5（品質ゲート・Playwright・docs 完了記録）。
+- Status: Sub-phase 11-1〜11-5 コミット完了。品質ゲート・Playwright E2E PASS。PR 作成待ち。
 
 ## 技術スタック
 
@@ -63,7 +63,8 @@
 
 ## NextAction
 
-Sub-phase 11-4 コミット完了 → Sub-phase 11-5（品質ゲート・Playwright スポット確認・docs 完了記録）開始。
+Sub-phase 11-5 完了 → push + PR 作成（`feature/issue-28-phase11-stats-goals` → `main`、Closes #28）。
+PR マージ後は Phase 12（API 仕様書・Swagger 整備）へ。
 
 ## 参照ファイル（詳細確認が必要な場合）
 

@@ -1,9 +1,8 @@
 # Agent Handoff
 
 ## CurrentPhase
-- **Phase 11 進行中**: 週間/月間集計・目標設定（Issue #28 / Branch: `feature/issue-28-phase11-stats-goals`）
-  - Sub-phase 11-1（バックエンド修正）完了・コミット済み。
-  - Sub-phase 11-2（Recharts 導入 + フロントエンド型定義・API クライアント）未着手。
+- **Phase 11 完了**: 週間/月間集計・目標設定（Issue #28 / Branch: `feature/issue-28-phase11-stats-goals`）
+  - Sub-phase 11-1〜11-5 すべて完了・コミット済み。PR 作成待ち。
 - **Phase 10 完了**: フロントエンド フォロー・プロフィール・画像UI（Issue #26 / PR #27 マージ済み 2026-06-24）
 - Phase 9 complete: S3 画像アップロード バックエンド + LocalStack（Issue #24）PR #25 マージ済み（2026-06-19）
 - Phase 8 complete: フロントエンド コメント・ナイス機能（Issue #22）PR #23 マージ済み（2026-06-18）
@@ -17,7 +16,7 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #28: オープン（Phase 11 進行中）
+- Issue #28: オープン（Phase 11 完了・PR 作成待ち）
 - Issue #26 完了・PR #27 マージ済み（2026-06-24）
 - Issue #24 完了・PR #25 マージ済み（2026-06-19）
 - Issue #22 完了・PR #23 マージ済み（2026-06-18）
@@ -36,7 +35,8 @@
 | 11-1 | `b8475b7` | feat: implement sub-phase 11-1 stats and goal validation |
 | 11-2 | `c31f650` | feat: add recharts and stats and goals API clients |
 | 11-3 | `61c6253` | feat: implement StatsPage charts and exercise metrics |
-| 11-4 | TBD | feat: implement GoalsPage with CRUD and filter tabs |
+| 11-4 | `0fbfc77` | feat: implement GoalsPage management and filter tabs |
+| 11-5 | TBD | docs: complete Phase 11 quality gate and documentation |
 
 ## Phase10CommitHistory（次セッション引き継ぎ用）
 
@@ -54,22 +54,61 @@
 
 ## UncommittedChanges
 
-Sub-phase 11-1 コミット後は変更なし（クリーン状態）。次作業は Sub-phase 11-2。
+Sub-phase 11-5 コミット後はクリーン状態の予定。`.claude/settings.json` は今後もいかなるコミットにも含めない。
+次セッション開始時は最初に `git status --short` を実行して作業ツリーを確認すること。
 
-- `.claude/settings.json` は今後もいかなるコミットにも含めない。
-- 次セッション開始時は最初に `git status --short` を実行して作業ツリーを確認すること。
-
-## TestResults（Sub-phase 11-4 完了時点）
+## TestResults（Sub-phase 11-5 完了時点）
 
 | チェック | 結果 |
 |---------|------|
-| Backend lint | PASS（11-1 時点） |
-| Backend unit test | PASS（16 suites / 147 tests、11-1 時点） |
-| Backend integration test | PASS（3 suites / 21 tests、11-1 時点） |
-| Backend build | PASS（11-1 時点） |
+| Backend lint | PASS |
+| Backend unit test | PASS（16 suites / 147 tests） |
+| Backend integration test | PASS（3 suites / 21 tests） |
+| Backend build | PASS |
 | Frontend lint | PASS |
 | Frontend unit test | PASS（16 files / 211 tests）|
-| Frontend build | PASS |
+| Frontend build | PASS（バンドル警告あり ※後述） |
+
+### Frontend build 警告（Recharts バンドルサイズ）
+
+```
+(!) Some chunks are larger than 500 kB after minification.
+dist/assets/index.js: 724.64 kB (gzip: 215.32 kB)
+```
+
+- Recharts の SVG 描画エンジンを含むため 724 kB（非圧縮）/ 215 kB（gzip）になる。
+- gzip 後 215 kB はブラウザの通常転送サイズとして許容範囲（目安: 300 kB 未満）。
+- 将来の最適化候補: Recharts の dynamic import または tree-shaking（Phase 13 スコープ）。
+- 今回は対応不要と判断。
+
+### Playwright E2E 確認（Sub-phase 11-5、4シナリオ PASS / 2026-06-24）
+
+| # | 確認項目 | 結果 | 方法 |
+|---|---------|------|------|
+| 1 | StatsPage: 週間タブがデフォルト選択 | PASS | Playwright |
+| 2 | StatsPage: 月間タブへ切り替え | PASS | Playwright |
+| 3 | StatsPage: 一部0の期間でもグラフ表示 | PASS | Playwright |
+| 4 | StatsPage: 全期間0のユーザーで空状態メッセージ | PASS | Playwright（新規ユーザーで確認） |
+| 5 | StatsPage: 加重種目で「最大重量の推移」表示 | PASS | Playwright |
+| 6 | StatsPage: 自重種目で「最大回数の推移」表示 | PASS | Playwright（2種目以上ある場合） |
+| 7 | StatsPage: 記録なし種目で専用メッセージ | PASS | Playwright |
+| 8 | StatsPage: APIエラー時のエラー表示 | 未実施 | Vitest unit test でカバー済み |
+| 9 | GoalsPage: 目標を作成できる | PASS | Playwright |
+| 10 | GoalsPage: 重量のみ/回数のみ/両方の目標作成 | PASS | Playwright |
+| 11 | GoalsPage: 重量・回数両方未入力でエラー | PASS | Playwright |
+| 12 | GoalsPage: 過去日の期限でエラー | PASS | Playwright |
+| 13 | GoalsPage: フィルタタブ絞り込み | PASS | Playwright |
+| 14 | GoalsPage: 達成に変更 | PASS | Playwright |
+| 15 | GoalsPage: 放棄 | PASS | Playwright |
+| 16 | GoalsPage: 放棄確認キャンセル | PASS | Playwright |
+| 17 | GoalsPage: 削除 | PASS | Playwright |
+| 18 | GoalsPage: 削除確認キャンセル | PASS | Playwright |
+| 19 | GoalsPage: API処理中の二重送信防止 | 未実施 | Vitest unit test でカバー済み（disabled state 検証） |
+| 20 | GoalsPage: API失敗時の状態維持 | 未実施 | Vitest unit test でカバー済み（cardErrors・modalError 検証） |
+
+### テストデータ後処理
+
+Playwright テストは各シナリオで専用 E2E ユーザーを作成。ユーザーおよびデータはテスト完了後も DB に残存するが、すべて E2E 専用アカウントのため本番影響なし。
 
 ## TestResults（Sub-phase 10-6 完了時点）
 
@@ -231,15 +270,15 @@ Sub-phase 11-1 コミット後は変更なし（クリーン状態）。次作�
 - (none)
 
 ## ReviewStatus
-- Phase 11: PR 未作成（Sub-phase 11-5 完了後に作成予定）
+- Phase 11: PR 未作成（Sub-phase 11-5 完了・PR 作成待ち）
 - Phase 10: PR #27 マージ済み（2026-06-24）
 - Phase 9: PR #25 マージ済み（2026-06-19）
 
 ## MergeReadiness
-- Phase 11: Sub-phase 11-1 完了。11-2〜11-5 完了後に PR 作成・マージ実施。
+- Phase 11: 全品質ゲート PASS・Playwright E2E PASS・docs 更新済み。push + PR 作成後にマージ可能。
 
 ## NextAction
-Sub-phase 11-4 コミット完了 → Sub-phase 11-5（品質ゲート・Playwright スポット確認・docs 完了記録）開始。
+Sub-phase 11-5 コミット承認 → push → PR 作成（Closes #28）→ CI グリーン確認 → ユーザーがマージ → Phase 12（API 仕様書・Swagger 整備）開始。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
