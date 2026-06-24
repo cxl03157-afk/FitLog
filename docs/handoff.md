@@ -33,7 +33,8 @@
 
 | Sub-phase | コミットハッシュ | 内容 |
 |-----------|--------------|------|
-| 11-1 | TBD | feat: enhance stats aggregation and goal validation |
+| 11-1 | `b8475b7` | feat: implement sub-phase 11-1 stats and goal validation |
+| 11-2 | TBD | feat: add recharts and frontend stats/goals types and API clients |
 
 ## Phase10CommitHistory（次セッション引き継ぎ用）
 
@@ -56,15 +57,17 @@ Sub-phase 11-1 コミット後は変更なし（クリーン状態）。次作�
 - `.claude/settings.json` は今後もいかなるコミットにも含めない。
 - 次セッション開始時は最初に `git status --short` を実行して作業ツリーを確認すること。
 
-## TestResults（Sub-phase 11-1 完了時点）
+## TestResults（Sub-phase 11-2 完了時点）
 
 | チェック | 結果 |
 |---------|------|
-| Backend lint | PASS |
-| Backend unit test | PASS（16 suites / 147 tests）|
-| Backend integration test | PASS（3 suites / 21 tests）|
-| Backend build | PASS |
-| Frontend | 変更なし（11-2 以降）|
+| Backend lint | PASS（11-1 時点） |
+| Backend unit test | PASS（16 suites / 147 tests、11-1 時点） |
+| Backend integration test | PASS（3 suites / 21 tests、11-1 時点） |
+| Backend build | PASS（11-1 時点） |
+| Frontend lint | PASS |
+| Frontend unit test | PASS（14 files / 138 tests）|
+| Frontend build | PASS |
 
 ## TestResults（Sub-phase 10-6 完了時点）
 
@@ -234,7 +237,7 @@ Sub-phase 11-1 コミット後は変更なし（クリーン状態）。次作�
 - Phase 11: Sub-phase 11-1 完了。11-2〜11-5 完了後に PR 作成・マージ実施。
 
 ## NextAction
-Sub-phase 11-1 コミット完了 → Sub-phase 11-2（`cd frontend && npm install recharts` + `types/stats.ts`, `types/goal.ts`, `api/stats.ts`, `api/goals.ts` 新規作成）開始。
+Sub-phase 11-2 コミット完了 → Sub-phase 11-3（StatsPage を `pages/stubs/` から `pages/` へ移動・実装 + テスト）開始。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
