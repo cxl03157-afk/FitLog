@@ -68,6 +68,46 @@ npm run dev
 アプリは http://localhost:5173 で起動します。  
 API ドキュメント（Swagger UI）は http://localhost:3000/api/docs で確認できます。
 
+## E2E テスト（Playwright）
+
+### 事前準備
+
+E2E テストはローカル Docker 環境に対してのみ実行してください。本番・ステージング環境には実行しないこと。
+
+```bash
+# 1. PostgreSQL + LocalStack を起動（未起動の場合）
+docker compose up -d
+
+# 2. Backend を起動（別ターミナル）
+cd backend
+npm run start:dev
+
+# 3. exercises テーブルに種目データがない場合は追加
+docker exec -it fitlog-postgres psql -U fitlog -d fitlog \
+  -c "INSERT INTO exercises (name, category) VALUES ('ベンチプレス', '胸'), ('スクワット', '脚'), ('デッドリフト', '背中');"
+```
+
+### 実行
+
+```bash
+cd frontend
+npm run e2e
+```
+
+`playwright.config.ts` の `webServer` が自動的に `npm run dev`（port 5173）を起動します。Backend（port 3000）と Docker サービスは手動で起動してください。
+
+### 環境リセット（テストデータ削除）
+
+```bash
+docker compose down -v && docker compose up -d
+```
+
+### 成果物（コミット対象外）
+
+`playwright-report/`・`test-results/` は `.gitignore` により除外されています。
+
+---
+
 ## ブランチ・開発ルール
 
 [CLAUDE.md](CLAUDE.md) を参照してください。

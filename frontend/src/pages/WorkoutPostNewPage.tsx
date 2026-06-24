@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '../components/NavBar';
 import { fetchExercises } from '../api/exercises';
-import { createWorkoutPost } from '../api/workoutPosts';
+import { createWorkoutPost, uploadPostImages } from '../api/workoutPosts';
 import type { Exercise } from '../types/workout';
 
 type SetForm = { weightKg: string; reps: string; memo: string };
 type ExerciseForm = { exerciseId: string; sets: SetForm[] };
+type SelectedImage = { file: File; previewUrl: string };
+
+const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp'];
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 const todayLocal = (): string => {
   const d = new Date();
@@ -33,11 +37,26 @@ const WorkoutPostNewPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  const [selectedImages, setSelectedImages] = useState<SelectedImage[]>([]);
+  const [imageErrors, setImageErrors] = useState<string[]>([]);
+  const selectedImagesRef = useRef<SelectedImage[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     fetchExercises()
       .then(setExerciseMaster)
       .catch(() => setError('種目マスタの取得に失敗しました。ページを再読み込みしてください。'))
       .finally(() => setMasterLoading(false));
+  }, []);
+
+  useEffect(() => {
+    selectedImagesRef.current = selectedImages;
+  }, [selectedImages]);
+
+  useEffect(() => {
+    return () => {
+      selectedImagesRef.current.forEach((img) => URL.revokeObjectURL(img.previewUrl));
+    };
   }, []);
 
   // 種目操作
@@ -95,6 +114,67 @@ const WorkoutPostNewPage = () => {
     return null;
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const incoming = Array.from(e.target.files ?? []);
+    e.target.value = '';
+
+    const current = selectedImagesRef.current;
+    const available = 4 - current.length;
+    const errors: string[] = [];
+    const valid: SelectedImage[] = [];
+
+    for (const file of incoming) {
+      const isDup =
+        current.some(
+          (img) =>
+            img.file.name === file.name &&
+            img.file.size === file.size &&
+            img.file.lastModified === file.lastModified,
+        ) ||
+        valid.some(
+          (img) =>
+            img.file.name === file.name &&
+            img.file.size === file.size &&
+            img.file.lastModified === file.lastModified,
+        );
+      if (isDup) {
+        errors.push(`${file.name}: 重複したファイルです`);
+        continue;
+      }
+      if (!ALLOWED_MIME.includes(file.type)) {
+        errors.push(`${file.name}: 対応していないファイル形式です（JPEG/PNG/WebP のみ）`);
+        continue;
+      }
+      if (file.size === 0) {
+        errors.push(`${file.name}: 空のファイルです`);
+        continue;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        errors.push(`${file.name}: ファイルサイズが10MBを超えています`);
+        continue;
+      }
+      valid.push({ file, previewUrl: URL.createObjectURL(file) });
+    }
+
+    let toAdd = valid;
+    if (valid.length > available) {
+      const excluded = valid.length - available;
+      valid.slice(available).forEach((img) => URL.revokeObjectURL(img.previewUrl));
+      errors.push(`最大4枚まで選択できます（${excluded}枚は除外されました）`);
+      toAdd = valid.slice(0, available);
+    }
+
+    setImageErrors(errors);
+    if (toAdd.length > 0) {
+      setSelectedImages((prev) => [...prev, ...toAdd]);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    URL.revokeObjectURL(selectedImages[index].previewUrl);
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const validationError = validate();
@@ -104,28 +184,43 @@ const WorkoutPostNewPage = () => {
     }
     setError(null);
     setSubmitting(true);
-    try {
-      await createWorkoutPost({
-        title: title.trim(),
-        note: note.trim() || undefined,
-        trainedOn,
-        exercises: exercises.map((e, ei) => ({
-          exerciseId: e.exerciseId,
-          orderIndex: ei,
-          sets: e.sets.map((s, si) => ({
-            setNumber: si + 1,
-            weightKg: parseFloat(s.weightKg),
-            reps: parseInt(s.reps, 10),
-            memo: s.memo.trim() || undefined,
-          })),
+
+    const dto = {
+      title: title.trim(),
+      note: note.trim() || undefined,
+      trainedOn,
+      exercises: exercises.map((ex, ei) => ({
+        exerciseId: ex.exerciseId,
+        orderIndex: ei,
+        sets: ex.sets.map((s, si) => ({
+          setNumber: si + 1,
+          weightKg: parseFloat(s.weightKg),
+          reps: parseInt(s.reps, 10),
+          memo: s.memo.trim() || undefined,
         })),
-      });
-      navigate('/');
+      })),
+    };
+
+    let postId: string;
+    try {
+      const created = await createWorkoutPost(dto);
+      postId = created.id;
     } catch {
       setError('投稿に失敗しました。再度お試しください。');
-    } finally {
       setSubmitting(false);
+      return;
     }
+
+    if (selectedImages.length > 0) {
+      try {
+        await uploadPostImages(postId, selectedImages.map((img) => img.file));
+      } catch {
+        navigate('/', { state: { toast: '投稿は保存されましたが、画像のアップロードに失敗しました' } });
+        return;
+      }
+    }
+
+    navigate('/');
   };
 
   // カテゴリ別グルーピング
@@ -311,6 +406,62 @@ const WorkoutPostNewPage = () => {
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             />
             <p className="text-right text-xs text-gray-400 mt-0.5">{note.length}/500</p>
+          </div>
+
+          {/* 画像（任意） */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              画像（任意・最大4枚）
+            </label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              className="hidden"
+              onChange={handleImageSelect}
+              data-testid="image-file-input"
+            />
+            {imageErrors.length > 0 && (
+              <ul className="mb-2 text-sm text-red-600 space-y-0.5">
+                {imageErrors.map((err, i) => (
+                  <li key={i}>• {err}</li>
+                ))}
+              </ul>
+            )}
+            {selectedImages.length > 0 && (
+              <div className="grid grid-cols-4 gap-2 mb-2">
+                {selectedImages.map((img, i) => (
+                  <div key={img.previewUrl} className="relative aspect-square">
+                    <img
+                      src={img.previewUrl}
+                      alt={img.file.name}
+                      className="w-full h-full object-cover rounded-lg"
+                      data-testid={`image-preview-${i}`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(i)}
+                      className="absolute top-0.5 right-0.5 bg-black/50 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-black/70 leading-none"
+                      aria-label={`画像${i + 1}を削除`}
+                      data-testid={`remove-image-${i}`}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {selectedImages.length < 4 && (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="text-blue-600 hover:text-blue-800 text-sm font-medium transition"
+                data-testid="add-image-button"
+              >
+                ＋ 画像を追加（{selectedImages.length}/4）
+              </button>
+            )}
           </div>
 
           {/* ボタン */}

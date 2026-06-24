@@ -20,6 +20,7 @@ describe('ProtectedRoute', () => {
       login: vi.fn(),
       register: vi.fn(),
       logout: vi.fn(),
+      updateCurrentUser: vi.fn(),
     });
 
     render(
@@ -39,12 +40,13 @@ describe('ProtectedRoute', () => {
 
   it('renders outlet when authenticated', () => {
     mockUseAuth.mockReturnValue({
-      user: { id: '1', username: 'taro', displayName: 'Taro', email: 'a@b.com' },
+      user: { id: '1', username: 'taro', displayName: 'Taro', email: 'a@b.com', avatarUrl: null, bio: null },
       isLoading: false,
       isAuthenticated: true,
       login: vi.fn(),
       register: vi.fn(),
       logout: vi.fn(),
+      updateCurrentUser: vi.fn(),
     });
 
     render(

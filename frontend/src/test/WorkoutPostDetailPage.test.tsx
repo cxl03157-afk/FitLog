@@ -57,6 +57,7 @@ const mockPost: WorkoutPost = {
       sets: [{ id: '1', setNumber: 1, weightKg: 80, reps: 5, isPr: true, memo: null }],
     },
   ],
+  postImages: [],
 };
 
 const mockComments: WorkoutComment[] = [
@@ -98,12 +99,13 @@ beforeEach(() => {
 describe('WorkoutPostDetailPage', () => {
   it('renders post details after data loads', async () => {
     mockUseAuth.mockReturnValue({
-      user: { id: '99', username: 'other', displayName: 'Other', email: 'o@test.com' },
+      user: { id: '99', username: 'other', displayName: 'Other', email: 'o@test.com', avatarUrl: null, bio: null },
       isLoading: false,
       isAuthenticated: true,
       login: vi.fn(),
       register: vi.fn(),
       logout: vi.fn(),
+      updateCurrentUser: vi.fn(),
     });
     mockFetchWorkoutPost.mockResolvedValue(mockPost);
 
@@ -118,12 +120,13 @@ describe('WorkoutPostDetailPage', () => {
 
   it('shows delete button for own post', async () => {
     mockUseAuth.mockReturnValue({
-      user: { id: POST_OWNER_ID, username: 'owner', displayName: 'オーナー', email: 'o@test.com' },
+      user: { id: POST_OWNER_ID, username: 'owner', displayName: 'オーナー', email: 'o@test.com', avatarUrl: null, bio: null },
       isLoading: false,
       isAuthenticated: true,
       login: vi.fn(),
       register: vi.fn(),
       logout: vi.fn(),
+      updateCurrentUser: vi.fn(),
     });
     mockFetchWorkoutPost.mockResolvedValue(mockPost);
 
@@ -136,12 +139,13 @@ describe('WorkoutPostDetailPage', () => {
 
   it('does not show delete button for other users post', async () => {
     mockUseAuth.mockReturnValue({
-      user: { id: '99', username: 'other', displayName: 'Other', email: 'o@test.com' },
+      user: { id: '99', username: 'other', displayName: 'Other', email: 'o@test.com', avatarUrl: null, bio: null },
       isLoading: false,
       isAuthenticated: true,
       login: vi.fn(),
       register: vi.fn(),
       logout: vi.fn(),
+      updateCurrentUser: vi.fn(),
     });
     mockFetchWorkoutPost.mockResolvedValue(mockPost);
 
@@ -161,6 +165,7 @@ describe('WorkoutPostDetailPage', () => {
       login: vi.fn(),
       register: vi.fn(),
       logout: vi.fn(),
+      updateCurrentUser: vi.fn(),
     });
     mockFetchWorkoutPost.mockRejectedValue(new Error('Not found'));
 
@@ -174,12 +179,13 @@ describe('WorkoutPostDetailPage', () => {
   describe('comments', () => {
     beforeEach(() => {
       mockUseAuth.mockReturnValue({
-        user: { id: POST_OWNER_ID, username: 'owner', displayName: 'オーナー', email: 'o@test.com' },
+        user: { id: POST_OWNER_ID, username: 'owner', displayName: 'オーナー', email: 'o@test.com', avatarUrl: null, bio: null },
         isLoading: false,
         isAuthenticated: true,
         login: vi.fn(),
         register: vi.fn(),
         logout: vi.fn(),
+        updateCurrentUser: vi.fn(),
       });
       mockFetchWorkoutPost.mockResolvedValue(mockPost);
       mockFetchComments.mockResolvedValue(mockComments);

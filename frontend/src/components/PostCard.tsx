@@ -28,6 +28,18 @@ const PostCard = ({ post }: Props) => {
         {exerciseSummary && (
           <p className="text-sm text-gray-500 truncate">{exerciseSummary}</p>
         )}
+        {post.postImages.length > 0 && (
+          <div className={`mt-2 grid gap-1 ${post.postImages.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+            {post.postImages.map((img) => (
+              <img
+                key={img.id}
+                src={img.imageUrl}
+                alt=""
+                className="w-full aspect-square object-cover rounded-lg"
+              />
+            ))}
+          </div>
+        )}
       </Link>
 
       <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">

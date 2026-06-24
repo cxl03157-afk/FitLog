@@ -31,6 +31,13 @@ export type WorkoutComment = {
   user: { id: string; username: string; displayName: string };
 };
 
+export type PostImageItem = {
+  id: string;
+  imageKey: string;
+  displayOrder: number;
+  imageUrl: string;
+};
+
 export type WorkoutPost = {
   id: string;
   userId: string;
@@ -47,6 +54,7 @@ export type WorkoutPost = {
     displayName: string;
   };
   workoutExercises: WorkoutExercise[];
+  postImages: PostImageItem[];
 };
 
 export type WorkoutPostsResponse = {

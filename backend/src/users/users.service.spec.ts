@@ -2,7 +2,7 @@ import { ConflictException, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { S3Service } from '../s3/s3.service';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
@@ -29,10 +29,34 @@ const mockFile = (): Express.Multer.File =>
     buffer: Buffer.from('data'),
   }) as Express.Multer.File;
 
+const mockQb = () => {
+  const stubs = {
+    select: jest.fn(),
+    addSelect: jest.fn(),
+    where: jest.fn(),
+    setParameter: jest.fn(),
+    orderBy: jest.fn(),
+    limit: jest.fn(),
+    getRawOne: jest.fn(),
+    getRawMany: jest.fn(),
+  };
+  const qb = stubs as unknown as jest.Mocked<SelectQueryBuilder<User>>;
+  stubs.select.mockReturnValue(qb);
+  stubs.addSelect.mockReturnValue(qb);
+  stubs.where.mockReturnValue(qb);
+  stubs.setParameter.mockReturnValue(qb);
+  stubs.orderBy.mockReturnValue(qb);
+  stubs.limit.mockReturnValue(qb);
+  return qb;
+};
+
 describe('UsersService', () => {
   let service: UsersService;
   let repository: jest.Mocked<
-    Pick<Repository<User>, 'findOne' | 'create' | 'save' | 'update'>
+    Pick<
+      Repository<User>,
+      'findOne' | 'create' | 'save' | 'update' | 'createQueryBuilder'
+    >
   >;
   let s3Service: { upload: jest.Mock; deleteOne: jest.Mock };
   let loggerErrorSpy: jest.SpyInstance;
@@ -53,6 +77,7 @@ describe('UsersService', () => {
             create: jest.fn(),
             save: jest.fn(),
             update: jest.fn(),
+            createQueryBuilder: jest.fn(),
           },
         },
         { provide: S3Service, useValue: s3Service },
@@ -71,6 +96,183 @@ describe('UsersService', () => {
 
   afterEach(() => {
     loggerErrorSpy.mockRestore();
+  });
+
+  describe('getProfile', () => {
+    const profileRow = {
+      id: '2',
+      username: 'alice',
+      displayName: 'Alice',
+      bio: 'hello',
+      avatarKey: 'images/avatars/2/abc.jpg',
+      postCount: 3,
+      followerCount: 5,
+      followingCount: 2,
+      isFollowingRaw: true,
+    };
+
+    it('returns profile with avatarUrl and isFollowing=true for followed user', async () => {
+      const qb = mockQb();
+      qb.getRawOne.mockResolvedValue(profileRow);
+      (repository.createQueryBuilder as jest.Mock).mockReturnValue(qb);
+
+      const result = await service.getProfile('2', '1');
+
+      expect(result.id).toBe('2');
+      expect(result.avatarUrl).toBe(
+        'http://localhost:4566/fitlog/images/avatars/2/abc.jpg',
+      );
+      expect(result.isFollowing).toBe(true);
+      expect(result.postCount).toBe(3);
+      expect(result.followerCount).toBe(5);
+    });
+
+    it('returns isFollowing=false when currentUser is the profile owner', async () => {
+      const qb = mockQb();
+      qb.getRawOne.mockResolvedValue({ ...profileRow, isFollowingRaw: true });
+      (repository.createQueryBuilder as jest.Mock).mockReturnValue(qb);
+
+      const result = await service.getProfile('2', '2');
+
+      expect(result.isFollowing).toBe(false);
+    });
+
+    it('returns isFollowing=false when not following', async () => {
+      const qb = mockQb();
+      qb.getRawOne.mockResolvedValue({ ...profileRow, isFollowingRaw: false });
+      (repository.createQueryBuilder as jest.Mock).mockReturnValue(qb);
+
+      const result = await service.getProfile('2', '1');
+
+      expect(result.isFollowing).toBe(false);
+    });
+
+    it('returns avatarUrl=null when avatarKey is null', async () => {
+      const qb = mockQb();
+      qb.getRawOne.mockResolvedValue({ ...profileRow, avatarKey: null });
+      (repository.createQueryBuilder as jest.Mock).mockReturnValue(qb);
+
+      const result = await service.getProfile('2', '1');
+
+      expect(result.avatarUrl).toBeNull();
+    });
+
+    it('throws NotFoundException when user not found', async () => {
+      const qb = mockQb();
+      qb.getRawOne.mockResolvedValue(null);
+      (repository.createQueryBuilder as jest.Mock).mockReturnValue(qb);
+
+      await expect(service.getProfile('999', '1')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('searchUsers', () => {
+    it('returns users with avatarUrl and isFollowing', async () => {
+      const qb = mockQb();
+      qb.getRawMany.mockResolvedValue([
+        {
+          id: '2',
+          username: 'alice',
+          displayName: 'Alice',
+          avatarKey: 'images/avatars/2/abc.jpg',
+          isFollowing: true,
+        },
+      ]);
+      (repository.createQueryBuilder as jest.Mock).mockReturnValue(qb);
+
+      const result = await service.searchUsers(
+        { username: 'ali', limit: 20 },
+        '1',
+      );
+
+      expect(result).toHaveLength(1);
+      expect(result[0].avatarUrl).toContain('images/avatars/2/abc.jpg');
+      expect(result[0].isFollowing).toBe(true);
+    });
+
+    it('returns avatarUrl=null when avatarKey is null', async () => {
+      const qb = mockQb();
+      qb.getRawMany.mockResolvedValue([
+        {
+          id: '3',
+          username: 'bob',
+          displayName: 'Bob',
+          avatarKey: null,
+          isFollowing: false,
+        },
+      ]);
+      (repository.createQueryBuilder as jest.Mock).mockReturnValue(qb);
+
+      const result = await service.searchUsers({ username: 'bob' }, '1');
+
+      expect(result[0].avatarUrl).toBeNull();
+    });
+
+    it('returns empty array when no users match', async () => {
+      const qb = mockQb();
+      qb.getRawMany.mockResolvedValue([]);
+      (repository.createQueryBuilder as jest.Mock).mockReturnValue(qb);
+
+      const result = await service.searchUsers({ username: 'zzz' }, '1');
+
+      expect(result).toHaveLength(0);
+    });
+  });
+
+  describe('updateProfile', () => {
+    it('updates displayName only', async () => {
+      (repository.findOne as jest.Mock).mockResolvedValue(
+        mockUser({ displayName: 'New Name' }),
+      );
+      (repository.update as jest.Mock).mockResolvedValue(undefined);
+
+      const result = await service.updateProfile('1', {
+        displayName: 'New Name',
+      });
+
+      expect(repository.update).toHaveBeenCalledWith(
+        '1',
+        expect.objectContaining({ displayName: 'New Name' }),
+      );
+      expect(result.displayName).toBe('New Name');
+    });
+
+    it('updates bio to null when null is provided', async () => {
+      (repository.findOne as jest.Mock).mockResolvedValue(
+        mockUser({ bio: null }),
+      );
+      (repository.update as jest.Mock).mockResolvedValue(undefined);
+
+      await service.updateProfile('1', { bio: null });
+
+      expect(repository.update).toHaveBeenCalledWith(
+        '1',
+        expect.objectContaining({ bio: null }),
+      );
+    });
+
+    it('does not call update when empty DTO is provided', async () => {
+      (repository.findOne as jest.Mock).mockResolvedValue(mockUser());
+
+      await service.updateProfile('1', {});
+
+      expect(repository.update).not.toHaveBeenCalled();
+    });
+
+    it('returns avatarUrl built from avatarKey', async () => {
+      (repository.findOne as jest.Mock).mockResolvedValue(
+        mockUser({ avatarKey: 'images/avatars/1/abc.jpg' }),
+      );
+      (repository.update as jest.Mock).mockResolvedValue(undefined);
+
+      const result = await service.updateProfile('1', { displayName: 'X' });
+
+      expect(result.avatarUrl).toBe(
+        'http://localhost:4566/fitlog/images/avatars/1/abc.jpg',
+      );
+    });
   });
 
   describe('create', () => {

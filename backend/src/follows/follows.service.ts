@@ -4,18 +4,25 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QueryFailedError, Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
+import { FollowUserDto } from './dto/follow-user.dto';
 import { Follow } from './entities/follow.entity';
 
 @Injectable()
 export class FollowsService {
+  private readonly imageBaseUrl: string;
+
   constructor(
     @InjectRepository(Follow)
     private readonly followRepository: Repository<Follow>,
     private readonly usersService: UsersService,
-  ) {}
+    private readonly config: ConfigService,
+  ) {
+    this.imageBaseUrl = config.get<string>('IMAGE_BASE_URL', '');
+  }
 
   async follow(followeeId: string, followerId: string): Promise<Follow> {
     if (followerId === followeeId) {
@@ -48,21 +55,77 @@ export class FollowsService {
     await this.followRepository.delete(follow.id);
   }
 
-  async getFollowers(userId: string): Promise<Follow[]> {
+  async getFollowers(
+    userId: string,
+    currentUserId: string,
+  ): Promise<FollowUserDto[]> {
     await this.usersService.findById(userId);
-    return this.followRepository.find({
-      where: { followeeId: userId },
-      relations: { follower: true },
-      order: { createdAt: 'DESC' },
-    });
+
+    const rows = await this.followRepository
+      .createQueryBuilder('f')
+      .innerJoin('f.follower', 'u')
+      .select('u.id', 'id')
+      .addSelect('u.username', 'username')
+      .addSelect('u.displayName', 'displayName')
+      .addSelect('u.avatarKey', 'avatarKey')
+      .addSelect(
+        `EXISTS(SELECT 1 FROM follows mf WHERE mf.follower_id = :currentUserId AND mf.followee_id = u.id)`,
+        'isFollowing',
+      )
+      .where('f.followeeId = :userId', { userId })
+      .setParameter('currentUserId', currentUserId)
+      .orderBy('f.createdAt', 'DESC')
+      .getRawMany<{
+        id: string;
+        username: string;
+        displayName: string;
+        avatarKey: string | null;
+        isFollowing: boolean;
+      }>();
+
+    return rows.map((row) => ({
+      id: row.id,
+      username: row.username,
+      displayName: row.displayName,
+      avatarUrl: row.avatarKey ? `${this.imageBaseUrl}/${row.avatarKey}` : null,
+      isFollowing: row.isFollowing === true,
+    }));
   }
 
-  async getFollowing(userId: string): Promise<Follow[]> {
+  async getFollowing(
+    userId: string,
+    currentUserId: string,
+  ): Promise<FollowUserDto[]> {
     await this.usersService.findById(userId);
-    return this.followRepository.find({
-      where: { followerId: userId },
-      relations: { followee: true },
-      order: { createdAt: 'DESC' },
-    });
+
+    const rows = await this.followRepository
+      .createQueryBuilder('f')
+      .innerJoin('f.followee', 'u')
+      .select('u.id', 'id')
+      .addSelect('u.username', 'username')
+      .addSelect('u.displayName', 'displayName')
+      .addSelect('u.avatarKey', 'avatarKey')
+      .addSelect(
+        `EXISTS(SELECT 1 FROM follows mf WHERE mf.follower_id = :currentUserId AND mf.followee_id = u.id)`,
+        'isFollowing',
+      )
+      .where('f.followerId = :userId', { userId })
+      .setParameter('currentUserId', currentUserId)
+      .orderBy('f.createdAt', 'DESC')
+      .getRawMany<{
+        id: string;
+        username: string;
+        displayName: string;
+        avatarKey: string | null;
+        isFollowing: boolean;
+      }>();
+
+    return rows.map((row) => ({
+      id: row.id,
+      username: row.username,
+      displayName: row.displayName,
+      avatarUrl: row.avatarKey ? `${this.imageBaseUrl}/${row.avatarKey}` : null,
+      isFollowing: row.isFollowing === true,
+    }));
   }
 }

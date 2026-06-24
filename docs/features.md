@@ -59,8 +59,8 @@
 | DELETE | `/api/auth/sessions` | 全端末ログアウト | 必要 |
 | GET | `/api/users/search` | ユーザー検索 | 必要 |
 | GET | `/api/users/:id` | プロフィール取得 | 必要 |
-| PUT | `/api/users/me` | プロフィール更新 | 必要 |
-| POST | `/api/users/me/avatar` | アバター画像アップロード | 必要 |
+| PATCH | `/api/users/me/profile` | プロフィール更新 | 必要 |
+| PATCH | `/api/users/me/avatar` | アバター画像アップロード | 必要 |
 | GET | `/api/users/:id/followers` | フォロワー一覧 | 必要 |
 | GET | `/api/users/:id/following` | フォロー中一覧 | 必要 |
 | POST | `/api/follows/:userId` | フォロー | 必要 |

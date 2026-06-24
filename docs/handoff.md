@@ -1,7 +1,12 @@
 # Agent Handoff
 
 ## CurrentPhase
-- Phase 9 complete: S3 画像アップロード バックエンド + LocalStack（Issue #24）PR #25 CI グリーン・レビュー待ち（2026-06-19）
+- **Phase 10 完了・マージ直前**: フロントエンド フォロー・プロフィール・画像UI（Issue #26 / PR #27）
+  - Sub-phase 10-1〜10-7 すべて完了。
+  - CI 3ジョブ PASS（2026-06-24）・レビュー確認済み。
+  - Phase 10 完了ドキュメントを PR #27 へ追加後、再実行 CI と最終 merge 承認を行う。
+- **Phase 11 未着手**: 週間/月間集計・目標設定
+- Phase 9 complete: S3 画像アップロード バックエンド + LocalStack（Issue #24）PR #25 マージ済み（2026-06-19）
 - Phase 8 complete: フロントエンド コメント・ナイス機能（Issue #22）PR #23 マージ済み（2026-06-18）
 - Phase 7-1 complete: workout-posts passwordHash 漏洩修正（Issue #20）PR #21 マージ済み（2026-06-17）
 - Phase 7 complete: フロントエンド タイムライン・投稿機能（Issue #18）PR #19 マージ済み（2026-06-17）
@@ -13,7 +18,9 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #24 完了・PR #25 CI グリーン・レビュー待ち（2026-06-19）
+- Issue #26: PR #27 マージ時にクローズ予定（現在オープン）
+- PR #27: CI・レビュー確認済み、Phase 10 完了ドキュメント追加待ち
+- Issue #24 完了・PR #25 マージ済み（2026-06-19）
 - Issue #22 完了・PR #23 マージ済み（2026-06-18）
 - Issue #20 完了・PR #21 マージ済み（2026-06-17）
 - Issue #18 完了・PR #19 マージ済み（2026-06-17）
@@ -22,6 +29,67 @@
 - Issue #12 完了・PR #13 マージ済み（2026-06-11）
 - Issue #8 完了・PR #9 マージ済み（2026-06-10）
 - Issue #10 完了・PR #11 マージ済み（2026-06-10）
+
+## Phase10CommitHistory（次セッション引き継ぎ用）
+
+| Sub-phase | コミットハッシュ | 内容 |
+|-----------|--------------|------|
+| 10-1 | `5e16ca3` | feat: implement Phase 10-1 backend user APIs |
+| 10-2 | `2545afc` | feat: add frontend types and API clients for Phase 10 |
+| 10-3 | `0418bbb` | feat: implement Phase 10-3 post image UI |
+| 10-4 | `55422a5` | feat: implement Phase 10-4 profile and avatar UI |
+| 10-5 | `690bd8c` | feat: implement Phase 10-5 follow and search UI |
+| 10-6 | `cf6fb1f` | feat: implement Phase 10-6 session management UI |
+| 10-7 | `f162009` | feat: implement Phase 10-7 NavBar avatar and Playwright E2E |
+| docs | `5f19d8d` | docs: prepare Phase 10 for review |
+| fix  | `dbce453` | test: fix QueryBuilder mock types in backend specs |
+
+## UncommittedChanges
+
+```
+ M .claude/settings.json   ← コミット対象外（常に除外）
+ M docs/context.md         ← Phase 10 完了・マージ直前状態へ更新（コミット9候補）
+ M docs/handoff.md         ← Phase 10 完了・マージ直前状態へ更新（コミット9候補）
+ M docs/phase-roadmap.md   ← Phase 10「完了」へ更新（コミット9候補）
+```
+
+- `.claude/settings.json` は今後もいかなるコミットにも含めない。
+- 次セッション開始時は最初に `git status --short` を実行して作業ツリーを確認すること。
+
+## TestResults（Sub-phase 10-6 完了時点）
+
+| チェック | 結果 |
+|---------|------|
+| Frontend lint | PASS |
+| tsc --noEmit | PASS |
+| unit test | PASS（133 / 133）— SessionsPage 20・NavBar 3・LoginPage 6・AuthContext 6・other 98 |
+| build | PASS |
+| Playwright 10-6 スポット確認（7項目） | PASS（2026-06-24） |
+| Backend unit/integration test | 前回（10-1）以降変更なし・PASS 維持 |
+
+### Playwright 10-6 スポット確認項目（7 / 7 PASS）
+1. 2つのセッションを別コンテキストで作成できた
+2. SessionsPage に複数セッションが表示される
+3. 「現在の端末」バッジが正確に1件表示される
+4. 他端末を個別ログアウト → その行だけ消える
+5. 個別ログアウト後、現在端末が残る
+6. 「この端末を除く全端末をログアウト」で他端末のみ消える
+7. 現在端末ログアウト → /login へ遷移する
+
+### 未実施の Playwright 確認
+- Sub-phase 10-7 の Playwright 自動 E2E テスト（6シナリオ）は未実施。
+  計画ファイル（`/Users/user/.claude/plans/happy-beaming-cat.md`）の Sub-phase 10-7 参照。
+  6シナリオ: 画像付き投稿・プロフィール更新・アバター更新・フォロー中タイムライン・ユーザー検索遷移・別セッション削除。
+
+## ApprovalStatus
+
+| 操作 | 状態 | 備考 |
+|------|------|------|
+| Sub-phase 10-1〜10-7 コミット | **承認済み・実施済み** | f162009・5f19d8d・dbce453 を含む全コミット完了 |
+| push | **承認済み・実施済み** | origin/feature/issue-26-phase10-frontend へ push 済み |
+| PR 作成 | **承認済み・実施済み** | PR #27 オープン中 |
+| 完了ドキュメント追加 push | **コミット待ち** | コミット9（本ファイル含む3ファイル）承認後に push |
+| マージ | **未承認・未実施** | CI 再確認・ユーザー最終承認後にマージ |
 
 ## SourceOfTruthOrder
 1. `CLAUDE.md` (workflow and guardrails)
@@ -90,25 +158,69 @@
 - [Phase 9] uploadImages エラー: アップロード済みキーを deleteMany でロールバック。rollback 失敗はログのみ、元例外を再 throw。remove() の S3 削除失敗もログのみ、DB 削除は継続。
 - [Phase 9] TypeORM FindOptionsSelect は配列形式不可（TS2559）→ `{ field: true }` のオブジェクト形式が必須。
 - [Phase 9] 統合テストのユーザー名は DB の 20文字上限に注意（`av_${Date.now()}` = 16文字で適合）。
+- [Phase 10 / 10-1] `GET /api/users/:id`（プロフィール取得）・`GET /api/users/search`（ユーザー検索）・`PATCH /api/users/me/profile`（プロフィール更新）の 3 エンドポイントを UsersController / UsersService に追加。
+- [Phase 10 / 10-1] GET /api/users/:id: postCount / followerCount / followingCount を EXISTS サブクエリで一括取得。avatarUrl は `IMAGE_BASE_URL + "/" + avatarKey`（null なら null）。自分自身は isFollowing=false。存在しないユーザーは 404。
+- [Phase 10 / 10-1] GET /api/users/search バリデーション: `@IsString @Transform(trim) @Matches(/\S/) @MaxLength(20)` / limit: `@Type(Number) @IsInt @Min(1) @Max(50) default=20`。trim 後の ILIKE 検索。2文字未満制限はフロントエンドのみ。
+- [Phase 10 / 10-1] PATCH /api/users/me/profile: `displayName` は trim 後 MinLength(1)（空白のみ→400）。`bio` は空文字・trim後空文字→null 変換。空 DTO は no-op。未知フィールドは 400（forbidNonWhitelisted）。
+- [Phase 10 / 10-1] getFollowers / getFollowing: 旧 `Follow[]` 返却から `FollowUserDto[]` に変更。QueryBuilder + EXISTS サブクエリで isFollowing を一括取得（N+1 回避）。avatarUrl を含む。存在しないユーザーは 404（usersService.findById が throw）。存在するユーザーでフォロワーなしは 200 + 空配列。
+- [Phase 10 / 10-1] テスト結果: lint PASS / unit 114 PASS / build PASS / integration 21 PASS（2026-06-23）。
+- [Phase 10 / 10-2] `types/auth.ts`: `AuthUser`（auth API が返す基本4フィールド）を分離し、`User = AuthUser & { avatarUrl: string|null, bio: string|null }` に拡張。`AuthResponse.user` は `AuthUser` 型。
+- [Phase 10 / 10-2] `types/workout.ts`: `PostImageItem = { id, imageKey, displayOrder, imageUrl }` 追加。`WorkoutPost.postImages: PostImageItem[]` 追加。
+- [Phase 10 / 10-2] `types/user.ts`（新規）: `UserProfile`・`SearchUser`・`FollowUser` 型定義。
+- [Phase 10 / 10-2] `api/workoutPosts.ts`: `FetchWorkoutPostsParams` に `feed?: 'all' | 'following'`・`userId?: string` 追加。
+- [Phase 10 / 10-2] `api/users.ts`（新規）: `getProfile`・`searchUsers`・`updateProfile`・`uploadAvatar`。
+- [Phase 10 / 10-2] `api/follows.ts`（新規）: `followUser`・`unfollowUser`・`getFollowers`・`getFollowing`。
+- [Phase 10 / 10-2] `api/sessions.ts`（新規）: `SessionInfo`・`getSessions`・`revokeSession`・`revokeAllOtherSessions`。
+- [Phase 10 / 10-2] `AuthContext`: login/register 直後に `avatarUrl: null, bio: null` でセット後、非同期で `getProfile` を呼びプロフィール補完。`updateCurrentUser` を context に公開（外部コンポーネントから部分更新可能）。補完失敗: 401 のみ認証クリア、それ以外はコンソールエラーのみでログイン維持。`setUser` 関数形式で更新するため stale closure の上書きは発生しない。
+- [Phase 10 / 10-2] テスト結果: lint PASS / unit 28 PASS / build PASS（2026-06-23）。
+- [Phase 10 / 10-3] 投稿画像 UI 実装。画像は最大4枚・JPEG/PNG/WebP・各10MB以下。0バイト・重複ファイル（名前+サイズ+lastModified が同一）は選択時に除外。一部不正ファイルがあっても有効ファイルは保持して送信続行。Object URL は削除時に対象のみ個別 revoke、アンマウント時は `selectedImagesRef` 経由で全残存 URL を一括解放（stale closure 回避）。
+- [Phase 10 / 10-3] 投稿後に POST /:id/images が失敗した場合も投稿 DB は維持。タイムラインへ遷移してトースト「投稿は保存されましたが、画像のアップロードに失敗しました」を表示（5秒後自動消去）。再試行 UI は Phase 10 スコープ外。
+- [Phase 10 / 10-3] PostCard・WorkoutPostDetailPage に postImages グリッド表示追加（1枚: grid-cols-1、2-4枚: grid-cols-2）。TimelinePage は `useLocation().state.toast` でトーストを表示。
+- [Phase 10 / 10-3] テスト結果: lint PASS / unit 44 PASS（+16件）/ tsc PASS / build PASS（2026-06-23）。
+- [Phase 10 / 10-4] ProfilePage（`pages/stubs/ProfilePage.tsx`）を完全実装。ローディング・404・エラー・正常の4状態対応。
+- [Phase 10 / 10-4] アバター表示: `avatarUrl` あり → `<img>`、なし → 表示名イニシャル円（取得不可時は `?`）。
+- [Phase 10 / 10-4] 自分のプロフィール: 「プロフィールを編集」ボタン → インラインモーダル（表示名・bio）+ アバター変更ボタン（モーダル内）。他ユーザー: フォロー/フォロー中ボタン。
+- [Phase 10 / 10-4] フォロー操作: API 成功時のみ followerCount ±1。409（既フォロー）→ isFollowing=true に寄せるが件数は変化しない。404 on unfollow → isFollowing=false に寄せるが件数は変化しない。
+- [Phase 10 / 10-4] アバター更新成功: `uploadAvatar` → `updateCurrentUser({ avatarUrl })` で NavBar 即時反映。失敗: モーダル内エラー表示・既存アバター維持。
+- [Phase 10 / 10-4] `useEffect` の setState を同期的に effect 本体で呼ぶ代わりに cleanup 関数でリセット（`react-hooks/set-state-in-effect` lint エラー回避）。`cancelled` フラグで旧フェッチのレース防止。
+- [Phase 10 / 10-4] アバター input.value は `handleAvatarSelect` 冒頭で同期的に `= ''` リセット（同一ファイルの再選択対応）。
+- [Phase 10 / 10-4] テスト結果: lint PASS / unit 68 PASS（23 ProfilePage + 5 AuthContext + 40 other）/ tsc PASS / build PASS（2026-06-23）。
+- [Phase 10 / 10-4] Playwright スポット確認（13項目 PASS / 2026-06-23）: 自分のプロフィール表示（イニシャル・統計・編集ボタン）・表示名 bio 編集の画面反映・アバターアップロード後の &lt;img&gt; 切り替えと NavBar 即時反映・他ユーザープロフィール（フォローボタン）・フォロー→followerCount+1・フォロー解除→followerCount-1・フォロワー/フォロー中リンク先 URL・投稿一覧/0件表示。
+- [Phase 10 / 10-5] UserCard（`components/UserCard.tsx`）新規作成。アバター（avatarUrl あり → img / なし → イニシャル円、取得不可時は `?`）・表示名・`@username`・フォローボタン（自分自身には非表示）。カード全体が `/users/:id` リンク。フォローボタンはリンク外に配置（クリックでプロフィール遷移しない）。エラーメッセージは3秒後に自動消去（useEffect cleanup でタイマーをクリア）。フォロー API 成功まで isFollowing を変更しない（非楽観的更新）。409 → isFollowing=true に寄せる / 404 → isFollowing=false に寄せる / その他 → 元の状態を維持しエラーメッセージ表示。
+- [Phase 10 / 10-5] FollowersPage / FollowingPage（スタブ→実装）。getFollowers / getFollowing を呼び UserCard で一覧表示。0件・404・その他 API エラーをそれぞれ表示。タブ切替は Link（`/users/:id/followers` ↔ `/users/:id/following`）。useEffect cleanup で cancelled フラグ + setState リセット（react-hooks/set-state-in-effect 対応）。
+- [Phase 10 / 10-5] SearchPage（スタブ→実装）。入力 300ms デバウンス + AbortController（新しいリクエスト開始時に旧リクエストを abort）。trim 後 2文字以上の場合のみ `GET /api/users/search` を呼ぶ。2文字未満に戻した際はデバウンスタイマーをキャンセルし controller.abort() + 結果・エラー・ローディングをすべてクリア。キャンセルされたリクエストではエラー表示しない（cancelled フラグで判定）。自分自身の結果にフォローボタン非表示（UserCard の isSelf チェック）。`api/users.ts` の `searchUsers` に AbortSignal パラメータを追加。
+- [Phase 10 / 10-5] TimelinePage フォロー中タブ有効化。useEffect の依存配列を `[activeTab]` に変更し `feed: activeTab` でフェッチ。タブ切替時に cleanup（cancelled=true + 各 state リセット）→ 旧リクエスト結果が新しいタブを上書きしない。handleLoadMore も `activeTab` を参照するため二重呼び出しなし。フォロー中 0件時は「フォロー中のユーザーの投稿はありません。」を表示。
+- [Phase 10 / 10-5] テスト結果: lint PASS / unit 107 PASS（12 UserCard + 11 FollowersPage/FollowingPage + 10 SearchPage + 10 TimelinePage + 23 ProfilePage + 16 WorkoutPostNewPage + 25 other）/ tsc PASS / build PASS（2026-06-23）。
+- [Phase 10 / 10-5] Playwright スポット確認（11項目 PASS / 2026-06-23）: フォロワー0件表示・フォロー中0件表示・ユーザー検索（e2espot2 表示）・自分自身にフォローボタンなし・検索結果からプロフィール遷移・フォロー成功（ボタン「フォロー中」）・フォロワー一覧に e2espot1 表示・フォロー中一覧に e2espot2 表示・フォロー中タイムラインに投稿表示・フォロー解除成功・フォロー解除後タイムラインから消える。
+- [Phase 10 / 10-6] SessionsPage（`pages/stubs/SessionsPage.tsx`）を完全実装。スピナー・取得失敗・0件・一覧の4状態対応。
+- [Phase 10 / 10-6] `isCurrent=true` の行に「現在の端末」バッジ。各行にログアウトボタン。全他端末ログアウトボタン（他端末がある場合のみ表示）。
+- [Phase 10 / 10-6] 現在端末ログアウト: `AuthContext.logout()` を呼ぶ → 成功/失敗を問わず `/login` へ遷移。失敗時は `navigate('/login', { state: { logoutError } })` でエラーを渡し LoginPage で表示。
+- [Phase 10 / 10-6] 他端末ログアウト: `revokeSession` 成功 → 対象行をリストから削除。失敗 → トーストエラー表示（5秒後自動消去）。処理中は対象ボタンのみ disabled・二重実行防止。
+- [Phase 10 / 10-6] 全他端末ログアウト: `revokeAllOtherSessions` 成功 → `getSessions` 再取得。再取得失敗時は `refetch-error` 警告メッセージ（永続表示）＋「再読み込み」ボタンで再試行。既存一覧は加工しない。
+- [Phase 10 / 10-6] `AuthContext.logout()` を try/finally に変更: API 失敗時でも `setAccessToken(null)` / `setUser(null)` を必ず実行し、エラーを re-throw。
+- [Phase 10 / 10-6] `NavBar.handleLogout` を try/catch に変更: logout 失敗時も `/login` へ遷移・未処理 Promise rejection を防止。失敗時は `logoutError` を navigate state で渡す。
+- [Phase 10 / 10-6] `LoginPage` に `location.state.logoutError` 読み取りを追加: ログアウト失敗エラーを遷移後にオレンジ色のバナーで表示。
+- [Phase 10 / 10-6] `docs/features/01_auth.md` に `GET /api/auth/sessions` レスポンスフィールド仕様・logout 失敗時のフロントエンド動作（auth 常にクリア・Cookie 残存可能性・再認証の可能性・エラー表示方式）を追記。
+- [Phase 10 / 10-6] テスト結果: lint PASS / unit 133 PASS（20 SessionsPage + 3 NavBar + 6 LoginPage + 6 AuthContext + 98 other）/ tsc PASS / build PASS（2026-06-23）。
 
 ## OpenQuestions
 - (none)
 
 ## ReviewStatus
-- Status: PR #25 CI グリーン・レビュー待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
+- Phase 10: PR #27 オープン。CI 3ジョブ PASS（2026-06-24）・レビュー確認済み。マージ直前の完了ドキュメント更新中。
+- Phase 9: PR #25 マージ済み（2026-06-19）
 
 ## MergeReadiness
-- レビュー承認待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
+- Phase 10: 実装・品質ゲート・doc-sync・Playwright E2E・CI・レビュー確認完了。完了ドキュメント追加後の CI 再確認とユーザー最終承認をもって merge 可能。
 
 ## NextAction
-PR #25 レビュー承認 → マージ。
-マージ後、Phase 10（フロントエンド 画像UI）の計画案を提示する。
+Phase 10 完了ドキュメントをコミットして PR #27 へ追加 push → 再実行 CI を確認 → ユーザーへ最終 merge 承認を依頼 → merge → main 同期と Issue #26 クローズを確認 → Phase 11 開始。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
-- Issue: #24（Phase 9）、#22（Phase 8 / 完了）、#20（Phase 7-1 / 完了）、#18（Phase 7 / 完了）、#16（Phase 6 / 完了）
-- PR: #25（feature/issue-24-phase9-s3-image-upload / CI グリーン・レビュー待ち）、#23（マージ済み）、#21（マージ済み）、#19（マージ済み）
-- Branch: `feature/issue-24-phase9-s3-image-upload`（main へ PR 中）
+- Issue: #26（Phase 10 / 進行中）、#24（Phase 9 / 完了）、#22（Phase 8 / 完了）、#20（Phase 7-1 / 完了）、#18（Phase 7 / 完了）、#16（Phase 6 / 完了）
+- PR: #25（Phase 9 / マージ済み）、#23（マージ済み）、#21（マージ済み）、#19（マージ済み）
+- Branch: `feature/issue-26-phase10-frontend`（Phase 10 実装中）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules

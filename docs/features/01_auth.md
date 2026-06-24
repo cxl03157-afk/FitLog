@@ -111,6 +111,36 @@ GET /api/auth/sessions を実行
         現在端末を除く全セッションを無効化（必要に応じ現在端末も失効）
 ```
 
+**GET /api/auth/sessions レスポンスフィールド**:
+
+```json
+[
+  {
+    "sessionId": "uuid",
+    "deviceName": "My Mac" | null,
+    "userAgent": "Mozilla/5.0...",
+    "ipAddress": "192.168.1.1",
+    "lastUsedAt": "2026-06-23T10:00:00.000Z",
+    "isCurrent": true
+  }
+]
+```
+
+| フィールド | 型 | 説明 |
+|---|---|---|
+| `sessionId` | `string` | セッション UUID |
+| `deviceName` | `string \| null` | 登録済み端末名（未設定なら null） |
+| `userAgent` | `string` | User-Agent 文字列 |
+| `ipAddress` | `string` | 最終アクセス IP アドレス |
+| `lastUsedAt` | `string` | 最終利用日時（ISO 8601） |
+| `isCurrent` | `boolean` | JWT の sessionId と一致する場合 true |
+
+**現在端末のログアウト（POST /api/auth/logout）の失敗時動作**:
+- API 失敗時でも **フロントエンドの認証状態（AccessToken・User）は常にクリアされる**（try/finally で保証）
+- サーバーセッションと HttpOnly Cookie は残存する可能性がある
+- 次回アプリ起動時、残存 Cookie で `POST /api/auth/refresh` が成功すると再認証される
+- エラー通知は遷移後の LoginPage（`navigate('/login', { state: { logoutError } })`）で表示する
+
 ### 1-6. プロフィール編集フロー
 ```
 プロフィール画面で「プロフィールを編集」をクリック
@@ -313,5 +343,5 @@ GET /api/auth/sessions を実行
 | DELETE | `/api/auth/sessions/:sessionId` | 指定端末ログアウト | 必要 |
 | DELETE | `/api/auth/sessions` | 全端末ログアウト | 必要 |
 | GET | `/api/users/:id` | プロフィール取得 | 必要 |
-| PUT | `/api/users/me` | プロフィール更新 | 必要 |
+| PATCH | `/api/users/me/profile` | プロフィール更新 | 必要 |
 | PATCH | `/api/users/me/avatar` | アバター画像アップロード | 必要 |

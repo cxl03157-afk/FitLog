@@ -4,7 +4,8 @@ import type { CreateWorkoutPostDto, WorkoutPost, WorkoutPostsResponse } from '..
 export type FetchWorkoutPostsParams = {
   page?: number;
   limit?: number;
-  feed?: 'all';
+  feed?: 'all' | 'following';
+  userId?: string;
 };
 
 export const fetchWorkoutPosts = (params: FetchWorkoutPostsParams): Promise<WorkoutPostsResponse> =>
@@ -18,3 +19,13 @@ export const createWorkoutPost = (dto: CreateWorkoutPostDto): Promise<WorkoutPos
 
 export const deleteWorkoutPost = (id: string): Promise<void> =>
   apiClient.delete(`/api/workout-posts/${id}`).then(() => undefined);
+
+export const uploadPostImages = (postId: string, files: File[]): Promise<void> => {
+  const formData = new FormData();
+  files.forEach((file) => formData.append('images', file));
+  return apiClient
+    .post(`/api/workout-posts/${postId}/images`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    .then(() => undefined);
+};

@@ -160,6 +160,20 @@ const WorkoutPostDetailPage = () => {
                   ))}
               </div>
 
+              {/* 投稿画像 */}
+              {post.postImages.length > 0 && (
+                <div className={`grid gap-2 mb-4 ${post.postImages.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                  {post.postImages.map((img) => (
+                    <img
+                      key={img.id}
+                      src={img.imageUrl}
+                      alt=""
+                      className="w-full aspect-square object-cover rounded-lg"
+                    />
+                  ))}
+                </div>
+              )}
+
               {/* 全体メモ */}
               {post.note && (
                 <div className="bg-gray-50 rounded-lg p-3 mb-4">
