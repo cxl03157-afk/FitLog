@@ -36,7 +36,7 @@
 | 11-2 | `c31f650` | feat: add recharts and stats and goals API clients |
 | 11-3 | `61c6253` | feat: implement StatsPage charts and exercise metrics |
 | 11-4 | `0fbfc77` | feat: implement GoalsPage management and filter tabs |
-| 11-5 | TBD | docs: complete Phase 11 quality gate and documentation |
+| 11-5 | `02973ff` | test: add Phase 11 e2e coverage and finalize documentation |
 
 ## Phase10CommitHistory（次セッション引き継ぎ用）
 
@@ -78,7 +78,7 @@ dist/assets/index.js: 724.64 kB (gzip: 215.32 kB)
 
 - Recharts の SVG 描画エンジンを含むため 724 kB（非圧縮）/ 215 kB（gzip）になる。
 - gzip 後 215 kB はブラウザの通常転送サイズとして許容範囲（目安: 300 kB 未満）。
-- 将来の最適化候補: Recharts の dynamic import または tree-shaking（Phase 13 スコープ）。
+- 将来のバンドル最適化候補（特定 Phase に未割当）: Recharts の dynamic import または tree-shaking が有効。
 - 今回は対応不要と判断。
 
 ### Playwright E2E 確認（Sub-phase 11-5、4シナリオ PASS / 2026-06-24）
@@ -264,7 +264,7 @@ Playwright テストは各シナリオで専用 E2E ユーザーを作成。ユ�
 - [Phase 11 / 11-1] 目標期限（deadline）のバリデーションは JST 基準。`Date.now() + 9 * 3600 * 1000` でオフセット加算後 ISO スライスで `YYYY-MM-DD` を取得。`new Date('YYYY-MM-DD')` の UTC 解釈（0時のずれ）を回避。バックエンドの `getJstToday()` を `src/common/utils/date.util.ts` に切り出してテストで `jest.mock` 可能にする。
 - [Phase 11 / 11-1] `create()` 相関バリデーション: `targetWeightKg == null && targetReps == null` → `BadRequestException`。DTO バリデーション: `targetWeightKg` は `@Min(0.01) @Max(1000)`、`targetReps` は `@Min(1) @Max(10000)`。
 - [Phase 11 / 11-1] `update()` でも `dto.deadline` が指定された場合は JST 過去日チェックを実施。
-- [Phase 11 / 11-1] 別課題候補: `docs/database.md` に `personal_records` テーブル未記載。Phase 12 開始時の doc-sync で対処。
+- [Phase 11 / 11-1] 既知ドキュメント差異: `docs/database.md` に Phase 5-1 で追加済みの `personal_records` テーブルが未記載。Phase 11 ではスコープ外のため修正しない。Phase 12 開始時の doc-sync ゲートで既存 Entity・Migration と `docs/database.md` を照合し、カラム・型・主キー/外部キー・制約・リレーション・削除動作を追記する。必要に応じて `docs/features/08_personal_record.md` との整合も確認する。Phase 12 の Issue 本文と完了条件にもこの doc-sync 対応を明記する。
 
 ## OpenQuestions
 - (none)

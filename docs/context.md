@@ -32,7 +32,7 @@
 | 相関バリデーション | `targetWeightKg` と `targetReps` の両方 null → 400 BadRequestException |
 | CreateGoalDto 制約 | `targetWeightKg`: `@Min(0.01) @Max(1000)` / `targetReps`: `@Min(1) @Max(10000)` |
 | date.util.ts | `getJstToday()` を `common/utils/date.util.ts` に切り出し（テストで jest.mock 可能） |
-| 別課題候補 | `docs/database.md` に `personal_records` テーブル未記載 → Phase 12 開始時の doc-sync で対処 |
+| 既知ドキュメント差異 | `docs/database.md` に Phase 5-1 追加済みの `personal_records` テーブルが未記載。Phase 11 スコープ外のため修正しない。Phase 12 開始時の doc-sync ゲートで Entity・Migration と照合して追記する |
 
 ## Phase 10 確定決定事項
 
