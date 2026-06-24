@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiOkResponse,
@@ -45,6 +46,7 @@ export class LikesController {
   @HttpCode(201)
   @ApiOperation({ summary: 'ナイスを追加（409: 既にナイス済み）' })
   @ApiCreatedResponse({ description: 'ナイス追加成功' })
+  @ApiConflictResponse({ description: '既にナイス済み' })
   @ApiUnauthorizedResponse({ description: '認証トークンが無効' })
   add(@Param('postId') postId: string, @CurrentUser() user: JwtPayload) {
     return this.likesService.add(postId, user.sub);

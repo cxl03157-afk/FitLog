@@ -95,6 +95,7 @@ export class PersonalRecordsController {
   @ApiOperation({ summary: 'パーソナルレコード更新' })
   @ApiParam({ name: 'id', description: 'PersonalRecord ID' })
   @ApiOkResponse({ description: '更新後の PersonalRecord entity' })
+  @ApiBadRequestResponse({ description: 'バリデーションエラー' })
   @ApiNotFoundResponse({ description: 'レコードが存在しない' })
   @ApiUnauthorizedResponse({ description: '認証トークンが無効' })
   update(

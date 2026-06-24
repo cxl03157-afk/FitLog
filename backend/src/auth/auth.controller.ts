@@ -12,6 +12,8 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
@@ -138,7 +140,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'ログアウト（現在のセッションを失効）' })
-  @ApiOkResponse({ description: 'ログアウト成功（HTTP 201 / void）' })
+  @ApiCreatedResponse({ description: 'ログアウト成功（void）' })
   @ApiUnauthorizedResponse({ description: '認証トークンが無効' })
   logout(
     @CurrentUser() user: JwtPayload,
@@ -172,6 +174,7 @@ export class AuthController {
     format: 'uuid',
   })
   @ApiOkResponse({ description: 'セッション失効成功' })
+  @ApiNotFoundResponse({ description: 'セッションが存在しない' })
   @ApiUnauthorizedResponse({ description: '認証トークンが無効' })
   revokeSession(
     @CurrentUser() user: JwtPayload,
@@ -184,7 +187,10 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: '現在のセッション以外の全セッションを失効' })
-  @ApiOkResponse({ description: '失効したセッション数（number）を返す' })
+  @ApiOkResponse({
+    description: '失効したセッション数',
+    schema: { type: 'number', example: 2 },
+  })
   @ApiUnauthorizedResponse({ description: '認証トークンが無効' })
   revokeAllOtherSessions(@CurrentUser() user: JwtPayload) {
     return this.authService.revokeAllOtherSessions(user);
