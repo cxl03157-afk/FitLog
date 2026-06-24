@@ -191,8 +191,8 @@ DELETE /api/workout-posts/:id を実行
 | POST | `/api/workout-posts/:id/images` | 画像アップロード（最大4枚） | 必要 |
 | GET | `/api/exercises` | 種目マスタ一覧取得 | 必要 |
 | POST | `/api/workout-exercises/:id/sets` | セット追加 | 必要 |
-| PUT | `/api/workout-exercises/:id/sets/:setId` | セット更新 | 必要 |
-| DELETE | `/api/workout-exercises/:id/sets/:setId` | セット削除 | 必要 |
+| PUT | `/api/exercise-sets/:id` | セット更新 | 必要 |
+| DELETE | `/api/exercise-sets/:id` | セット削除 | 必要 |
 
 ### クエリパラメータ（GET `/api/workout-posts`）
 
@@ -201,4 +201,4 @@ DELETE /api/workout-posts/:id を実行
 | page | number | 1 | ページ番号 |
 | limit | number | 20 | 1ページあたりの件数 |
 | feed | string | `all` | `all`（全体）または `following`（フォロー中） |
-| userId | number | - | 指定ユーザーの投稿のみ取得（プロフィール画面用） |
+| userId | string | - | 指定ユーザーの投稿のみ取得（プロフィール画面用） |
