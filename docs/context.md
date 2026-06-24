@@ -8,7 +8,7 @@
 - Phase: **11 進行中**（週間/月間集計・目標設定）— Sub-phase 11-1 完了・11-2 未着手
 - Issue: #28（Phase 11）
 - Branch: `feature/issue-28-phase11-stats-goals`
-- Status: Sub-phase 11-1（バックエンド修正）・11-2（Recharts 導入 + 型定義・API クライアント）コミット完了。次は Sub-phase 11-3（StatsPage 実装）。
+- Status: Sub-phase 11-1・11-2 コミット完了。11-3（StatsPage 実装）完了・コミット準備中。次は 11-4（GoalsPage 実装）。
 
 ## 技術スタック
 
@@ -63,7 +63,7 @@
 
 ## NextAction
 
-Sub-phase 11-2 コミット完了 → Sub-phase 11-3（StatsPage を `pages/stubs/` から `pages/` へ移動・実装 + テスト）開始。
+Sub-phase 11-3 コミット完了 → Sub-phase 11-4（GoalsPage を `pages/stubs/` から `pages/` へ移動・実装 + テスト）開始。
 
 ## 参照ファイル（詳細確認が必要な場合）
 
