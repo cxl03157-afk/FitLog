@@ -159,10 +159,16 @@ S3 object key パスルール（単一バケット構成）:
 
 ### Phase 12：API仕様書・Swagger整備
 
-- Swagger 自動生成の確認・整備（`@ApiProperty` デコレーター補完）
-- API 仕様と機能定義書（`docs/features/`）との整合確認
-- `/code-review` スキルで実装↔ドキュメント差異チェック
-- README に Swagger UI への導線追加
+**実装・検証完了 / PR #31 マージ待ち（2026-06-24）**
+
+- ✅ 全12コントローラーに `@ApiTags` / `@ApiOperation` / `@ApiBearerAuth` / `@ApiResponse` 追加
+- ✅ 全16 DTO に `@ApiProperty` / `@ApiPropertyOptional` 追加
+- ✅ ファイルアップロード2エンドポイントの Swagger UI 対応（`multipart/form-data`）
+- ✅ `docs/database.md` に `personal_records` テーブル追記
+- ✅ `docs/features/02_workout_post.md` の API パス・型誤記修正
+- ✅ README の Swagger UI 導線を確認済み（既存記載で十分なため変更なし）
+- ✅ `/code-review` 指摘5件修正済み
+- ✅ lint / unit test / integration test / build / CI PASS
 
 ---
 
