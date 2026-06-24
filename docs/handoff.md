@@ -1,11 +1,10 @@
 # Agent Handoff
 
 ## CurrentPhase
-- **Phase 10 完了・マージ直前**: フロントエンド フォロー・プロフィール・画像UI（Issue #26 / PR #27）
-  - Sub-phase 10-1〜10-7 すべて完了。
-  - CI 3ジョブ PASS（2026-06-24）・レビュー確認済み。
-  - Phase 10 完了ドキュメントを PR #27 へ追加後、再実行 CI と最終 merge 承認を行う。
-- **Phase 11 未着手**: 週間/月間集計・目標設定
+- **Phase 11 進行中**: 週間/月間集計・目標設定（Issue #28 / Branch: `feature/issue-28-phase11-stats-goals`）
+  - Sub-phase 11-1（バックエンド修正）完了・コミット済み。
+  - Sub-phase 11-2（Recharts 導入 + フロントエンド型定義・API クライアント）未着手。
+- **Phase 10 完了**: フロントエンド フォロー・プロフィール・画像UI（Issue #26 / PR #27 マージ済み 2026-06-24）
 - Phase 9 complete: S3 画像アップロード バックエンド + LocalStack（Issue #24）PR #25 マージ済み（2026-06-19）
 - Phase 8 complete: フロントエンド コメント・ナイス機能（Issue #22）PR #23 マージ済み（2026-06-18）
 - Phase 7-1 complete: workout-posts passwordHash 漏洩修正（Issue #20）PR #21 マージ済み（2026-06-17）
@@ -18,8 +17,8 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #26: PR #27 マージ時にクローズ予定（現在オープン）
-- PR #27: CI・レビュー確認済み、Phase 10 完了ドキュメント追加待ち
+- Issue #28: オープン（Phase 11 進行中）
+- Issue #26 完了・PR #27 マージ済み（2026-06-24）
 - Issue #24 完了・PR #25 マージ済み（2026-06-19）
 - Issue #22 完了・PR #23 マージ済み（2026-06-18）
 - Issue #20 完了・PR #21 マージ済み（2026-06-17）
@@ -29,6 +28,12 @@
 - Issue #12 完了・PR #13 マージ済み（2026-06-11）
 - Issue #8 完了・PR #9 マージ済み（2026-06-10）
 - Issue #10 完了・PR #11 マージ済み（2026-06-10）
+
+## Phase11CommitHistory（次セッション引き継ぎ用）
+
+| Sub-phase | コミットハッシュ | 内容 |
+|-----------|--------------|------|
+| 11-1 | TBD | feat: enhance stats aggregation and goal validation |
 
 ## Phase10CommitHistory（次セッション引き継ぎ用）
 
@@ -46,15 +51,20 @@
 
 ## UncommittedChanges
 
-```
- M .claude/settings.json   ← コミット対象外（常に除外）
- M docs/context.md         ← Phase 10 完了・マージ直前状態へ更新（コミット9候補）
- M docs/handoff.md         ← Phase 10 完了・マージ直前状態へ更新（コミット9候補）
- M docs/phase-roadmap.md   ← Phase 10「完了」へ更新（コミット9候補）
-```
+Sub-phase 11-1 コミット後は変更なし（クリーン状態）。次作業は Sub-phase 11-2。
 
 - `.claude/settings.json` は今後もいかなるコミットにも含めない。
 - 次セッション開始時は最初に `git status --short` を実行して作業ツリーを確認すること。
+
+## TestResults（Sub-phase 11-1 完了時点）
+
+| チェック | 結果 |
+|---------|------|
+| Backend lint | PASS |
+| Backend unit test | PASS（16 suites / 147 tests）|
+| Backend integration test | PASS（3 suites / 21 tests）|
+| Backend build | PASS |
+| Frontend | 変更なし（11-2 以降）|
 
 ## TestResults（Sub-phase 10-6 完了時点）
 
@@ -203,24 +213,34 @@
 - [Phase 10 / 10-6] `docs/features/01_auth.md` に `GET /api/auth/sessions` レスポンスフィールド仕様・logout 失敗時のフロントエンド動作（auth 常にクリア・Cookie 残存可能性・再認証の可能性・エラー表示方式）を追記。
 - [Phase 10 / 10-6] テスト結果: lint PASS / unit 133 PASS（20 SessionsPage + 3 NavBar + 6 LoginPage + 6 AuthContext + 98 other）/ tsc PASS / build PASS（2026-06-23）。
 
+- [Phase 11 / 11-1] 週間・月間集計はバックエンドが 12 期間固定配列を生成して返す（0補完あり）。週は月曜始まり（`DATE_TRUNC('week', ...)`）、period は `YYYY-MM-DD` / `YYYY-MM` 形式。データなし期間は `{ period, postCount: 0, totalVolume: 0 }`。
+- [Phase 11 / 11-1] 種目別集計は metric 自動切り替え: `weight_kg > 0` の記録があれば `metric: 'weight'`、なければ `reps >= 1` で `metric: 'reps'`、どちらもなければ `metric: 'none'`。DB は pg ドライバーが decimal を文字列で返す可能性があるため `Number()` で必ず明示変換する。
+- [Phase 11 / 11-1] 自重記録（weight_kg=0）と加重記録（weight_kg>0）が混在する場合: `metric: 'weight'` を優先。加重記録がある日のみ `records` に含め、自重のみの日は除外する。
+- [Phase 11 / 11-1] `limit` パラメータは「直近トレーニング日数」（`trained_on` の DISTINCT 日付で最新 N 日）。セット数・投稿数ではない。範囲: 1〜90、デフォルト 30。
+- [Phase 11 / 11-1] 目標期限（deadline）のバリデーションは JST 基準。`Date.now() + 9 * 3600 * 1000` でオフセット加算後 ISO スライスで `YYYY-MM-DD` を取得。`new Date('YYYY-MM-DD')` の UTC 解釈（0時のずれ）を回避。バックエンドの `getJstToday()` を `src/common/utils/date.util.ts` に切り出してテストで `jest.mock` 可能にする。
+- [Phase 11 / 11-1] `create()` 相関バリデーション: `targetWeightKg == null && targetReps == null` → `BadRequestException`。DTO バリデーション: `targetWeightKg` は `@Min(0.01) @Max(1000)`、`targetReps` は `@Min(1) @Max(10000)`。
+- [Phase 11 / 11-1] `update()` でも `dto.deadline` が指定された場合は JST 過去日チェックを実施。
+- [Phase 11 / 11-1] 別課題候補: `docs/database.md` に `personal_records` テーブル未記載。Phase 12 開始時の doc-sync で対処。
+
 ## OpenQuestions
 - (none)
 
 ## ReviewStatus
-- Phase 10: PR #27 オープン。CI 3ジョブ PASS（2026-06-24）・レビュー確認済み。マージ直前の完了ドキュメント更新中。
+- Phase 11: PR 未作成（Sub-phase 11-5 完了後に作成予定）
+- Phase 10: PR #27 マージ済み（2026-06-24）
 - Phase 9: PR #25 マージ済み（2026-06-19）
 
 ## MergeReadiness
-- Phase 10: 実装・品質ゲート・doc-sync・Playwright E2E・CI・レビュー確認完了。完了ドキュメント追加後の CI 再確認とユーザー最終承認をもって merge 可能。
+- Phase 11: Sub-phase 11-1 完了。11-2〜11-5 完了後に PR 作成・マージ実施。
 
 ## NextAction
-Phase 10 完了ドキュメントをコミットして PR #27 へ追加 push → 再実行 CI を確認 → ユーザーへ最終 merge 承認を依頼 → merge → main 同期と Issue #26 クローズを確認 → Phase 11 開始。
+Sub-phase 11-1 コミット完了 → Sub-phase 11-2（`cd frontend && npm install recharts` + `types/stats.ts`, `types/goal.ts`, `api/stats.ts`, `api/goals.ts` 新規作成）開始。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
-- Issue: #26（Phase 10 / 進行中）、#24（Phase 9 / 完了）、#22（Phase 8 / 完了）、#20（Phase 7-1 / 完了）、#18（Phase 7 / 完了）、#16（Phase 6 / 完了）
-- PR: #25（Phase 9 / マージ済み）、#23（マージ済み）、#21（マージ済み）、#19（マージ済み）
-- Branch: `feature/issue-26-phase10-frontend`（Phase 10 実装中）
+- Issue: #28（Phase 11 / 進行中）、#26（Phase 10 / 完了）、#24（Phase 9 / 完了）、#22（Phase 8 / 完了）
+- PR: #27（Phase 10 / マージ済み）、#25（Phase 9 / マージ済み）
+- Branch: `feature/issue-28-phase11-stats-goals`（Phase 11 実装中）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules

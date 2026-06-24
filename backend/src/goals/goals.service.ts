@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { getJstToday } from '../common/utils/date.util';
 import { CreateGoalDto } from './dto/create-goal.dto';
 import { UpdateGoalDto } from './dto/update-goal.dto';
 import { Goal } from './entities/goal.entity';
@@ -16,6 +17,17 @@ export class GoalsService {
     @InjectRepository(Goal)
     private readonly goalRepository: Repository<Goal>,
   ) {}
+
+  // JST 基準で deadline が過去日でないことを検証する
+  private validateDeadline(deadline: string | undefined | null): void {
+    if (!deadline) return;
+    const today = getJstToday();
+    if (deadline < today) {
+      throw new BadRequestException(
+        'deadline は日本時間の本日以降の日付を指定してください',
+      );
+    }
+  }
 
   findAll(userId: string, status?: string): Promise<Goal[]> {
     const where: Record<string, unknown> = { userId };
@@ -28,6 +40,13 @@ export class GoalsService {
   }
 
   async create(dto: CreateGoalDto, userId: string): Promise<Goal> {
+    if (dto.targetWeightKg == null && dto.targetReps == null) {
+      throw new BadRequestException(
+        'targetWeightKg または targetReps の少なくとも一方は必須です',
+      );
+    }
+    this.validateDeadline(dto.deadline);
+
     const goal = this.goalRepository.create({
       userId,
       exerciseId: dto.exerciseId,
@@ -46,6 +65,10 @@ export class GoalsService {
       throw new ForbiddenException("Cannot update another user's goal");
     if (goal.status !== 'IN_PROGRESS') {
       throw new BadRequestException('Cannot update a completed goal');
+    }
+
+    if (dto.deadline !== undefined) {
+      this.validateDeadline(dto.deadline);
     }
 
     const updates: Partial<Goal> = {};
