@@ -35,7 +35,8 @@
 |-----------|--------------|------|
 | 11-1 | `b8475b7` | feat: implement sub-phase 11-1 stats and goal validation |
 | 11-2 | `c31f650` | feat: add recharts and stats and goals API clients |
-| 11-3 | TBD | feat: implement StatsPage with weekly/monthly/exercise charts |
+| 11-3 | `61c6253` | feat: implement StatsPage charts and exercise metrics |
+| 11-4 | TBD | feat: implement GoalsPage with CRUD and filter tabs |
 
 ## Phase10CommitHistory（次セッション引き継ぎ用）
 
@@ -58,7 +59,7 @@ Sub-phase 11-1 コミット後は変更なし（クリーン状態）。次作�
 - `.claude/settings.json` は今後もいかなるコミットにも含めない。
 - 次セッション開始時は最初に `git status --short` を実行して作業ツリーを確認すること。
 
-## TestResults（Sub-phase 11-3 完了時点）
+## TestResults（Sub-phase 11-4 完了時点）
 
 | チェック | 結果 |
 |---------|------|
@@ -67,7 +68,7 @@ Sub-phase 11-1 コミット後は変更なし（クリーン状態）。次作�
 | Backend integration test | PASS（3 suites / 21 tests、11-1 時点） |
 | Backend build | PASS（11-1 時点） |
 | Frontend lint | PASS |
-| Frontend unit test | PASS（15 files / 159 tests）|
+| Frontend unit test | PASS（16 files / 211 tests）|
 | Frontend build | PASS |
 
 ## TestResults（Sub-phase 10-6 完了時点）
@@ -238,7 +239,7 @@ Sub-phase 11-1 コミット後は変更なし（クリーン状態）。次作�
 - Phase 11: Sub-phase 11-1 完了。11-2〜11-5 完了後に PR 作成・マージ実施。
 
 ## NextAction
-Sub-phase 11-3 コミット完了 → Sub-phase 11-4（GoalsPage を `pages/stubs/` から `pages/` へ移動・実装 + テスト）開始。
+Sub-phase 11-4 コミット完了 → Sub-phase 11-5（品質ゲート・Playwright スポット確認・docs 完了記録）開始。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
