@@ -1,10 +1,13 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const logoutError =
+    (location.state as { logoutError?: string } | null)?.logoutError ?? null;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -56,6 +59,11 @@ const LoginPage = () => {
         <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
           FitLog にログイン
         </h1>
+        {logoutError && (
+          <p className="text-orange-600 text-sm bg-orange-50 border border-orange-200 rounded-lg px-3 py-2 mb-4">
+            {logoutError}
+          </p>
+        )}
         <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">

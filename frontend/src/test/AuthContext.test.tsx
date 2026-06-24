@@ -150,4 +150,41 @@ describe('AuthContext', () => {
     expect(screen.getByTestId('user').textContent).toBe('none');
     expect(screen.getByTestId('authenticated').textContent).toBe('false');
   });
+
+  it('clears user even when logout API fails (try/finally)', async () => {
+    vi.mocked(authApi.refresh).mockResolvedValue({
+      accessToken: 'tok',
+      user: { id: '1', username: 'taro', displayName: 'Taro', email: 'a@b.com' },
+    });
+    vi.mocked(authApi.logout).mockRejectedValue(new Error('network error'));
+
+    // Consumer that suppresses the re-thrown error from logout()
+    const SafeLogoutConsumer = () => {
+      const { user, isAuthenticated, logout } = useAuth();
+      return (
+        <div>
+          <div data-testid="authenticated">{String(isAuthenticated)}</div>
+          <div data-testid="user">{user ? user.username : 'none'}</div>
+          <button onClick={() => void logout().catch(() => {})}>logout</button>
+        </div>
+      );
+    };
+
+    render(
+      <AuthProvider>
+        <SafeLogoutConsumer />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('authenticated').textContent).toBe('true');
+    });
+
+    await act(async () => {
+      await userEvent.click(screen.getByRole('button', { name: 'logout' }));
+    });
+
+    expect(screen.getByTestId('user').textContent).toBe('none');
+    expect(screen.getByTestId('authenticated').textContent).toBe('false');
+  });
 });

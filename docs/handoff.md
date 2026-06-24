@@ -124,6 +124,16 @@
 - [Phase 10 / 10-5] TimelinePage フォロー中タブ有効化。useEffect の依存配列を `[activeTab]` に変更し `feed: activeTab` でフェッチ。タブ切替時に cleanup（cancelled=true + 各 state リセット）→ 旧リクエスト結果が新しいタブを上書きしない。handleLoadMore も `activeTab` を参照するため二重呼び出しなし。フォロー中 0件時は「フォロー中のユーザーの投稿はありません。」を表示。
 - [Phase 10 / 10-5] テスト結果: lint PASS / unit 107 PASS（12 UserCard + 11 FollowersPage/FollowingPage + 10 SearchPage + 10 TimelinePage + 23 ProfilePage + 16 WorkoutPostNewPage + 25 other）/ tsc PASS / build PASS（2026-06-23）。
 - [Phase 10 / 10-5] Playwright スポット確認（11項目 PASS / 2026-06-23）: フォロワー0件表示・フォロー中0件表示・ユーザー検索（e2espot2 表示）・自分自身にフォローボタンなし・検索結果からプロフィール遷移・フォロー成功（ボタン「フォロー中」）・フォロワー一覧に e2espot1 表示・フォロー中一覧に e2espot2 表示・フォロー中タイムラインに投稿表示・フォロー解除成功・フォロー解除後タイムラインから消える。
+- [Phase 10 / 10-6] SessionsPage（`pages/stubs/SessionsPage.tsx`）を完全実装。スピナー・取得失敗・0件・一覧の4状態対応。
+- [Phase 10 / 10-6] `isCurrent=true` の行に「現在の端末」バッジ。各行にログアウトボタン。全他端末ログアウトボタン（他端末がある場合のみ表示）。
+- [Phase 10 / 10-6] 現在端末ログアウト: `AuthContext.logout()` を呼ぶ → 成功/失敗を問わず `/login` へ遷移。失敗時は `navigate('/login', { state: { logoutError } })` でエラーを渡し LoginPage で表示。
+- [Phase 10 / 10-6] 他端末ログアウト: `revokeSession` 成功 → 対象行をリストから削除。失敗 → トーストエラー表示（5秒後自動消去）。処理中は対象ボタンのみ disabled・二重実行防止。
+- [Phase 10 / 10-6] 全他端末ログアウト: `revokeAllOtherSessions` 成功 → `getSessions` 再取得。再取得失敗時は `refetch-error` 警告メッセージ（永続表示）＋「再読み込み」ボタンで再試行。既存一覧は加工しない。
+- [Phase 10 / 10-6] `AuthContext.logout()` を try/finally に変更: API 失敗時でも `setAccessToken(null)` / `setUser(null)` を必ず実行し、エラーを re-throw。
+- [Phase 10 / 10-6] `NavBar.handleLogout` を try/catch に変更: logout 失敗時も `/login` へ遷移・未処理 Promise rejection を防止。失敗時は `logoutError` を navigate state で渡す。
+- [Phase 10 / 10-6] `LoginPage` に `location.state.logoutError` 読み取りを追加: ログアウト失敗エラーを遷移後にオレンジ色のバナーで表示。
+- [Phase 10 / 10-6] `docs/features/01_auth.md` に `GET /api/auth/sessions` レスポンスフィールド仕様・logout 失敗時のフロントエンド動作（auth 常にクリア・Cookie 残存可能性・再認証の可能性・エラー表示方式）を追記。
+- [Phase 10 / 10-6] テスト結果: lint PASS / unit 133 PASS（20 SessionsPage + 3 NavBar + 6 LoginPage + 6 AuthContext + 98 other）/ tsc PASS / build PASS（2026-06-23）。
 
 ## OpenQuestions
 - (none)
@@ -135,7 +145,7 @@
 - レビュー承認待ち（lint ✅ / test ✅ / build ✅ / CI ✅）
 
 ## NextAction
-Sub-phase 10-5 コミット承認後 → Sub-phase 10-6（デバイス管理 SessionsPage）実装へ進む。
+Sub-phase 10-6 コミット承認後 → Sub-phase 10-7（NavBar アバター更新・最終統合・Playwright E2E）実装へ進む。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`

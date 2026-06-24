@@ -26,9 +26,9 @@ beforeEach(() => {
   });
 });
 
-const renderLoginPage = () =>
+const renderLoginPage = (state?: Record<string, unknown>) =>
   render(
-    <MemoryRouter initialEntries={['/login']}>
+    <MemoryRouter initialEntries={[{ pathname: '/login', state: state ?? null }]}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<div>timeline</div>} />
@@ -67,5 +67,15 @@ describe('LoginPage', () => {
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith('a@b.com', 'password1');
     });
+  });
+
+  it('logoutError を navigate state から受け取り表示する', () => {
+    renderLoginPage({ logoutError: 'サーバーとの通信に失敗しました。セッションの失効に失敗した可能性があります。' });
+    expect(screen.getByText('サーバーとの通信に失敗しました。セッションの失効に失敗した可能性があります。')).toBeTruthy();
+  });
+
+  it('logoutError がない場合はエラーメッセージを表示しない', () => {
+    renderLoginPage();
+    expect(screen.queryByText(/セッションの失効/)).toBeNull();
   });
 });

@@ -6,8 +6,14 @@ const NavBar = () => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await logout();
-    navigate('/login');
+    try {
+      await logout();
+      navigate('/login');
+    } catch {
+      navigate('/login', {
+        state: { logoutError: 'サーバーとの通信に失敗しました。セッションの失効に失敗した可能性があります。' },
+      });
+    }
   };
 
   return (
