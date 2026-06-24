@@ -8,7 +8,7 @@
 - Phase: **10 進行中**（フロントエンド フォロー・プロフィール・画像UI）
 - Issue: #26（Phase 10）
 - Branch: `feature/issue-26-phase10-frontend`
-- Status: Sub-phase 10-1（Backend User API）実装中
+- Status: Sub-phase 10-1〜10-6 コミット済み。Sub-phase 10-7（NavBar アバター・最終統合・Playwright E2E）が残タスク
 
 ## 技術スタック
 
@@ -110,7 +110,7 @@
 
 ## NextAction
 
-Sub-phase 10-1（Backend User API）実装 → テスト → コミット承認依頼。
+Sub-phase 10-7 開始: NavBar アバター反映 → 全体品質チェック → 最終 doc-sync → Playwright E2E 6シナリオ → コミット承認依頼 → push 承認依頼 → PR 案提示。
 
 ## 参照ファイル（詳細確認が必要な場合）
 

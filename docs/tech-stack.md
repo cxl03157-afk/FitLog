@@ -9,7 +9,7 @@
 | TypeScript | 6.x | 型安全性の確保。バックエンドと型定義を揃えやすい |
 | Vite | 8.x | 高速な開発サーバー・ビルドツール |
 | Tailwind CSS | 3.x | ユーティリティファーストCSS。MUI（RAISETIMELINE）と異なるアプローチを学ぶ |
-| React Router | v6 | SPA ルーティング |
+| React Router | v7 | SPA ルーティング |
 | Axios | 1.x | HTTP クライアント。AccessToken 自動付与・401 リトライインターセプターを実装 |
 | Vitest | 4.x | Vite ネイティブテストランナー |
 | Playwright | 1.x | E2E テスト |

@@ -343,5 +343,5 @@ GET /api/auth/sessions を実行
 | DELETE | `/api/auth/sessions/:sessionId` | 指定端末ログアウト | 必要 |
 | DELETE | `/api/auth/sessions` | 全端末ログアウト | 必要 |
 | GET | `/api/users/:id` | プロフィール取得 | 必要 |
-| PUT | `/api/users/me` | プロフィール更新 | 必要 |
+| PATCH | `/api/users/me/profile` | プロフィール更新 | 必要 |
 | PATCH | `/api/users/me/avatar` | アバター画像アップロード | 必要 |
