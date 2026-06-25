@@ -68,7 +68,10 @@ export class PersonalRecordsController {
 
   @Post()
   @ApiOperation({ summary: 'パーソナルレコード登録' })
-  @ApiCreatedResponse({ description: '作成された PersonalRecord entity' })
+  @ApiCreatedResponse({
+    description:
+      '作成された PersonalRecord。登録直後のレスポンスにはexerciseリレーションを含まない',
+  })
   @ApiBadRequestResponse({
     description:
       '400: recordType に対応するフィールド（weightKg / reps）が未指定',

@@ -5,10 +5,24 @@
 
 ## 現状スナップショット
 
-- Phase: **12 実装・検証完了**（API仕様書・Swagger整備）
-- Issue: #30（Phase 12）— PR #31 オープン（CI グリーン・マージ承認待ち）
-- Branch: `feature/issue-30-phase12-swagger`
-- Status: lint / unit test（147件）/ integration test（21件）/ build / CI PASS。Swagger UI・OpenAPI JSON・/code-review 確認済み。PR #31 マージ承認待ち。
+- Phase: **13-1 実装・ローカル検証・ドキュメント更新完了**（PersonalRecords CRUD UI）
+- Issue: #32（Phase 13-1）— PR 未作成（PR 番号は作成後に追記）
+- Branch: `feature/issue-32-phase13-1-personal-records`
+- Status: Commit 1〜6 完了。PR 未作成・CI 未確認・main 未マージ。
+
+## テスト結果（Phase 13-1 Commit 5 完了時点）
+
+### Backend
+- lint: PASS
+- unit test: **150件 PASS**（16 suites）
+- integration test: **38件 PASS**（4 suites）
+- build: PASS
+
+### Frontend
+- lint: PASS
+- unit test: **240件 PASS**（17 files）
+- build: PASS
+- E2E（phase10 + phase11 + phase13）: **12件 PASS**
 
 ## 技術スタック
 
@@ -17,22 +31,20 @@
 - DB: PostgreSQL 17（docker-compose）+ LocalStack 3（S3 エミュレーション、Phase 9 追加）
 - CI: GitHub Actions — Lint + 型チェック + Jest/Vitest（Node 22 強制）
 
-## Phase 11 確定決定事項（11-1 完了時点）
+## Phase 13-1 確定決定事項
 
 | 項目 | 決定 |
 |------|------|
-| 週間・月間集計 | バックエンドが 12 期間固定配列を生成して返す（0補完あり・昇順） |
-| 週間 period | 月曜始まり（`DATE_TRUNC('week', ...)` ISO 標準）。`YYYY-MM-DD` 形式 |
-| 月間 period | `YYYY-MM` 形式 |
-| totalVolume | `SUM(weight_kg × reps)`。自重（weight_kg=0）はボリューム不参加 |
-| 種目別 metric | `weight`（weight_kg>0）→ `reps`（reps>=1）→ `none` の優先順 |
-| 混在時ルール | 加重記録（weight_kg>0）が 1 件でもあれば `metric: 'weight'` 優先。自重のみの日は records から除外 |
-| `limit` の意味 | 直近トレーニング日数（1〜90、デフォルト 30）。セット数・投稿数ではない |
-| 目標期限バリデーション | JST 基準（`Date.now() + 9h` オフセット）で本日以降。`new Date('YYYY-MM-DD')` UTC 解釈を回避 |
-| 相関バリデーション | `targetWeightKg` と `targetReps` の両方 null → 400 BadRequestException |
-| CreateGoalDto 制約 | `targetWeightKg`: `@Min(0.01) @Max(1000)` / `targetReps`: `@Min(1) @Max(10000)` |
-| date.util.ts | `getJstToday()` を `common/utils/date.util.ts` に切り出し（テストで jest.mock 可能） |
-| 既知ドキュメント差異 | `docs/database.md` に Phase 5-1 追加済みの `personal_records` テーブルが未記載。Phase 11 スコープ外のため修正しない。Phase 12 開始時の doc-sync ゲートで Entity・Migration と照合して追記する |
+| recordType 変更制限 | PUT で既存値と異なる recordType → 400 BadRequestException（同じ値・省略は許可） |
+| exerciseId 変更 | UpdatePersonalRecordDto に存在しない。フロント更新ペイロードには含めない |
+| note 空欄時 | null を送信（削除）。bio 方式に統一 |
+| 数値パース | `Number() + Number.isFinite()` 厳密検証（空欄/小数/負数/不正文字列 → API 呼ばない） |
+| 削除中の表示 | 「はい」押下後に行内確認を閉じ、元の「削除」ボタンを disabled（差異1・承認済み） |
+| unit test 配置 | `frontend/src/test/PersonalRecordsPage.test.tsx`（差異2・既存規則に合わせた） |
+| POST レスポンス | exercise リレーション含まない（PersonalRecordCreated 型） |
+| GET / PUT レスポンス | exercise リレーション含む（PersonalRecord 型） |
+| Swagger description | 「登録直後のレスポンスにはexerciseリレーションを含まない」を追記（Commit 6で修正） |
+| sourceExerciseSetId | 初期 UI 対象外（将来対応・別 Issue 候補） |
 
 ## Phase 12 確定決定事項
 
@@ -44,40 +56,20 @@
 | docs/database.md | personal_records テーブルを Phase 12 で追記（Phase 11 doc-sync 持ち越し） |
 | docs/features/02_workout_post.md | API パス・userId 型の誤記を A分類（ドキュメントのみ）修正 |
 | /code-review 指摘5件 | logout 201/revokeSession 404/likes 409/PR update 400/revokeAllOtherSessions number schema を追加修正済み |
-| スコープ外差異 | docs/tech-stack.md の Jest 29.x→30.x・Recharts 未記載は Phase 13 doc-sync ゲートで対処 |
-
-## Phase 10 確定決定事項
-
-| 項目 | 決定 |
-|------|------|
-| follows service N+1 回避 | getFollowers/getFollowing を QueryBuilder + LEFT JOIN に変更し isFollowing を一括取得 |
-| 現在端末ログアウト | logout API（POST /api/auth/logout）のみ使用。finally で AuthContext クリア → /login |
-| logout 失敗時 | エラートースト表示、finally で強制 AuthContext クリア。HttpOnly Cookie は残る可能性あり |
-| E2E username 形式 | `e2e${workerIndex.toString(36)}${Date.now().toString(36)}.slice(0,20)`（英数字のみ、20文字以内） |
-| Search DTO | @IsString @Transform(trim) @Matches(/\S/) @MaxLength(20)。limit: @Type(Number) @IsInt @Min(1) @Max(50) default=20 |
-| bio 空文字処理 | 空文字 or trim後空文字 → null として保存 |
-| 画像 API 失敗後 | 投稿は維持してタイムラインへ。トースト「投稿は保存されましたが画像のアップロードに失敗しました」 |
-| Object URL 管理 | SelectedImage = { file, previewUrl }。削除は個別 revoke、アンマウントは ref 経由で全解放 |
-
-## Phase 9 確定決定事項
-
-| 項目 | 決定 |
-|------|------|
-| S3 モジュール | @Global() 不使用。WorkoutPostsModule / UsersModule で明示的にインポート |
-| Multer storage | memoryStorage（S3 中継のため） |
-| ファイル検証 | fileFilter（mimetype）+ limits.fileSize（10MB）。MIME は image/jpeg・png・webp のみ許可 |
-| S3 key 形式 | `images/posts/{postId}/{uuid}.{ext}` / `images/avatars/{userId}/{uuid}.{ext}` |
-| 表示 URL | `IMAGE_BASE_URL + "/" + imageKey`（DB に URL は保存しない） |
-| 本番切り替え | AWS_S3_ENDPOINT を省略するだけで実 AWS S3 に接続する設計 |
-| アップロードエラー時 | アップロード済みキーを deleteMany でロールバック。rollback 失敗はログのみ、元例外を再 throw |
-| remove() のエラー | S3 削除失敗はログのみ、DB 削除は継続 |
-| TypeORM select | FindOptionsSelect は配列不可（TS2559）→ オブジェクト形式 `{ field: true }` が必須 |
+| スコープ外差異 | docs/tech-stack.md の Jest 29.x→30.x・Recharts 未記載は Phase 13-2 doc-sync ゲートで対処 |
 
 ## NextAction
 
-PR #31 CI グリーン確認済み。ユーザー承認後に PR #31 をマージ。
-マージ後: main へ切り替えて pull → Issue #30 自動クローズ確認 → Phase 13 開始。
-Phase 13 開始時の doc-sync ゲートで `docs/tech-stack.md`（Jest 30.x・Recharts 追記）を対処する。
+PR 作成（Issue #32 対応）→ CI グリーン確認 → レビュー → main マージ。
+マージ後: main へ切り替え pull → Phase 13-2 開始。
+Phase 13-2 開始前に既知バグ2件（ナイス初期状態・コメント数同期）を Phase 13-2 計画へ組み込む。
+
+## Phase 13-2 への既知バグ（Phase 13-1 スコープ外）
+
+| # | バグ | 原因 | Phase 13-2 対応 |
+|---|------|------|----------------|
+| 1 | 投稿詳細のナイス初期状態（0表示・-1）| post 取得前に useLikeToggle が false/0 で初期化 | 失敗 unit test 追加 → 修正 → Scenario 4 で確認 |
+| 2 | タイムラインのコメント数が古い | posts state が初回取得値を保持。詳細でのコメント追加が反映されない | 失敗テスト追加 → 修正 → Scenario 5 に「コメント後タイムライン件数」確認を追加 |
 
 ## 参照ファイル（詳細確認が必要な場合）
 
@@ -87,4 +79,4 @@ Phase 13 開始時の doc-sync ゲートで `docs/tech-stack.md`（Jest 30.x・R
 - DB 設計: `docs/database.md`
 - Swagger 仕様: `http://localhost:3000/api/docs`（バックエンド起動時）
 - 状態詳細: `docs/handoff.md`
-- Issue: #30（Phase 12）、#28（Phase 11 / 完了）、#26（Phase 10 / 完了）、#24（Phase 9 / 完了）
+- Issue: #32（Phase 13-1）、#30（Phase 12 / 完了・PR #31 マージ済み）、#28（Phase 11 / 完了）

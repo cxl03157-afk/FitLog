@@ -49,13 +49,27 @@
 | reps | 条件付き | MAX_REPS 時は必須。1以上の整数 |
 | achievedAt | ✓ | ISO 8601 日付形式（YYYY-MM-DD） |
 | note | − | 最大 200 文字。null でメモ削除 |
-| sourceExerciseSetId | − | 参照元セットの ID（任意）。自分が所有する exercise_set かつ同じ exerciseId に属するもののみ指定可 |
+| sourceExerciseSetId | − | 参照元セットの ID（任意）。自分が所有する exercise_set かつ同じ exerciseId に属するもののみ指定可。**初期 UI 対象外（将来対応・別 Issue 候補）** |
+
+### recordType の変更制限（Phase 13-1 追加）
+
+- `recordType` は作成後に変更不可
+- PUT で **既存値と異なる** `recordType` を指定 → `400 BadRequestException`
+- PUT で **既存値と同じ** `recordType` を送信 → 許可（エラーなし）
+- フロントエンドの更新ペイロードには `recordType` を含めない（変更不可のため省略）
+
+### exerciseId の変更制限
+
+- `exerciseId` は `UpdatePersonalRecordDto` に存在しない
+- PUT リクエストに `exerciseId` を含めても ValidationPipe（whitelist: true）により除去される
+- フロントエンドの更新ペイロードには `exerciseId` を含めない
 
 ### note フィールドの update 挙動
 
 - `null` を指定 → DB に null を保存（メモ削除）
 - `undefined`（未指定） → 既存の note を維持
 - `""` → 空文字列として保存
+- フロントエンドでは note 欄を空白にして保存すると `null` を送信する（削除として扱う）
 
 ### null 更新ポリシー（PUT）
 
@@ -108,7 +122,30 @@
 }
 ```
 
-### レスポンス例
+### レスポンス例（POST 登録直後）
+
+> **登録直後のレスポンスには `exercise` リレーションを含まない。**
+> `exercise` が必要な場合は直後に `GET /api/personal-records/:id` を呼ぶこと。
+
+```json
+{
+  "id": "1",
+  "userId": "42",
+  "exerciseId": "10",
+  "recordType": "MAX_WEIGHT",
+  "weightKg": 120.5,
+  "reps": null,
+  "achievedAt": "2024-06-01",
+  "note": "新記録！",
+  "sourceExerciseSetId": "5",
+  "createdAt": "2024-06-01T10:00:00.000Z",
+  "updatedAt": "2024-06-01T10:00:00.000Z"
+}
+```
+
+### レスポンス例（GET 一覧・詳細 / PUT 更新後）
+
+> GET および PUT のレスポンスには `exercise` リレーション（id / name / category）が含まれる。
 
 ```json
 {
@@ -133,7 +170,7 @@
 
 ### リクエスト例（PUT）
 
-未指定フィールドは既存値を維持する。
+未指定フィールドは既存値を維持する。`exerciseId` と `recordType` は変更不可のため含めない。
 
 ```json
 {
@@ -165,3 +202,66 @@ CREATE TABLE personal_records (
 CREATE INDEX idx_personal_records_user_id     ON personal_records (user_id);
 CREATE INDEX idx_personal_records_exercise_id ON personal_records (exercise_id);
 ```
+
+---
+
+## フロントエンド UI（Phase 13-1 実装済み）
+
+### ルート
+
+| パス | 認証 | コンポーネント |
+|------|------|--------------|
+| `/personal-records` | 必須（ProtectedRoute） | `frontend/src/pages/PersonalRecordsPage.tsx` |
+
+NavBar に「PR記録」テキストリンクを追加済み（`frontend/src/components/NavBar.tsx`）。
+
+### 画面仕様
+
+| 状態 | 表示 |
+|------|------|
+| 読み込み中 | 「読み込み中...」テキスト |
+| 0件 | 「まだパーソナルレコードがありません」 |
+| 取得失敗 | ページ内エラーメッセージ（ブロッキング） |
+| 一覧表示 | 種目名・recordType・重量または回数・達成日・note |
+
+### モーダル仕様（新規登録 / 編集）
+
+| 項目 | 新規登録 | 編集 |
+|------|---------|------|
+| 種目 | セレクト（`{name}（{category}）` 形式） | read-only テキスト表示（変更不可） |
+| recordType | ラジオ選択（最大重量 / 最大回数） | read-only テキスト表示（変更不可） |
+| 重量（kg） | MAX_WEIGHT 時のみ表示・必須 | 同左 |
+| 回数（回） | MAX_REPS 時のみ表示・必須 | 同左 |
+| 達成日 | date 入力・必須 | 同左 |
+| note | テキストエリア・任意（最大200文字）・空欄で null を送信 | 同左 |
+
+### 数値入力バリデーション
+
+`Number() + Number.isFinite()` による厳密検証:
+- `weightKg`: 0 以上の有限数（空欄 / 不正文字列 / Infinity → API 呼ばない）
+- `reps`: 1 以上の整数（空欄 / 小数 / 0以下 / 不正文字列 → API 呼ばない）
+
+### 削除確認
+
+- 「削除」ボタン → 行内に「本当に削除しますか？ [はい][いいえ]」を展開
+- 「はい」押下直後に確認UIを閉じ、元の「削除」ボタンを disabled にして二重削除を防止
+
+### 操作結果の通知
+
+| 操作 | 成功 | 失敗 |
+|------|------|------|
+| 登録 API | 5秒バナー（成功） | モーダル内エラー表示 |
+| 更新 API | 5秒バナー（成功） | モーダル内エラー表示 |
+| 削除 API | 5秒バナー（成功） | 5秒バナー（エラー） |
+| 操作後の再取得失敗 | — | 5秒バナー（エラー） |
+
+### sourceExerciseSetId
+
+初期 UI の対象外。将来対応・別 Issue 候補。
+
+### テストファイル
+
+| 種別 | パス |
+|------|------|
+| Unit test（Vitest） | `frontend/src/test/PersonalRecordsPage.test.tsx`（29件） |
+| E2E（Playwright） | `frontend/e2e/phase13.spec.ts`（シナリオ 1〜2） |

@@ -1,8 +1,9 @@
 # Agent Handoff
 
 ## CurrentPhase
-- **Phase 12 実装・検証完了**: API仕様書・Swagger整備（Issue #30 / Branch: `feature/issue-30-phase12-swagger`）
-  - 全12コントローラー Swagger 整備・全16 DTO @ApiProperty 追加・docs/database.md personal_records 追記・docs/features 差異修正・/code-review 指摘5件修正。PR #31 オープン・CI グリーン・マージ承認待ち。
+- **Phase 13-1 実装・ローカル検証・ドキュメント更新完了**: Personal Records CRUD UI（Issue #32 / Branch: `feature/issue-32-phase13-1-personal-records`）
+  - Commit 1〜6 完了。PR 未作成・CI 未確認・main 未マージ。
+- **Phase 12 完了**: API仕様書・Swagger整備（Issue #30 / PR #31 マージ済み 2026-06-25）
 - **Phase 11 完了**: 週間/月間集計・目標設定（Issue #28 / Branch: `feature/issue-28-phase11-stats-goals`）
   - Sub-phase 11-1〜11-5 すべて完了・コミット済み。PR #29 マージ済み（2026-06-24）。
 - **Phase 10 完了**: フロントエンド フォロー・プロフィール・画像UI（Issue #26 / PR #27 マージ済み 2026-06-24）
@@ -18,7 +19,8 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #30: オープン（PR #31 CI グリーン・マージ承認待ち）
+- Issue #32: オープン（Phase 13-1 / PR 未作成）
+- Issue #30: 完了・PR #31 マージ済み（2026-06-25）
 - Issue #28: 完了・PR #29 マージ済み（2026-06-24）
 - Issue #26 完了・PR #27 マージ済み（2026-06-24）
 - Issue #24 完了・PR #25 マージ済み（2026-06-19）
@@ -30,6 +32,75 @@
 - Issue #12 完了・PR #13 マージ済み（2026-06-11）
 - Issue #8 完了・PR #9 マージ済み（2026-06-10）
 - Issue #10 完了・PR #11 マージ済み（2026-06-10）
+
+## Phase13-1CommitHistory（次セッション引き継ぎ用）
+
+| # | コミットハッシュ | 内容 |
+|---|--------------|------|
+| 1 | `7b70d47` | fix+test: reject recordType change in update + service spec |
+| 2 | `39bfaf5` | test: add personal-records integration spec (17 cases) |
+| 3 | `6d95f1a` | feat: add personalRecord types, API client, route, NavBar link |
+| 4 | `bb10dcd` | feat(personal-records): add CRUD page and navigation |
+| 5 | `b73cb4a` | test(personal-records): add unit and E2E coverage |
+| 6 | （本コミット） | docs: document Phase 13-1 implementation and verification |
+
+## Phase13-1確定事項
+
+| 項目 | 決定 |
+|------|------|
+| recordType 変更制限 | PUT で既存値と異なる recordType → 400 BadRequestException（同じ値・省略は許可） |
+| exerciseId 変更 | UpdatePersonalRecordDto に存在しない。ValidationPipe (whitelist: true) が除去 |
+| note 空欄時 | null を送信（削除）。bio 方式に統一 |
+| 数値パース | `Number() + Number.isFinite()` 厳密検証 |
+| 削除中の表示 | 「はい」押下後に行内確認を閉じ、元の「削除」ボタンを disabled（差異1・承認済み） |
+| unit test 配置 | `frontend/src/test/PersonalRecordsPage.test.tsx`（差異2・既存規則に合わせた） |
+| POST レスポンス | exercise リレーション含まない（PersonalRecordCreated 型） |
+| GET / PUT レスポンス | exercise リレーション含む（PersonalRecord 型） |
+| Swagger @ApiCreatedResponse | 「登録直後のレスポンスにはexerciseリレーションを含まない」に修正（Commit 6） |
+| sourceExerciseSetId | 初期 UI 対象外（将来対応・別 Issue 候補） |
+
+## Phase13-1差異一覧
+
+| # | 当初計画 | 実際 | 判定 | 再確認タイミング |
+|---|---------|------|------|----------------|
+| 1 | 削除中: 行内確認を残したまま「はい」ボタンをdisabled | 「はい」押下直後に行内確認を閉じ、元の「削除」ボタンをdisabled | 二重削除防止の完了条件は満たしている。Phase 13-1内で承認済み | Phase 13-3の画面確認時に操作感を再確認 |
+| 2 | Unit testファイル配置: `frontend/src/pages/PersonalRecordsPage.test.tsx` | `frontend/src/test/PersonalRecordsPage.test.tsx` | 既存テスト配置規則（`src/test/`）に合わせた結果として承認済み | — |
+
+## Phase13-2への既知課題
+
+以下2件は Phase 13-1 の Personal Records 変更による差異ではない。Phase 7〜8 実装時から存在する既存バグ。Phase 13-1 スコープ外のため Phase 13-2 で修正・テストを実施する。
+
+### 既知バグ1：投稿詳細のナイス初期状態
+
+**症状:**
+- 投稿詳細ページで、API 上はナイス済み・likeCount が1以上でも、初期表示が未ナイス・0件になる
+
+**原因:**
+- `WorkoutPostDetailPage` で post 取得前に `useLikeToggle(id, false, 0)` が初期化される
+- API 取得後に引数が変わっても `useState` の初期値は更新されない（React の仕様）
+
+**Phase 13-2 対応:**
+- 修正前に非同期取得前後を再現する失敗 unit test を追加
+- post 取得後に正しい初期値で Like UI をマウントする案を優先検討
+- Scenario 4 で初期 likeCount・初期ナイス済み状態・Unlike・Like を確認
+
+**分類:** 既存バグ / Phase 13-1 スコープ外 / Phase 13-2 で修正・unit test・E2E を実施
+
+### 既知バグ2：タイムラインのコメント数が古い
+
+**症状:**
+- 詳細ページでコメントを追加した後、タイムラインへ戻っても commentCount が更新されないことがある
+
+**原因:**
+- `TimelinePage` の `posts` state が初回取得時の commentCount を保持する
+- 詳細ページでのコメント追加が Timeline state へ反映されない
+
+**Phase 13-2 対応:**
+- 修正前にコメント追加後の画面遷移を再現するテストを追加
+- 手動リロードなしでタイムラインのコメント数を更新する
+- Scenario 5 に「コメント後タイムラインへ戻り、件数が1増える」確認を追加
+
+**分類:** 既存バグ / Phase 13-1 スコープ外 / Phase 13-2 で修正・unit test・E2E を実施
 
 ## Phase12CommitHistory（次セッション引き継ぎ用）
 
@@ -71,6 +142,32 @@
 
 `.claude/settings.json` のみ未コミット（今後もいかなるコミットにも含めない）。PR #31 の差分にも含まれていないことを全4コミットの変更ファイルで確認済み。
 次セッション開始時は最初に `git status --short` を実行して作業ツリーを確認すること。
+
+## NextActions（Phase 13-1 PR作成以降）
+
+1. Commit 6 確認 → PR 作成（Issue #32 対応。PR 番号は作成後に handoff.md へ追記）
+2. CI グリーン確認（Backend CI: lint + unit + integration + build / Frontend CI: lint + unit + build）
+3. レビュー → main マージ → Issue #32 自動クローズ確認
+4. main へ切り替え pull
+5. Phase 13-2 開始（既知バグ2件を計画へ組み込む）
+
+## TestResults（Phase 13-1 Commit 5 完了時点）
+
+### Backend
+| チェック | 結果 |
+|---------|------|
+| lint | PASS |
+| unit test | PASS（16 suites / **150 tests**） |
+| integration test | PASS（4 suites / **38 tests**） |
+| build | PASS |
+
+### Frontend
+| チェック | 結果 |
+|---------|------|
+| lint | PASS |
+| unit test | PASS（17 files / **240 tests**） |
+| build | PASS（バンドル警告あり: Recharts 736 kB / gzip 217 kB） |
+| E2E（Playwright） | PASS（**12件**: phase10×6 + phase11×4 + phase13×2） |
 
 ## TestResults（Phase 12 完了時点）
 

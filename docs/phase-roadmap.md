@@ -22,8 +22,10 @@
 | 9 | S3 画像アップロード | LocalStack/S3統合、投稿・アバター画像API | 完了 |
 | 10 | フロントエンド フォロー・プロフィール | プロフィール・ユーザー検索・デバイス管理 | 完了 |
 | 11 | 週間/月間集計・目標設定 | 集計画面・目標管理UI・グラフ表示 | 完了 |
-| 12 | API仕様書・Swagger整備 | Swagger自動生成確認、docs/ との整合確認 | 未着手 |
-| 13 | アプリ全体の調整 | UI/UX・エラーハンドリング・バリデーション・Playwright E2E | 未着手 |
+| 12 | API仕様書・Swagger整備 | Swagger自動生成確認、docs/ との整合確認 | 完了 |
+| 13-1 | Personal Records UI | PersonalRecordsPage CRUD・recordType変更制限・integration test補完 | 実装・ローカル検証完了、PR待ち |
+| 13-2 | アプリ全体の調整（安定化） | ExceptionFilter・Toast統一・ErrorBoundary・E2Eコア整備・既知バグ修正 | 未着手 |
+| 13-3 | レスポンシブ対応 | 全ページ Tailwind モバイル/タブレット対応 | 未着手 |
 | 14 | ログ設計・ローカル確認 | NestJS Logger（JSON形式）、各種ログ出力確認 | 未着手 |
 | 15 | パフォーマンステスト | N+1問題確認、DBインデックス、k6/Artillery ロードテスト | 未着手 |
 | 16 | AWS環境構築 | EC2・RDS・S3・CloudFront・ALB・CloudWatch Logs | 未着手 |
@@ -159,7 +161,7 @@ S3 object key パスルール（単一バケット構成）:
 
 ### Phase 12：API仕様書・Swagger整備
 
-**実装・検証完了 / PR #31 マージ待ち（2026-06-24）**
+**完了 / PR #31 マージ済み（2026-06-25）**
 
 - ✅ 全12コントローラーに `@ApiTags` / `@ApiOperation` / `@ApiBearerAuth` / `@ApiResponse` 追加
 - ✅ 全16 DTO に `@ApiProperty` / `@ApiPropertyOptional` 追加
@@ -172,12 +174,48 @@ S3 object key パスルール（単一バケット構成）:
 
 ---
 
-### Phase 13：アプリ全体の調整
+### Phase 13-1：Personal Records UI
 
-- UI/UX 調整（Tailwind CSS 統一・レスポンシブ対応）
-- エラーハンドリング統一（NestJS ExceptionFilter）
-- バリデーション強化（class-validator）
-- Playwright E2E テスト追加（主要ユースケース）
+**実装・ローカル検証完了、PR待ち（Issue #32）**
+
+- ✅ `PersonalRecordsService.update()` に recordType 変更チェック（既存値と異なる → 400）
+- ✅ `personal-records.service.spec.ts` recordType 変更テスト3件追加（unit: 150件）
+- ✅ `personal-records.integration-spec.ts` 新規追加（全17ケース）（integration: 38件）
+- ✅ `frontend/src/types/personalRecord.ts` 型定義
+- ✅ `frontend/src/api/personalRecords.ts` API クライアント
+- ✅ `frontend/src/pages/PersonalRecordsPage.tsx` CRUD UI（一覧・登録・編集・削除確認）
+- ✅ `frontend/src/App.tsx` `/personal-records` ルート追加
+- ✅ `frontend/src/components/NavBar.tsx` 「PR記録」リンク追加
+- ✅ `frontend/src/test/PersonalRecordsPage.test.tsx` unit test 29件（unit: 240件）
+- ✅ `frontend/e2e/phase13.spec.ts` E2E シナリオ1〜2（E2E: 12件）
+- ✅ `docs/features/08_personal_record.md` 更新
+- ✅ Swagger `@ApiCreatedResponse` description に POST レスポンス仕様を追記
+
+---
+
+### Phase 13-2：アプリ全体の調整（安定化）
+
+**未着手**
+
+予定:
+- `docs/tech-stack.md` Jest 30.x・Recharts 追記（doc-sync 修正）
+- NestJS ExceptionFilter（500 エラー詳細漏洩防止・ログ統一）
+- Frontend ToastContext / ToastContainer / ErrorBoundary
+- 既知バグ修正:
+  - **投稿詳細のナイス初期状態**（useLikeToggle が post 取得前に false/0 で初期化される）
+  - **タイムラインのコメント数が古い**（posts state が初回取得値を保持）
+- Playwright E2E 追加（シナリオ3: 認証フロー / シナリオ4: ナイス / シナリオ5: コメント）
+  - Scenario 4: 初期 likeCount・初期ナイス済み状態・Unlike・Like を確認
+  - Scenario 5: コメント後タイムラインへ戻り、件数が1増えることを確認
+
+---
+
+### Phase 13-3：レスポンシブ対応
+
+**未着手**
+
+- 全ページ Tailwind CSS モバイル/タブレット対応（375px〜1280px）
+- NavBar モバイル仕様（Phase 13-3 開始前にユーザー確認）
 
 ---
 
