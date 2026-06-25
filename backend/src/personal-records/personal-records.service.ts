@@ -116,6 +116,10 @@ export class PersonalRecordsService {
       throw new BadRequestException('achievedAt cannot be set to null');
     if (dto.recordType === null)
       throw new BadRequestException('recordType cannot be set to null');
+    if (dto.recordType !== undefined && dto.recordType !== record.recordType)
+      throw new BadRequestException(
+        'recordType cannot be changed after creation',
+      );
 
     const effectiveRecordType = dto.recordType ?? record.recordType;
     const effectiveWeightKg =

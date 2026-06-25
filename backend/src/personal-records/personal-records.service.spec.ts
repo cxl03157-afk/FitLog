@@ -454,6 +454,48 @@ describe('PersonalRecordsService', () => {
         service.update('1', { recordType: 'MAX_REPS' }, 'user1'),
       ).rejects.toThrow(BadRequestException);
     });
+
+    it('既存と異なる recordType を指定 → BadRequestException（変更不可）', async () => {
+      prRepository.findOne.mockResolvedValue(
+        mockRecord('user1', { recordType: 'MAX_WEIGHT' }),
+      );
+
+      await expect(
+        service.update('1', { recordType: 'MAX_REPS' }, 'user1'),
+      ).rejects.toThrow(
+        new BadRequestException('recordType cannot be changed after creation'),
+      );
+    });
+
+    it('既存と同じ recordType を指定 → 更新成功（許可）', async () => {
+      const updated = mockRecord('user1', { weightKg: 120 });
+      prRepository.findOne
+        .mockResolvedValueOnce(
+          mockRecord('user1', { recordType: 'MAX_WEIGHT' }),
+        )
+        .mockResolvedValueOnce(updated);
+      prRepository.update.mockResolvedValue(undefined);
+
+      const result = await service.update(
+        '1',
+        { recordType: 'MAX_WEIGHT', weightKg: 120 },
+        'user1',
+      );
+
+      expect(result).toBe(updated);
+    });
+
+    it('recordType を省略した更新 → 更新成功（許可）', async () => {
+      const updated = mockRecord('user1', { weightKg: 130 });
+      prRepository.findOne
+        .mockResolvedValueOnce(mockRecord('user1'))
+        .mockResolvedValueOnce(updated);
+      prRepository.update.mockResolvedValue(undefined);
+
+      const result = await service.update('1', { weightKg: 130 }, 'user1');
+
+      expect(result).toBe(updated);
+    });
   });
 
   // ─── remove ─────────────────────────────────────────────────────────────────

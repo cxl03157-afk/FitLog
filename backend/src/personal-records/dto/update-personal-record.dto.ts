@@ -14,7 +14,8 @@ import type { RecordType } from '../entities/personal-record.entity';
 export class UpdatePersonalRecordDto {
   @ApiPropertyOptional({
     enum: ['MAX_WEIGHT', 'MAX_REPS'],
-    description: 'レコードタイプ',
+    description:
+      'レコードタイプ。作成後変更不可 — 既存値と異なる値を指定すると 400 Bad Request を返す',
   })
   @IsOptional()
   @IsIn(['MAX_WEIGHT', 'MAX_REPS'])
