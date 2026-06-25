@@ -14,6 +14,7 @@ import SearchPage from './pages/stubs/SearchPage';
 import StatsPage from './pages/StatsPage';
 import GoalsPage from './pages/GoalsPage';
 import SessionsPage from './pages/stubs/SessionsPage';
+import PersonalRecordsPage from './pages/PersonalRecordsPage';
 
 const App = () => (
   <BrowserRouter>
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/search" element={<SearchPage />} />
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/goals" element={<GoalsPage />} />
+          <Route path="/personal-records" element={<PersonalRecordsPage />} />
           <Route path="/settings/sessions" element={<SessionsPage />} />
         </Route>
 
