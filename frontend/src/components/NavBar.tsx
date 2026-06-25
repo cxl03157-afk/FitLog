@@ -40,6 +40,12 @@ const NavBar = () => {
           </Link>
         )}
         <Link
+          to="/personal-records"
+          className="text-gray-600 hover:text-gray-900 text-sm font-medium"
+        >
+          PR記録
+        </Link>
+        <Link
           to="/workout-posts/new"
           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1.5 px-4 rounded-lg transition text-sm"
         >
