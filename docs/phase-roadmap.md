@@ -23,7 +23,7 @@
 | 10 | フロントエンド フォロー・プロフィール | プロフィール・ユーザー検索・デバイス管理 | 完了 |
 | 11 | 週間/月間集計・目標設定 | 集計画面・目標管理UI・グラフ表示 | 完了 |
 | 12 | API仕様書・Swagger整備 | Swagger自動生成確認、docs/ との整合確認 | 完了 |
-| 13-1 | Personal Records UI | PersonalRecordsPage CRUD・recordType変更制限・integration test補完 | 実装・ローカル検証完了、PR待ち |
+| 13-1 | Personal Records UI | PersonalRecordsPage CRUD・recordType変更制限・integration test補完 | 完了（PR #33 マージ済み 2026-06-26）|
 | 13-2 | アプリ全体の調整（安定化） | ExceptionFilter・Toast統一・ErrorBoundary・E2Eコア整備・既知バグ修正 | 未着手 |
 | 13-3 | レスポンシブ対応 | 全ページ Tailwind モバイル/タブレット対応 | 未着手 |
 | 14 | ログ設計・ローカル確認 | NestJS Logger（JSON形式）、各種ログ出力確認 | 未着手 |

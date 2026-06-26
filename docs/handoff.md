@@ -1,8 +1,10 @@
 # Agent Handoff
 
 ## CurrentPhase
-- **Phase 13-1 実装・ローカル検証・ドキュメント更新完了**: Personal Records CRUD UI（Issue #32 / Branch: `feature/issue-32-phase13-1-personal-records`）
-  - Commit 1〜6 完了。PR 未作成・CI 未確認・main 未マージ。
+- **Phase 13-2 着手**: 例外処理・Toast・ErrorBoundary・既知バグ修正・E2E 拡充（Issue #34 / Branch: `feature/issue-34-phase13-2-error-handling`）
+  - Commit 1（doc-sync）完了。Commit 2（Bug 1）以降未実施。PR 未作成。
+- **Phase 13-1 完了**: Personal Records CRUD UI（Issue #32 / PR #33 マージ済み 2026-06-26）
+  - merge commit: `37c7bc0`
 - **Phase 12 完了**: API仕様書・Swagger整備（Issue #30 / PR #31 マージ済み 2026-06-25）
 - **Phase 11 完了**: 週間/月間集計・目標設定（Issue #28 / Branch: `feature/issue-28-phase11-stats-goals`）
   - Sub-phase 11-1〜11-5 すべて完了・コミット済み。PR #29 マージ済み（2026-06-24）。
@@ -19,7 +21,8 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #32: オープン（Phase 13-1 / PR 未作成）
+- Issue #34: オープン（Phase 13-2 / PR 未作成）
+- Issue #32: 完了・PR #33 マージ済み（2026-06-26）
 - Issue #30: 完了・PR #31 マージ済み（2026-06-25）
 - Issue #28: 完了・PR #29 マージ済み（2026-06-24）
 - Issue #26 完了・PR #27 マージ済み（2026-06-24）
@@ -42,7 +45,7 @@
 | 3 | `6d95f1a` | feat: add personalRecord types, API client, route, NavBar link |
 | 4 | `bb10dcd` | feat(personal-records): add CRUD page and navigation |
 | 5 | `b73cb4a` | test(personal-records): add unit and E2E coverage |
-| 6 | （本コミット） | docs: document Phase 13-1 implementation and verification |
+| 6 | `8ff0a89` | docs: document Phase 13-1 implementation and verification |
 
 ## Phase13-1確定事項
 
