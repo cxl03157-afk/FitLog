@@ -130,7 +130,9 @@ describe('WorkoutPostsService', () => {
       mockQb.getCount.mockResolvedValue(1);
       mockQb.getRawAndEntities.mockResolvedValue({
         entities: [post],
-        raw: [{ likecount: '3', commentcount: '2', isliked: true }],
+        raw: [
+          { post_id: '10', likecount: '3', commentcount: '2', isliked: true },
+        ],
       });
 
       const result = await service.findAll({ page: 1, limit: 20 }, '1');
@@ -146,7 +148,14 @@ describe('WorkoutPostsService', () => {
       mockQb.getCount.mockResolvedValue(1);
       mockQb.getRawAndEntities.mockResolvedValue({
         entities: [post],
-        raw: [{ likecount: '0', commentcount: '0', isliked: 'false' }],
+        raw: [
+          {
+            post_id: '10',
+            likecount: '0',
+            commentcount: '0',
+            isliked: 'false',
+          },
+        ],
       });
 
       const result = await service.findAll({ page: 1, limit: 20 }, '1');
@@ -159,11 +168,107 @@ describe('WorkoutPostsService', () => {
       mockQb.getCount.mockResolvedValue(1);
       mockQb.getRawAndEntities.mockResolvedValue({
         entities: [post],
-        raw: [{ likecount: '1', commentcount: '0', isliked: 't' }],
+        raw: [
+          { post_id: '10', likecount: '1', commentcount: '0', isliked: 't' },
+        ],
       });
 
       const result = await service.findAll({ page: 1, limit: 20 }, '1');
 
+      expect(result.data[0].isLiked).toBe(true);
+    });
+
+    it('assigns raw counts by post id, not array position (regression: JOIN Cartesian expansion)', async () => {
+      const postA = { ...mockPost(), id: '10' };
+      const postB = { ...mockPost(), id: '20' };
+      const postC = { ...mockPost(), id: '30' };
+
+      mockQb.getCount.mockResolvedValue(3);
+      mockQb.getRawAndEntities.mockResolvedValue({
+        entities: [postA, postB, postC],
+        raw: [
+          { post_id: '10', likecount: '0', commentcount: '0', isliked: false },
+          { post_id: '20', likecount: '2', commentcount: '1', isliked: true },
+          { post_id: '20', likecount: '2', commentcount: '1', isliked: true },
+          { post_id: '20', likecount: '2', commentcount: '1', isliked: true },
+          { post_id: '30', likecount: '4', commentcount: '3', isliked: false },
+        ],
+      });
+
+      const result = await service.findAll({ page: 1, limit: 20 }, '1');
+
+      expect(result.data[0].likeCount).toBe(0);
+      expect(result.data[0].commentCount).toBe(0);
+      expect(result.data[0].isLiked).toBe(false);
+
+      expect(result.data[1].likeCount).toBe(2);
+      expect(result.data[1].commentCount).toBe(1);
+      expect(result.data[1].isLiked).toBe(true);
+
+      expect(result.data[2].likeCount).toBe(4);
+      expect(result.data[2].commentCount).toBe(3);
+      expect(result.data[2].isLiked).toBe(false);
+    });
+
+    it('uses 0/false defaults when entity has no matching raw row', async () => {
+      const post = mockPost();
+      mockQb.getCount.mockResolvedValue(1);
+      mockQb.getRawAndEntities.mockResolvedValue({
+        entities: [post],
+        raw: [
+          { post_id: '99', likecount: '5', commentcount: '5', isliked: true },
+        ],
+      });
+
+      const result = await service.findAll({ page: 1, limit: 20 }, '1');
+
+      expect(result.data[0].likeCount).toBe(0);
+      expect(result.data[0].commentCount).toBe(0);
+      expect(result.data[0].isLiked).toBe(false);
+    });
+
+    it('returns empty data when entities array is empty', async () => {
+      mockQb.getCount.mockResolvedValue(0);
+      mockQb.getRawAndEntities.mockResolvedValue({ entities: [], raw: [] });
+
+      const result = await service.findAll({ page: 1, limit: 20 }, '1');
+
+      expect(result.data).toEqual([]);
+      expect(result.total).toBe(0);
+    });
+
+    it('uses only the first raw row per post when multiple raw rows share the same post_id', async () => {
+      const post = mockPost();
+      mockQb.getCount.mockResolvedValue(1);
+      mockQb.getRawAndEntities.mockResolvedValue({
+        entities: [post],
+        raw: [
+          { post_id: '10', likecount: '3', commentcount: '2', isliked: true },
+          { post_id: '10', likecount: '3', commentcount: '2', isliked: true },
+        ],
+      });
+
+      const result = await service.findAll({ page: 1, limit: 20 }, '1');
+
+      expect(result.data[0].likeCount).toBe(3);
+      expect(result.data[0].commentCount).toBe(2);
+      expect(result.data[0].isLiked).toBe(true);
+    });
+
+    it('matches by post id when raw post_id is numeric (string/number type safety)', async () => {
+      const post = mockPost();
+      mockQb.getCount.mockResolvedValue(1);
+      mockQb.getRawAndEntities.mockResolvedValue({
+        entities: [post],
+        raw: [
+          { post_id: 10, likecount: '5', commentcount: '3', isliked: true },
+        ],
+      });
+
+      const result = await service.findAll({ page: 1, limit: 20 }, '1');
+
+      expect(result.data[0].likeCount).toBe(5);
+      expect(result.data[0].commentCount).toBe(3);
       expect(result.data[0].isLiked).toBe(true);
     });
   });

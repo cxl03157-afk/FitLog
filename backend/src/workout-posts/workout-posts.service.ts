@@ -79,9 +79,21 @@ export class WorkoutPostsService {
     this.applyFeedFilter(dataQb, query, currentUserId);
 
     const { entities, raw } = await dataQb.getRawAndEntities();
+
+    const rawByPostId = new Map<string, Record<string, unknown>>();
+    for (const rawRow of raw as Record<string, unknown>[]) {
+      const postId = String(rawRow.post_id);
+      if (!rawByPostId.has(postId)) {
+        rawByPostId.set(postId, rawRow);
+      }
+    }
+
     return {
-      data: entities.map((entity, i) =>
-        this.mergeRaw(this.attachImageUrls(entity), raw[i]),
+      data: entities.map((entity) =>
+        this.mergeRaw(
+          this.attachImageUrls(entity),
+          rawByPostId.get(String(entity.id)) ?? {},
+        ),
       ),
       total,
     };
