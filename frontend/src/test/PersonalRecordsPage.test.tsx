@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import PersonalRecordsPage from '../pages/PersonalRecordsPage';
+import { ToastProvider } from '../contexts/ToastContext';
 import * as AuthContextModule from '../contexts/AuthContext';
 import * as prApi from '../api/personalRecords';
 import * as exercisesApi from '../api/exercises';
@@ -71,7 +72,9 @@ const mockCreatedRecord = {
 const renderPage = () =>
   render(
     <MemoryRouter>
-      <PersonalRecordsPage />
+      <ToastProvider>
+        <PersonalRecordsPage />
+      </ToastProvider>
     </MemoryRouter>,
   );
 
@@ -337,7 +340,7 @@ describe('PersonalRecordsPage', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     await waitFor(() => expect(mockFetchPersonalRecords).toHaveBeenCalledTimes(2));
     await waitFor(() =>
-      expect(screen.getByText('パーソナルレコードを登録しました')).toBeInTheDocument(),
+      expect(screen.getByRole('status')).toHaveTextContent('パーソナルレコードを登録しました'),
     );
   });
 
@@ -572,7 +575,7 @@ describe('PersonalRecordsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'はい' }));
 
     await waitFor(() =>
-      expect(screen.getByText('削除に失敗しました')).toBeInTheDocument(),
+      expect(screen.getByRole('alert')).toHaveTextContent('削除に失敗しました'),
     );
     // ページ内の既存一覧は残っている
     await waitFor(() => expect(screen.getByText('ベンチプレス')).toBeInTheDocument());
