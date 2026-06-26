@@ -258,6 +258,96 @@ describe('WorkoutPostDetailPage', () => {
     });
   });
 
+  describe('navigation during comment submission (Bug 2)', () => {
+    const mockCreateComment = vi.mocked(commentsApi.createComment);
+
+    const newComment: WorkoutComment = {
+      id: '999',
+      workoutPostId: '1',
+      userId: '99',
+      content: 'テストコメント',
+      createdAt: '2026-06-26T00:00:00Z',
+      user: { id: '99', username: 'other', displayName: 'Other' },
+    };
+
+    beforeEach(() => {
+      mockUseAuth.mockReturnValue({
+        user: { id: '99', username: 'other', displayName: 'Other', email: 'o@test.com', avatarUrl: null, bio: null },
+        isLoading: false,
+        isAuthenticated: true,
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+        updateCurrentUser: vi.fn(),
+      });
+      mockFetchWorkoutPost.mockResolvedValue(mockPost);
+      mockFetchComments.mockResolvedValue([]);
+    });
+
+    it('back button is disabled while comment is submitting (Bug 2 fix)', async () => {
+      let resolveCreate!: (c: WorkoutComment) => void;
+      mockCreateComment.mockReturnValue(new Promise<WorkoutComment>((r) => { resolveCreate = r; }));
+
+      renderDetail();
+      await waitFor(() => { expect(screen.getByText('ベンチプレスの日')).toBeTruthy(); });
+
+      await userEvent.type(screen.getByPlaceholderText(/コメントを入力/), 'テストコメント');
+      await userEvent.click(screen.getByRole('button', { name: '送信' }));
+
+      // 修正前: <Link> は role=link のため getByRole('button') が throw → FAIL
+      // 修正後: <button disabled={commentSubmitting}> → disabled 確認 PASS
+      const backBtn = screen.getByRole('button', { name: /← タイムラインへ/ });
+      expect(backBtn).toBeDisabled();
+
+      // disabled のためクリックしても navigate されない
+      await userEvent.click(backBtn);
+      expect(screen.queryByText('timeline')).toBeNull();
+
+      await act(async () => { resolveCreate(newComment); });
+    });
+
+    it('back button re-enables and navigates after successful submission (Bug 2 fix)', async () => {
+      let resolveCreate!: (c: WorkoutComment) => void;
+      mockCreateComment.mockReturnValue(new Promise<WorkoutComment>((r) => { resolveCreate = r; }));
+
+      renderDetail();
+      await waitFor(() => { expect(screen.getByText('ベンチプレスの日')).toBeTruthy(); });
+
+      await userEvent.type(screen.getByPlaceholderText(/コメントを入力/), 'テストコメント');
+      await userEvent.click(screen.getByRole('button', { name: '送信' }));
+
+      // 修正前: getByRole('button') が throw → FAIL
+      expect(screen.getByRole('button', { name: /← タイムラインへ/ })).toBeDisabled();
+
+      await act(async () => { resolveCreate(newComment); });
+
+      const backBtn = await screen.findByRole('button', { name: /← タイムラインへ/ });
+      expect(backBtn).not.toBeDisabled();
+
+      await userEvent.click(backBtn);
+      await screen.findByText('timeline');
+    });
+
+    it('back button re-enables and navigates after failed submission (Bug 2 fix)', async () => {
+      mockCreateComment.mockRejectedValue(new Error('network error'));
+
+      renderDetail();
+      await waitFor(() => { expect(screen.getByText('ベンチプレスの日')).toBeTruthy(); });
+
+      await userEvent.type(screen.getByPlaceholderText(/コメントを入力/), 'テストコメント');
+      await userEvent.click(screen.getByRole('button', { name: '送信' }));
+
+      await waitFor(() => { expect(screen.getByText(/コメントの投稿に失敗しました/)).toBeTruthy(); });
+
+      // 修正前: getByRole('button') が throw → FAIL
+      const backBtn = screen.getByRole('button', { name: /← タイムラインへ/ });
+      expect(backBtn).not.toBeDisabled();
+
+      await userEvent.click(backBtn);
+      await screen.findByText('timeline');
+    });
+  });
+
   describe('comments', () => {
     beforeEach(() => {
       mockUseAuth.mockReturnValue({

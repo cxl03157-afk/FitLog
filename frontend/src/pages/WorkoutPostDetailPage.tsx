@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import NavBar from '../components/NavBar';
 import { fetchWorkoutPost, deleteWorkoutPost } from '../api/workoutPosts';
 import { fetchComments, createComment, deleteComment } from '../api/comments';
@@ -116,9 +116,14 @@ const WorkoutPostDetailPage = () => {
 
       <div className="max-w-xl mx-auto px-4 py-6">
         <div className="mb-4">
-          <Link to="/" className="text-blue-600 text-sm hover:underline">
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            disabled={commentSubmitting}
+            className="text-blue-600 text-sm hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+          >
             ← タイムラインへ
-          </Link>
+          </button>
         </div>
 
         {loading && (

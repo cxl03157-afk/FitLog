@@ -79,6 +79,32 @@ async function fetchFirstExerciseId(
   return String(data[0].id);
 }
 
+/** API でワークアウト投稿を1件作成して id を返す */
+async function createWorkoutPostViaApi(
+  ctx: APIRequestContext,
+  accessToken: string,
+  title: string,
+  exerciseId: string,
+): Promise<string> {
+  const res = await ctx.post(`${API}/api/workout-posts`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    data: {
+      title,
+      trainedOn: '2026-06-26',
+      exercises: [
+        {
+          exerciseId,
+          orderIndex: 0,
+          sets: [{ setNumber: 1, weightKg: 80, reps: 5 }],
+        },
+      ],
+    },
+  });
+  expect(res.ok(), `createWorkoutPost failed: ${await res.text()}`).toBe(true);
+  const data = await res.json();
+  return data.id as string;
+}
+
 /** API で PR を1件作成して id を返す */
 async function createPersonalRecordViaApi(
   ctx: APIRequestContext,
@@ -124,6 +150,62 @@ test.beforeAll(async () => {
 test.afterAll(async () => {
   await healthCheckContext?.dispose();
   healthCheckContext = undefined;
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// シナリオ 4: コメント追加後タイムラインの commentCount が更新される（Bug 2）
+// ─────────────────────────────────────────────────────────────────────────────
+test('シナリオ4: コメント追加後タイムラインへ戻ると commentCount が更新される', async (
+  { page, request },
+  testInfo,
+) => {
+  const username = genUsername(testInfo.workerIndex);
+  const user = await registerUser(request, username);
+  const exerciseId = await fetchFirstExerciseId(user.accessToken, request);
+
+  const postTitle = `CommentBug2 ${username}`;
+  const postId = await createWorkoutPostViaApi(request, user.accessToken, postTitle, exerciseId);
+
+  await loginViaUi(page, user.email);
+  await page.waitForURL('/');
+
+  // タイムラインで初期 commentCount=0 を確認
+  const article = page.locator('article').filter({ hasText: postTitle });
+  await expect(article).toBeVisible({ timeout: 5_000 });
+  await expect(article.getByText('💬 0')).toBeVisible();
+
+  // 投稿詳細へ移動
+  await page.goto(`/workout-posts/${postId}`);
+  await expect(page.getByText(postTitle)).toBeVisible({ timeout: 5_000 });
+
+  // コメントを入力して送信
+  await page.locator('textarea').fill('E2Eテストコメント');
+  const commentResponse = page.waitForResponse(
+    (r) => r.url().includes('/comments') && r.request().method() === 'POST',
+  );
+  await page.getByRole('button', { name: '送信' }).click();
+  await commentResponse;
+
+  // コメントが詳細画面に表示されたことを確認（POST 完了後に navigate する）
+  await expect(page.getByText('E2Eテストコメント')).toBeVisible({ timeout: 5_000 });
+
+  // 「← タイムラインへ」ボタンをクリック（コメント POST 完了後なので disabled でない）
+  await page.getByRole('button', { name: /← タイムラインへ/ }).click();
+  await page.waitForURL('/');
+
+  // タイムラインの commentCount=1 を確認
+  const article2 = page.locator('article').filter({ hasText: postTitle });
+  await expect(article2).toBeVisible({ timeout: 5_000 });
+  await expect(article2.getByText('💬 1')).toBeVisible();
+
+  // 再度詳細へ入り、タイムラインへ戻っても 1 のまま
+  await page.goto(`/workout-posts/${postId}`);
+  await expect(page.getByText(postTitle)).toBeVisible({ timeout: 5_000 });
+  await page.getByRole('button', { name: /← タイムラインへ/ }).click();
+  await page.waitForURL('/');
+
+  const article3 = page.locator('article').filter({ hasText: postTitle });
+  await expect(article3.getByText('💬 1')).toBeVisible({ timeout: 5_000 });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
