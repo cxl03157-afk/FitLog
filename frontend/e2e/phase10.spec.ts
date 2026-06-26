@@ -386,10 +386,15 @@ test('シナリオ4: 他ユーザーをフォローし、フォロー中タイ�
   await page.getByRole('button', { name: 'フォロー中' }).click();
 
   // B の投稿が表示される
-  await expect(page.getByText(postTitleB)).toBeVisible({ timeout: 5_000 });
+  await expect(page.locator('article').filter({ hasText: postTitleB })).toBeVisible({
+    timeout: 5_000,
+  });
 
   // C の投稿は表示されない（A は C をフォローしていない）
-  expect(await page.getByText(postTitleC).count()).toBe(0);
+  // タブ切替後のフィルタ適用完了まで待機するため web-first assertion を使用
+  await expect(page.locator('article').filter({ hasText: postTitleC })).toHaveCount(0, {
+    timeout: 5_000,
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
