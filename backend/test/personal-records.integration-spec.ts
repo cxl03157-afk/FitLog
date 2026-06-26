@@ -185,6 +185,21 @@ describe('PersonalRecords Integration', () => {
       expect((res.body as { message: string }).message).toContain('weightKg');
     });
 
+    it('MAX_WEIGHT with weightKg=0 → 400 (0kg not allowed)', async () => {
+      // 修正前: @Min(0) が 0 を許可するため 201 → FAIL
+      // 修正後: @Min(0.01) が 0 を拒否するため 400 → PASS
+      await request(app.getHttpServer())
+        .post('/api/personal-records')
+        .set('Authorization', `Bearer ${ownerToken}`)
+        .send({
+          exerciseId,
+          recordType: 'MAX_WEIGHT',
+          weightKg: 0,
+          achievedAt: '2026-01-01',
+        })
+        .expect(400);
+    });
+
     it('MAX_REPS without reps → 400', async () => {
       const res = await request(app.getHttpServer())
         .post('/api/personal-records')
@@ -361,6 +376,18 @@ describe('PersonalRecords Integration', () => {
         .expect(400);
 
       expect((res.body as { statusCode: number }).statusCode).toBe(400);
+    });
+
+    it('weightKg=0 → 400 (0kg not allowed)', async () => {
+      const created = await createRecord({ weightKg: 100 });
+
+      // 修正前: @Min(0) が 0 を許可するため 200 → FAIL
+      // 修正後: @Min(0.01) が 0 を拒否するため 400 → PASS
+      await request(app.getHttpServer())
+        .put(`/api/personal-records/${created.id}`)
+        .set('Authorization', `Bearer ${ownerToken}`)
+        .send({ weightKg: 0 })
+        .expect(400);
     });
 
     it('recordType change to different value → 400 with correct message', async () => {

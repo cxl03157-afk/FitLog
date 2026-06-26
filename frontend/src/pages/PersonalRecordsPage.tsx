@@ -24,7 +24,7 @@ const RECORD_TYPE_LABEL: Record<PersonalRecordType, string> = {
 const parseWeight = (val: string): number | undefined => {
   if (val.trim() === '') return undefined;
   const n = Number(val);
-  return Number.isFinite(n) && n >= 0 ? n : undefined;
+  return Number.isFinite(n) && n > 0 ? n : undefined;
 };
 
 const parseReps = (val: string): number | undefined => {
@@ -126,7 +126,7 @@ const PersonalRecordsPage = () => {
 
   const openCreateModal = () => {
     setEditingRecord(null);
-    setExerciseId(exercises[0]?.id ?? '');
+    setExerciseId('');
     setRecordType('MAX_WEIGHT');
     setWeightKgStr('');
     setRepsStr('');
@@ -155,7 +155,7 @@ const PersonalRecordsPage = () => {
     if (noteStr.trim().length > 200) return 'メモは200文字以内で入力してください';
     if (recordType === 'MAX_WEIGHT') {
       if (parseWeight(weightKgStr) === undefined)
-        return '重量を0以上の数値で入力してください';
+        return '重量は0より大きい数値を入力してください';
     } else {
       if (parseReps(repsStr) === undefined)
         return '回数を1以上の整数で入力してください';
@@ -430,7 +430,7 @@ const PersonalRecordsPage = () => {
                     onChange={(e) => setExerciseId(e.target.value)}
                     className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                   >
-                    <option value="">選択してください</option>
+                    <option value="">種目を選択してください</option>
                     {exercises.map((ex) => (
                       <option key={ex.id} value={ex.id}>
                         {ex.name}（{ex.category}）
@@ -473,7 +473,7 @@ const PersonalRecordsPage = () => {
                   </span>
                   <input
                     type="number"
-                    min="0"
+                    min="0.01"
                     step="0.01"
                     value={weightKgStr}
                     onChange={(e) => setWeightKgStr(e.target.value)}

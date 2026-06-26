@@ -21,10 +21,10 @@ export class UpdatePersonalRecordDto {
   @IsIn(['MAX_WEIGHT', 'MAX_REPS'])
   recordType?: RecordType;
 
-  @ApiPropertyOptional({ description: '最大重量 (kg)', minimum: 0 })
+  @ApiPropertyOptional({ description: '最大重量 (kg)', minimum: 0.01 })
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
+  @Min(0.01)
   weightKg?: number;
 
   @ApiPropertyOptional({ description: '最大回数', minimum: 1 })
