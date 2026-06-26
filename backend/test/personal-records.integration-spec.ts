@@ -6,6 +6,7 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 import { S3Service } from '../src/s3/s3.service';
+import { PersonalRecordsService } from '../src/personal-records/personal-records.service';
 
 const mockS3Service = {
   upload: jest.fn().mockResolvedValue(undefined),
@@ -377,6 +378,59 @@ describe('PersonalRecords Integration', () => {
       expect((res.body as { message: string }).message).toBe(
         'recordType cannot be changed after creation',
       );
+    });
+  });
+
+  // ─── AllExceptionsFilter ──────────────────────────────────────────────────────
+
+  describe('AllExceptionsFilter', () => {
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('invalid DTO → 400 (ValidationPipe + AllExceptionsFilter coexistence, message is array)', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/api/personal-records')
+        .set('Authorization', `Bearer ${ownerToken}`)
+        .send({})
+        .expect(400);
+
+      const body = res.body as {
+        statusCode: number;
+        message: unknown;
+        error: string;
+      };
+      expect(body.statusCode).toBe(400);
+      expect(Array.isArray(body.message)).toBe(true);
+      expect(body.error).toBe('Bad Request');
+    });
+
+    it('unexpected error → 500 でmock復元後は通常動作する (AllExceptionsFilter 配線確認)', async () => {
+      const service = app.get(PersonalRecordsService);
+      const spy = jest
+        .spyOn(service, 'findAll')
+        .mockRejectedValueOnce(new TypeError('DB gone'));
+
+      try {
+        const response = await request(app.getHttpServer())
+          .get('/api/personal-records')
+          .set('Authorization', `Bearer ${ownerToken}`)
+          .expect(500);
+
+        expect(response.body).toEqual({
+          statusCode: 500,
+          message: 'Internal server error',
+        });
+        expect((response.body as { stack?: unknown }).stack).toBeUndefined();
+        expect(JSON.stringify(response.body)).not.toContain('DB gone');
+      } finally {
+        spy.mockRestore();
+      }
+
+      await request(app.getHttpServer())
+        .get('/api/personal-records')
+        .set('Authorization', `Bearer ${ownerToken}`)
+        .expect(200);
     });
   });
 
