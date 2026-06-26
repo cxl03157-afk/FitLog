@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import ProtectedRoute from './components/ProtectedRoute';
 import GuestRoute from './components/GuestRoute';
 import LoginPage from './pages/LoginPage';
@@ -19,9 +20,10 @@ import PersonalRecordsPage from './pages/PersonalRecordsPage';
 
 const App = () => (
   <BrowserRouter>
-    <AuthProvider>
-      <ToastProvider>
-        <Routes>
+    <ErrorBoundary>
+      <AuthProvider>
+        <ToastProvider>
+          <Routes>
           {/* ゲスト専用 */}
           <Route element={<GuestRoute />}>
             <Route path="/login" element={<LoginPage />} />
@@ -45,9 +47,10 @@ const App = () => (
 
           {/* フォールバック */}
           <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </ToastProvider>
-    </AuthProvider>
+          </Routes>
+        </ToastProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   </BrowserRouter>
 );
 
