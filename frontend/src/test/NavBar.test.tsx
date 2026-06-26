@@ -195,4 +195,25 @@ describe('NavBar', () => {
     expect(screen.queryByRole('link', { name: 'プロフィール' })).toBeNull();
     expect(document.querySelector('img')).toBeNull();
   });
+
+  // ── 新規投稿リンク ─────────────────────────────────────────────────
+  it('NavBar に「新規投稿」リンクが表示される', () => {
+    renderNavBar();
+    // 修正前: '投稿する' テキストのリンクのみ → '新規投稿' が存在しない → FAIL
+    // 修正後: '新規投稿' リンクが存在する → PASS
+    expect(screen.getByRole('link', { name: '新規投稿' })).toBeTruthy();
+  });
+
+  it('「新規投稿」リンクの href が /workout-posts/new', () => {
+    renderNavBar();
+    const link = screen.getByRole('link', { name: '新規投稿' });
+    expect(link.getAttribute('href')).toBe('/workout-posts/new');
+  });
+
+  it('NavBar 内に「投稿する」リンクが表示されない（文言変更確認）', () => {
+    renderNavBar();
+    // 修正前: '投稿する' リンクが存在する → FAIL
+    // 修正後: '投稿する' リンクが存在しない → PASS
+    expect(screen.queryByRole('link', { name: '投稿する' })).toBeNull();
+  });
 });
