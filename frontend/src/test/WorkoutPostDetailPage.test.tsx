@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import WorkoutPostDetailPage from '../pages/WorkoutPostDetailPage';
 import * as AuthContextModule from '../contexts/AuthContext';
@@ -34,6 +35,8 @@ vi.mock('../api/likes', () => ({
 const mockUseAuth = vi.mocked(AuthContextModule.useAuth);
 const mockFetchWorkoutPost = vi.mocked(workoutPostsApi.fetchWorkoutPost);
 const mockFetchComments = vi.mocked(commentsApi.fetchComments);
+const mockAddLike = vi.mocked(likesApi.addLike);
+const mockRemoveLike = vi.mocked(likesApi.removeLike);
 
 const POST_OWNER_ID = '10';
 
@@ -173,6 +176,85 @@ describe('WorkoutPostDetailPage', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/投稿の取得に失敗しました/)).toBeTruthy();
+    });
+  });
+
+  describe('like initial state (Bug 1)', () => {
+    beforeEach(() => {
+      mockUseAuth.mockReturnValue({
+        user: { id: '99', username: 'other', displayName: 'Other', email: 'o@test.com', avatarUrl: null, bio: null },
+        isLoading: false,
+        isAuthenticated: true,
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+        updateCurrentUser: vi.fn(),
+      });
+      mockFetchComments.mockResolvedValue([]);
+    });
+
+    it('LikeSection is not mounted while post is loading', async () => {
+      let resolvePost!: (p: WorkoutPost) => void;
+      mockFetchWorkoutPost.mockReturnValue(new Promise<WorkoutPost>((r) => { resolvePost = r; }));
+
+      renderDetail();
+
+      expect(screen.getByText('読み込み中...')).toBeTruthy();
+      expect(screen.queryByRole('button', { name: /ナイス！/ })).toBeNull();
+
+      await act(async () => { resolvePost(mockPost); });
+    });
+
+    it('shows likeCount=5 and aria-pressed="true" after API resolves with isLiked=true (Bug 1 regression)', async () => {
+      let resolvePost!: (p: WorkoutPost) => void;
+      const deferredPost = new Promise<WorkoutPost>((r) => { resolvePost = r; });
+      mockFetchWorkoutPost.mockReturnValue(deferredPost);
+
+      renderDetail();
+
+      expect(screen.queryByRole('button', { name: /ナイス！/ })).toBeNull();
+
+      await act(async () => {
+        resolvePost({ ...mockPost, isLiked: true, likeCount: 5 });
+      });
+
+      const likeBtn = await screen.findByRole('button', { name: /ナイス！ 5/ });
+      expect(likeBtn).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('first click calls removeLike when initial isLiked=true (Bug 1 regression)', async () => {
+      let resolvePost!: (p: WorkoutPost) => void;
+      mockFetchWorkoutPost.mockReturnValue(new Promise<WorkoutPost>((r) => { resolvePost = r; }));
+      mockRemoveLike.mockResolvedValue(undefined);
+
+      renderDetail();
+
+      await act(async () => {
+        resolvePost({ ...mockPost, isLiked: true, likeCount: 3 });
+      });
+
+      const likeBtn = await screen.findByRole('button', { name: /ナイス！ 3/ });
+      expect(likeBtn).toHaveAttribute('aria-pressed', 'true');
+
+      await userEvent.click(likeBtn);
+
+      expect(mockRemoveLike).toHaveBeenCalledWith(mockPost.id);
+      expect(mockAddLike).not.toHaveBeenCalled();
+    });
+
+    it('first click calls addLike when initial isLiked=false', async () => {
+      mockFetchWorkoutPost.mockResolvedValue({ ...mockPost, isLiked: false, likeCount: 0 });
+      mockAddLike.mockResolvedValue(undefined);
+
+      renderDetail();
+
+      const likeBtn = await screen.findByRole('button', { name: /ナイス！ 0/ });
+      expect(likeBtn).toHaveAttribute('aria-pressed', 'false');
+
+      await userEvent.click(likeBtn);
+
+      expect(mockAddLike).toHaveBeenCalledWith(mockPost.id);
+      expect(mockRemoveLike).not.toHaveBeenCalled();
     });
   });
 
