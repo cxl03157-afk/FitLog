@@ -24,7 +24,7 @@
 | 11 | 週間/月間集計・目標設定 | 集計画面・目標管理UI・グラフ表示 | 完了 |
 | 12 | API仕様書・Swagger整備 | Swagger自動生成確認、docs/ との整合確認 | 完了 |
 | 13-1 | Personal Records UI | PersonalRecordsPage CRUD・recordType変更制限・integration test補完 | 完了（PR #33 マージ済み 2026-06-26）|
-| 13-2 | アプリ全体の調整（安定化） | ExceptionFilter・Toast統一・ErrorBoundary・E2Eコア整備・既知バグ修正 | 未着手 |
+| 13-2 | アプリ全体の調整（安定化） | ExceptionFilter・Toast統一・ErrorBoundary・E2Eコア整備・既知バグ修正 | PR待ち（Issue #34 / Branch: feature/issue-34-phase13-2-error-handling）|
 | 13-3 | レスポンシブ対応 | 全ページ Tailwind モバイル/タブレット対応 | 未着手 |
 | 14 | ログ設計・ローカル確認 | NestJS Logger（JSON形式）、各種ログ出力確認 | 未着手 |
 | 15 | パフォーマンステスト | N+1問題確認、DBインデックス、k6/Artillery ロードテスト | 未着手 |
@@ -195,18 +195,21 @@ S3 object key パスルール（単一バケット構成）:
 
 ### Phase 13-2：アプリ全体の調整（安定化）
 
-**未着手**
+**実装・ローカル検証完了、PR待ち（Issue #34）**
 
-予定:
-- `docs/tech-stack.md` Jest 30.x・Recharts 追記（doc-sync 修正）
-- NestJS ExceptionFilter（500 エラー詳細漏洩防止・ログ統一）
-- Frontend ToastContext / ToastContainer / ErrorBoundary
-- 既知バグ修正:
-  - **投稿詳細のナイス初期状態**（useLikeToggle が post 取得前に false/0 で初期化される）
-  - **タイムラインのコメント数が古い**（posts state が初回取得値を保持）
-- Playwright E2E 追加（シナリオ3: 認証フロー / シナリオ4: ナイス / シナリオ5: コメント）
-  - Scenario 4: 初期 likeCount・初期ナイス済み状態・Unlike・Like を確認
-  - Scenario 5: コメント後タイムラインへ戻り、件数が1増えることを確認
+- ✅ **Bug 1 修正**: 投稿詳細のナイス初期状態（LikeSection 分離・useLikeToggle 初期値を post 取得後に適用）
+- ✅ **Bug 2 修正**: タイムラインの likeCount / commentCount / isLiked が raw rows の post ID ずれで古い値を返す問題を修正
+- ✅ **コメント送信中の戻る操作抑止**: 送信中に Leave させない（コメント二重送信防止）
+- ✅ **AllExceptionsFilter（Backend）**: APP_FILTER で AppModule に登録。HttpException は透過、非 HttpException は 500 + "Internal server error"。非 HttpException 時のみ logger.error
+- ✅ **共通 Toast Context（Frontend）**: ToastContext + useToast フック。5秒自動消去・unmount 時タイマー解放
+- ✅ **PersonalRecordsPage の Toast 移行**: ローカル toast 実装を共通 ToastContext へ統一
+- ✅ **ErrorBoundary（Frontend）**: BrowserRouter > ErrorBoundary > AuthProvider > ToastProvider > Routes。fallback は「再読み込み」と「タイムラインへ戻る」
+- ✅ **Personal Record 入力仕様改善**: weightKg を 0.01kg 以上に変更（create / update 両方）。新規モーダルは種目未選択スタートで明示選択必須
+- ✅ **NavBar 文言変更**: 投稿作成リンクを「投稿する」→「新規投稿」に変更（投稿フォームの送信ボタンは「投稿する」のまま）
+- ✅ **E2E Phase 13 Scenario 3**: ナイス済み投稿の初期状態・解除・再ナイス・タイムライン一致
+- ✅ **E2E Phase 13 Scenario 4**: コメント投稿後のタイムライン commentCount 更新
+- ✅ **E2E Phase 10 Scenario 4 待機安定化**: 同期 count チェックを web-first assertion（`toHaveCount(0)`）に変更
+- ✅ Frontend unit: 289件 PASS / Backend unit: 172件 PASS / Backend integration: 42件 PASS / E2E: 14件 PASS（3回連続）
 
 ---
 

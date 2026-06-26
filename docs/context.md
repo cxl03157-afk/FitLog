@@ -5,24 +5,24 @@
 
 ## 現状スナップショット
 
-- Phase: **13-2 着手**（例外処理・Toast・ErrorBoundary・既知バグ修正・E2E 拡充）
+- Phase: **13-2 完了**（PR 未作成・push 待ち）
 - Issue: #34（Phase 13-2）— PR 未作成
 - Branch: `feature/issue-34-phase13-2-error-handling`
-- Status: Commit 1（doc-sync）完了。Commit 2（Bug 1）以降未実施。
+- Status: Commit 13（docs）完了。push → PR 作成待ち。
 
-## テスト結果（Phase 13-1 完了時点 / merge commit 37c7bc0）
+## テスト結果（Phase 13-2 完了時点 / Commit 13 時点）
 
 ### Backend
 - lint: PASS
-- unit test: **150件 PASS**（16 suites）
-- integration test: **38件 PASS**（4 suites）
+- unit test: **172件 PASS**（17 suites）
+- integration test: **42件 PASS**（4 suites）
 - build: PASS
 
 ### Frontend
 - lint: PASS
-- unit test: **240件 PASS**（17 files）
+- unit test: **289件 PASS**（20 files）
 - build: PASS
-- E2E（phase10 + phase11 + phase13）: **12件 PASS**
+- E2E（phase10 × 6 + phase11 × 4 + phase13 × 4）: **14件 PASS**（3回連続）
 
 ## 技術スタック
 
@@ -31,6 +31,19 @@
 - DB: PostgreSQL 17（docker-compose）+ LocalStack 3（S3 エミュレーション、Phase 9 追加）
 - CI: GitHub Actions — Lint + 型チェック + Jest/Vitest（Node 22 強制）
 
+## Phase 13-2 確定決定事項
+
+| 項目 | 決定 |
+|------|------|
+| weightKg 最小値 | 0.01kg（0 を拒否。create / update 両方） |
+| 既存 0kg レコード | 変更なし（読み取り・表示は可能。DB CHECK 制約未追加）|
+| 種目選択（新規） | 未選択（「種目を選択してください」）。明示選択が必須 |
+| 種目選択（編集） | 既存種目を表示・変更不可 |
+| NavBar 投稿リンク | `新規投稿`（`/workout-posts/new`）。投稿フォームの送信ボタンは `投稿する` のまま |
+| AllExceptionsFilter | APP_FILTER で AppModule に登録。HttpException は透過、非 HttpException は 500 |
+| Provider 順序 | BrowserRouter > ErrorBoundary > AuthProvider > ToastProvider > Routes |
+| ErrorBoundary | BrowserRouter 直下。FallbackUI は useNavigate を使ってリセット＋/ 遷移 |
+
 ## Phase 13-1 確定決定事項
 
 | 項目 | 決定 |
@@ -45,35 +58,20 @@
 | GET / PUT レスポンス | exercise リレーション含む（PersonalRecord 型） |
 | Swagger description | 「登録直後のレスポンスにはexerciseリレーションを含まない」を追記（Commit 6で修正） |
 | sourceExerciseSetId | 初期 UI 対象外（将来対応・別 Issue 候補） |
-
 
 ## NextAction
 
-Commit 2（Bug 1 fix）→ Bug 2 調査ゲート → ユーザー承認後に Commit 3（Bug 2 fix）
-→ Commit 4（AllExceptionsFilter）→ Commit 5（Toast）→ Commit 6（PersonalRecordsPage 移行）
-→ Commit 7（ErrorBoundary）→ Commit 8（E2E）→ Commit 9（docs）→ PR 作成。
+push（ユーザー承認後）→ PR 作成（Issue #34 紐付け `Closes #34`）→ CI グリーン確認 → レビュー → main マージ。
 
-## Phase 13-2 既知バグ
+## 後続Phase候補
 
-| # | バグ | 原因 | Phase 13-2 対応 |
-|---|------|------|----------------|
-| 1 | 投稿詳細のナイス初期状態（0表示・未ナイス）| post 取得前に useLikeToggle が false/0 で初期化 | 失敗 unit test 追加 → LikeSection 分離 → Scenario 3 で確認 |
-| 2 | タイムラインのコメント数が古い | 根本原因調査中（調査ゲート付き）| 調査結果報告 → ユーザー承認 → Commit 3 → Scenario 4 で確認 |
-
-## Phase 13-1 確定決定事項
-
-| 項目 | 決定 |
+| 候補 | 内容 |
 |------|------|
-| recordType 変更制限 | PUT で既存値と異なる recordType → 400 BadRequestException（同じ値・省略は許可） |
-| exerciseId 変更 | UpdatePersonalRecordDto に存在しない。フロント更新ペイロードには含めない |
-| note 空欄時 | null を送信（削除）。bio 方式に統一 |
-| 数値パース | `Number() + Number.isFinite()` 厳密検証（空欄/小数/負数/不正文字列 → API 呼ばない） |
-| 削除中の表示 | 「はい」押下後に行内確認を閉じ、元の「削除」ボタンを disabled（差異1・承認済み） |
-| unit test 配置 | `frontend/src/test/PersonalRecordsPage.test.tsx`（差異2・既存規則に合わせた） |
-| POST レスポンス | exercise リレーション含まない（PersonalRecordCreated 型） |
-| GET / PUT レスポンス | exercise リレーション含む（PersonalRecord 型） |
-| Swagger description | 「登録直後のレスポンスにはexerciseリレーションを含まない」を追記（Commit 6で修正） |
-| sourceExerciseSetId | 初期 UI 対象外（将来対応・別 Issue 候補） |
+| Phase 13-3 | 種目マスタ整理・ユーザー独自種目機能（標準種目一覧・部位カテゴリ・独自種目・テスト cleanup）|
+| Phase 13-4 | ユーザー検索・プロフィール・フォロー導線改善 |
+| Phase 13-5 | プロフィール編集・アバター操作改善 |
+| Phase 13-6 | 画像表示の信頼性・フォールバック改善 |
+| 独立 Issue | LocalStack S3データ永続化 / E2Eテストデータcleanup / タイムラインのナイスボタンにaria-pressed追加 |
 
 ## 参照ファイル（詳細確認が必要な場合）
 
