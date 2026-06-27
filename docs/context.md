@@ -5,13 +5,12 @@
 
 ## 現状スナップショット
 
-- Phase: **13-2**（実装・検証・PR作成完了、PR #35 マージ待ち）
-- Issue: #34（Phase 13-2）— PR #35 OPEN（`Closes #34`）
-- Branch: `feature/issue-34-phase13-2-error-handling`
-- PR: #35 / OPEN / MERGEABLE / CI 全件 PASS
-- HEAD: `64fc693`
+- Phase: **Phase 13-2 完了 / Phase 13-2.1 着手前**
+- Issue: #34（Phase 13-2）— CLOSED（PR #35 マージ後に自動クローズ）
+- PR: #35 / MERGED / merge commit: `4d55f09`（2026-06-27）
+- main HEAD: `4d55f09`
 
-## テスト結果（Phase 13-2 完了時点 / HEAD `64fc693`）
+## テスト結果（Phase 13-2 完了時点 / HEAD `4d55f09`）
 
 ### Backend
 - lint: PASS
@@ -62,7 +61,7 @@
 
 ## NextAction
 
-PR #35 マージ（ユーザー承認後）→ Issue #34 自動クローズ確認 → Phase 13-2.1 Issue 作成（未採番）→ 新規ブランチ作成。
+Phase 13-2.1 Issue 作成（未採番）→ 実装計画確認 → ブランチ作成 → 実装開始。
 
 ## 後続Phase一覧（正式構成）
 
@@ -86,5 +85,5 @@ PR #35 マージ（ユーザー承認後）→ Issue #34 自動クローズ確�
 - DB 設計: `docs/database.md`
 - Swagger 仕様: `http://localhost:3000/api/docs`（バックエンド起動時）
 - 状態詳細: `docs/handoff.md`
-- Issue: #34（Phase 13-2 / PR #35 マージ待ち）、#32（Phase 13-1 / 完了・PR #33 マージ済み）、#30（Phase 12 / 完了）
-- PR: #35（Phase 13-2 / OPEN・マージ待ち）、#33（Phase 13-1 / マージ済み）
+- Issue: #34（Phase 13-2 / CLOSED・PR #35 マージ済み）、#32（Phase 13-1 / 完了・PR #33 マージ済み）、#30（Phase 12 / 完了）
+- PR: #35（Phase 13-2 / MERGED 2026-06-27・merge commit: `4d55f09`）、#33（Phase 13-1 / マージ済み）
