@@ -1,8 +1,10 @@
 # Agent Handoff
 
 ## CurrentPhase
-- **Phase 13-2 完了**: 例外処理・Toast・ErrorBoundary・既知バグ修正・E2E 拡充（Issue #34 / Branch: `feature/issue-34-phase13-2-error-handling`）
-  - Commit 13（docs）完了。push → PR 作成待ち。
+- **Phase 13-2**: 例外処理・Toast・ErrorBoundary・既知バグ修正・E2E 拡充（Issue #34 / Branch: `feature/issue-34-phase13-2-error-handling`）
+  - 実装・検証・PR作成完了。PR #35 マージ待ち。
+  - PR #35: OPEN / MERGEABLE / CI 全件 PASS / HEAD: `64fc693`
+  - Issue #34: OPEN（PR #35 の `Closes #34` でリンク済み。マージ後に自動クローズ予定）
 - **Phase 13-1 完了**: Personal Records CRUD UI（Issue #32 / PR #33 マージ済み 2026-06-26）
   - merge commit: `37c7bc0`
 - **Phase 12 完了**: API仕様書・Swagger整備（Issue #30 / PR #31 マージ済み 2026-06-25）
@@ -21,7 +23,8 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #34: オープン（Phase 13-2 / push・PR 作成待ち）
+- Issue #34: OPEN（PR #35 の `Closes #34` でリンク済み。マージ後に自動クローズ予定）
+- PR #35: OPEN / MERGEABLE / CI 全件 PASS
 - Issue #32: 完了・PR #33 マージ済み（2026-06-26）
 - Issue #30: 完了・PR #31 マージ済み（2026-06-25）
 - Issue #28: 完了・PR #29 マージ済み（2026-06-24）
@@ -52,7 +55,9 @@
 | 10 | `8be846a` | feat(frontend): add error boundary |
 | 11 | `e860803` | test(e2e): add phase13 scenario 3 |
 | 12 | `fe469fd` | test(e2e): wait for following feed filter |
-| 13 | `（本コミット）` | docs: complete phase 13-2 |
+| 13 | `10a3d7e` | docs: complete phase 13-2 |
+| 14 | `288016a` | docs: correct phase 13-2 scenario numbers |
+| 15 | `64fc693` | test(frontend): suppress react 19 concurrent rendering error in ErrorBoundary tests |
 
 ## Phase13-2確定事項
 
@@ -179,14 +184,17 @@
 `.claude/settings.json` のみ未コミット（今後もいかなるコミットにも含めない）。PR #31 の差分にも含まれていないことを全4コミットの変更ファイルで確認済み。
 次セッション開始時は最初に `git status --short` を実行して作業ツリーを確認すること。
 
-## NextActions（Phase 13-2 PR作成以降）
+## NextActions
 
-1. push 承認 → `git push origin feature/issue-34-phase13-2-error-handling`
-2. PR 作成（Issue #34 対応。本文に `Closes #34` を記載。PR 番号は作成後に handoff.md へ追記）
-3. CI グリーン確認（Backend CI: lint + unit + integration + build / Frontend CI: lint + unit + build）
-4. レビュー → main マージ → Issue #34 自動クローズ確認
-5. main へ切り替え pull
-6. Phase 13-3（種目マスタ整理・ユーザー独自種目機能）または独立 Issue 対応
+1. PR #35 マージ（ユーザー承認後）→ Issue #34 自動クローズ確認
+2. main へ切り替え（`git checkout main && git pull`）
+3. Phase 13-2.1 Issue 作成（未採番）→ 新規ブランチ作成
+4. Phase 13-2.1 実装開始（NavBar 導線追加）
+
+## NextPhase
+
+- **Phase 13-2.1**: NavBarに検索・統計・目標管理への導線追加（Issue 未作成・未採番）
+- その後: 13-3（種目マスタ）→ 13-4 → 13-4.1 → 13-5 → 13-6 → 13-7 → 13-7.1 → 13-8（旧Phase 13-3 レスポンシブ移設）
 
 ## TestResults（Phase 13-2 完了時点 / Commit 13）
 
@@ -472,7 +480,7 @@ PR #29 はマージ可能状態（2026-06-24 確認済み）。
 - (none)
 
 ## ReviewStatus
-- Phase 13-2: push・PR 作成待ち（2026-06-27 Commit 13 完了）
+- Phase 13-2: PR #35 OPEN / MERGEABLE / CI PASS / マージ待ち（2026-06-27）
 - Phase 13-1: PR #33 マージ済み（2026-06-26）
 - Phase 12: PR #31 マージ済み（2026-06-25）
 - Phase 11: PR #29 マージ済み（2026-06-24）
@@ -480,7 +488,7 @@ PR #29 はマージ可能状態（2026-06-24 確認済み）。
 - Phase 9: PR #25 マージ済み（2026-06-19）
 
 ## MergeReadiness
-- Phase 13-2: 全品質ゲート PASS・docs 更新済み・push 承認待ち → PR 作成 → CI グリーン → ユーザー承認後にマージ可能。
+- Phase 13-2: PR #35 OPEN・CI 全件 PASS・MERGEABLE。ユーザー承認後にマージ可能。
 
 ## NextAction
 1. push 承認取得 → `git push origin feature/issue-34-phase13-2-error-handling`
@@ -491,9 +499,9 @@ PR #29 はマージ可能状態（2026-06-24 確認済み）。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
-- Issue: #34（Phase 13-2 / push・PR 作成待ち）、#32（Phase 13-1 / 完了）、#30（Phase 12 / 完了）
-- PR: #33（Phase 13-1 / マージ済み）、#31（Phase 12 / マージ済み）、#29（Phase 11 / マージ済み）
-- Branch: `feature/issue-34-phase13-2-error-handling`（Phase 13-2 / PR 作成待ち）
+- Issue: #34（Phase 13-2 / PR #35 マージ待ち）、#32（Phase 13-1 / 完了）、#30（Phase 12 / 完了）
+- PR: #35（Phase 13-2 / OPEN・マージ待ち）、#33（Phase 13-1 / マージ済み）、#31（Phase 12 / マージ済み）、#29（Phase 11 / マージ済み）
+- Branch: `feature/issue-34-phase13-2-error-handling`（Phase 13-2 / PR #35 マージ待ち）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules

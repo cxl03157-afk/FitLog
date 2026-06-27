@@ -24,8 +24,16 @@
 | 11 | 週間/月間集計・目標設定 | 集計画面・目標管理UI・グラフ表示 | 完了 |
 | 12 | API仕様書・Swagger整備 | Swagger自動生成確認、docs/ との整合確認 | 完了 |
 | 13-1 | Personal Records UI | PersonalRecordsPage CRUD・recordType変更制限・integration test補完 | 完了（PR #33 マージ済み 2026-06-26）|
-| 13-2 | アプリ全体の調整（安定化） | ExceptionFilter・Toast統一・ErrorBoundary・E2Eコア整備・既知バグ修正 | PR待ち（Issue #34 / Branch: feature/issue-34-phase13-2-error-handling）|
-| 13-3 | レスポンシブ対応 | 全ページ Tailwind モバイル/タブレット対応 | 未着手 |
+| 13-2   | アプリ全体の調整（安定化） | ExceptionFilter・Toast統一・ErrorBoundary・E2Eコア整備・既知バグ修正 | 実装・検証完了／PR #35マージ待ち |
+| 13-2.1 | NavBar検索・統計・目標管理導線追加 | NavBarリンク追加（/search・/stats・/goals）| 未着手 |
+| 13-3   | 種目マスタ整理・ユーザー独自種目機能 | 標準種目整理・部位カテゴリ・独自種目・重複防止 | 未着手 |
+| 13-4   | ユーザー検索・プロフィール・フォロー導線改善 | 検索結果からフォロー・プロフィールへの導線 | 未着手 |
+| 13-4.1 | LocalStack S3データ永続化 | Docker volume設定でテストデータを永続化 | 未着手 |
+| 13-5   | プロフィール編集・アバター操作改善 | アバターUX・編集フォーム改善 | 未着手 |
+| 13-6   | 画像表示の信頼性・フォールバック改善 | 画像エラー時のフォールバック表示 | 未着手 |
+| 13-7   | E2Eテストデータcleanupと再実行安定化 | テストデータ削除・再実行時の衝突防止 | 未着手 |
+| 13-7.1 | PostCardのナイス状態アクセシブル化 | aria-pressed追加・アクセシビリティ改善 | 未着手 |
+| 13-8   | 全ページのレスポンシブ対応 | 全ページ Tailwind モバイル/タブレット対応（旧Phase 13-3より移設）| 未着手 |
 | 14 | ログ設計・ローカル確認 | NestJS Logger（JSON形式）、各種ログ出力確認 | 未着手 |
 | 15 | パフォーマンステスト | N+1問題確認、DBインデックス、k6/Artillery ロードテスト | 未着手 |
 | 16 | AWS環境構築 | EC2・RDS・S3・CloudFront・ALB・CloudWatch Logs | 未着手 |
@@ -195,7 +203,12 @@ S3 object key パスルール（単一バケット構成）:
 
 ### Phase 13-2：アプリ全体の調整（安定化）
 
-**実装・ローカル検証完了、PR待ち（Issue #34）**
+**実装・検証完了、PR #35 マージ待ち（Issue #34）**
+
+- PR #35: OPEN / MERGEABLE / CI 全件 PASS（Backend / Frontend / E2E）
+- merge conflict なし
+- head commit: `64fc693`
+- Issue #34 は PR 本文の `Closes #34` でリンク済み。マージ後に自動クローズ予定
 
 - ✅ **Bug 1 修正**: 投稿詳細のナイス初期状態（LikeSection 分離・useLikeToggle 初期値を post 取得後に適用）
 - ✅ **Bug 2 修正**: タイムラインの likeCount / commentCount / isLiked が raw rows の post ID ずれで古い値を返す問題を修正
@@ -213,12 +226,76 @@ S3 object key パスルール（単一バケット構成）:
 
 ---
 
-### Phase 13-3：レスポンシブ対応
+### Phase 13-2.1：NavBarに検索・統計・目標管理への導線追加
+
+**未着手**（Issue 未作成・未採番）
+
+画面・API・Route は Phase 10/11 で実装済み。`docs/screens.md`（Section 3）に仕様記載済み。NavBar リンクのみ未実装。
+
+- `/search`（ユーザー検索画面）
+- `/stats`（週間/月間集計画面）
+- `/goals`（目標管理画面）
+- unit test 更新・E2E 遷移確認
+- 最低限のモバイル表示確認（追加リンクが画面外にはみ出さない・操作不能にならない）
+
+モバイルの大規模変更（ハンバーガーメニュー・ボトムナビゲーション等）は Phase 13-8 のスコープ。
+
+---
+
+### Phase 13-3：種目マスタ整理・ユーザー独自種目機能
 
 **未着手**
 
+- 標準種目一覧の整理・部位カテゴリの整備
+- ユーザー独自種目の登録・管理・重複防止
+- 種目選択 UI 改善
+- E2E テスト用種目データの cleanup
+- `sourceExerciseSetId` の扱い検討
+
+---
+
+### Phase 13-4：ユーザー検索・プロフィール・フォロー導線改善
+
+**未着手**
+
+---
+
+### Phase 13-4.1：LocalStack S3データ永続化
+
+**未着手**
+
+---
+
+### Phase 13-5：プロフィール編集・アバター操作改善
+
+**未着手**
+
+---
+
+### Phase 13-6：画像表示の信頼性・フォールバック改善
+
+**未着手**
+
+---
+
+### Phase 13-7：E2Eテストデータcleanupと再実行安定化
+
+**未着手**
+
+---
+
+### Phase 13-7.1：PostCardのナイス状態アクセシブル化
+
+**未着手**
+
+---
+
+### Phase 13-8：全ページのレスポンシブ対応
+
+**未着手**（旧 Phase 13-3 より移設）
+
 - 全ページ Tailwind CSS モバイル/タブレット対応（375px〜1280px）
-- NavBar モバイル仕様（Phase 13-3 開始前にユーザー確認）
+- NavBar モバイル仕様（Phase 13-8 開始前にユーザー確認）
 
 ---
 

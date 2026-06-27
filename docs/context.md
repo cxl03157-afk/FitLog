@@ -5,12 +5,13 @@
 
 ## 現状スナップショット
 
-- Phase: **13-2 完了**（PR 未作成・push 待ち）
-- Issue: #34（Phase 13-2）— PR 未作成
+- Phase: **13-2**（実装・検証・PR作成完了、PR #35 マージ待ち）
+- Issue: #34（Phase 13-2）— PR #35 OPEN（`Closes #34`）
 - Branch: `feature/issue-34-phase13-2-error-handling`
-- Status: Commit 13（docs）完了。push → PR 作成待ち。
+- PR: #35 / OPEN / MERGEABLE / CI 全件 PASS
+- HEAD: `64fc693`
 
-## テスト結果（Phase 13-2 完了時点 / Commit 13 時点）
+## テスト結果（Phase 13-2 完了時点 / HEAD `64fc693`）
 
 ### Backend
 - lint: PASS
@@ -61,17 +62,21 @@
 
 ## NextAction
 
-push（ユーザー承認後）→ PR 作成（Issue #34 紐付け `Closes #34`）→ CI グリーン確認 → レビュー → main マージ。
+PR #35 マージ（ユーザー承認後）→ Issue #34 自動クローズ確認 → Phase 13-2.1 Issue 作成（未採番）→ 新規ブランチ作成。
 
-## 後続Phase候補
+## 後続Phase一覧（正式構成）
 
-| 候補 | 内容 |
-|------|------|
+| Phase | 内容 |
+|-------|------|
+| Phase 13-2.1 | NavBarに検索・統計・目標管理への導線追加（Issue 未作成・未採番）|
 | Phase 13-3 | 種目マスタ整理・ユーザー独自種目機能（標準種目一覧・部位カテゴリ・独自種目・テスト cleanup）|
 | Phase 13-4 | ユーザー検索・プロフィール・フォロー導線改善 |
+| Phase 13-4.1 | LocalStack S3データ永続化 |
 | Phase 13-5 | プロフィール編集・アバター操作改善 |
 | Phase 13-6 | 画像表示の信頼性・フォールバック改善 |
-| 独立 Issue | LocalStack S3データ永続化 / E2Eテストデータcleanup / タイムラインのナイスボタンにaria-pressed追加 |
+| Phase 13-7 | E2Eテストデータcleanupと再実行安定化 |
+| Phase 13-7.1 | PostCardのナイス状態アクセシブル化（aria-pressed追加）|
+| Phase 13-8 | 全ページのレスポンシブ対応（旧Phase 13-3より移設）|
 
 ## 参照ファイル（詳細確認が必要な場合）
 
@@ -81,4 +86,5 @@ push（ユーザー承認後）→ PR 作成（Issue #34 紐付け `Closes #34`�
 - DB 設計: `docs/database.md`
 - Swagger 仕様: `http://localhost:3000/api/docs`（バックエンド起動時）
 - 状態詳細: `docs/handoff.md`
-- Issue: #34（Phase 13-2）、#32（Phase 13-1 / 完了・PR #33 マージ済み）、#30（Phase 12 / 完了）
+- Issue: #34（Phase 13-2 / PR #35 マージ待ち）、#32（Phase 13-1 / 完了・PR #33 マージ済み）、#30（Phase 12 / 完了）
+- PR: #35（Phase 13-2 / OPEN・マージ待ち）、#33（Phase 13-1 / マージ済み）
