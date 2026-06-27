@@ -30,7 +30,8 @@
 | AWS SDK v3 | 3.x | S3 操作（Multer + サーバー中継方式） |
 | Multer | — | ファイルアップロード処理（NestJS と統合） |
 | bcrypt | — | パスワードハッシュ（saltRounds=12） |
-| Jest | 29.x | バックエンドユニットテスト |
+| Jest | 30.x | バックエンドユニットテスト |
+| Recharts | 3.x | フロントエンドグラフ（StatsPage）|
 
 ---
 

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import PersonalRecordsPage from '../pages/PersonalRecordsPage';
+import { ToastProvider } from '../contexts/ToastContext';
 import * as AuthContextModule from '../contexts/AuthContext';
 import * as prApi from '../api/personalRecords';
 import * as exercisesApi from '../api/exercises';
@@ -71,7 +72,9 @@ const mockCreatedRecord = {
 const renderPage = () =>
   render(
     <MemoryRouter>
-      <PersonalRecordsPage />
+      <ToastProvider>
+        <PersonalRecordsPage />
+      </ToastProvider>
     </MemoryRouter>,
   );
 
@@ -85,6 +88,16 @@ const openCreateModal = async () => {
 const setAchievedAt = (value: string) => {
   const dateInputs = document.querySelectorAll('input[type="date"]');
   fireEvent.change(dateInputs[0], { target: { value } });
+};
+
+// 新規登録モーダル内の種目コンボボックスを選択するヘルパー
+const selectFirstExercise = () => {
+  const exerciseSelect = screen.getAllByRole('combobox').find((el) =>
+    Array.from(el.querySelectorAll('option')).some(
+      (o) => (o as HTMLOptionElement).value === '',
+    ),
+  )!;
+  fireEvent.change(exerciseSelect, { target: { value: 'ex-1' } });
 };
 
 describe('PersonalRecordsPage', () => {
@@ -201,6 +214,7 @@ describe('PersonalRecordsPage', () => {
       expect(screen.getByRole('button', { name: '新規登録' })).not.toBeDisabled(),
     );
     await openCreateModal();
+    selectFirstExercise();
     fireEvent.change(screen.getByPlaceholderText('例: 100'), { target: { value: '100' } });
     // 達成日は空のまま
     fireEvent.click(screen.getByRole('button', { name: '保存' }));
@@ -216,11 +230,12 @@ describe('PersonalRecordsPage', () => {
       expect(screen.getByRole('button', { name: '新規登録' })).not.toBeDisabled(),
     );
     await openCreateModal();
+    selectFirstExercise();
     // 重量は空のまま
     setAchievedAt('2026-06-01');
     fireEvent.click(screen.getByRole('button', { name: '保存' }));
     await waitFor(() =>
-      expect(screen.getByRole('alert')).toHaveTextContent('重量を0以上の数値で入力してください'),
+      expect(screen.getByRole('alert')).toHaveTextContent('重量は0より大きい数値を入力してください'),
     );
     expect(mockCreatePersonalRecord).not.toHaveBeenCalled();
   });
@@ -231,6 +246,7 @@ describe('PersonalRecordsPage', () => {
       expect(screen.getByRole('button', { name: '新規登録' })).not.toBeDisabled(),
     );
     await openCreateModal();
+    selectFirstExercise();
     // MAX_REPS に切り替え
     fireEvent.change(
       screen.getAllByRole('combobox').find((el) => {
@@ -254,6 +270,7 @@ describe('PersonalRecordsPage', () => {
       expect(screen.getByRole('button', { name: '新規登録' })).not.toBeDisabled(),
     );
     await openCreateModal();
+    selectFirstExercise();
     fireEvent.change(
       screen.getAllByRole('combobox').find((el) => {
         const options = el.querySelectorAll('option');
@@ -276,11 +293,12 @@ describe('PersonalRecordsPage', () => {
       expect(screen.getByRole('button', { name: '新規登録' })).not.toBeDisabled(),
     );
     await openCreateModal();
+    selectFirstExercise();
     fireEvent.change(screen.getByPlaceholderText('例: 100'), { target: { value: '-1' } });
     setAchievedAt('2026-06-01');
     fireEvent.click(screen.getByRole('button', { name: '保存' }));
     await waitFor(() =>
-      expect(screen.getByRole('alert')).toHaveTextContent('重量を0以上の数値で入力してください'),
+      expect(screen.getByRole('alert')).toHaveTextContent('重量は0より大きい数値を入力してください'),
     );
     expect(mockCreatePersonalRecord).not.toHaveBeenCalled();
   });
@@ -291,6 +309,7 @@ describe('PersonalRecordsPage', () => {
       expect(screen.getByRole('button', { name: '新規登録' })).not.toBeDisabled(),
     );
     await openCreateModal();
+    selectFirstExercise();
     fireEvent.change(screen.getByPlaceholderText('例: 100'), { target: { value: '100' } });
     setAchievedAt('2026-06-01');
     fireEvent.change(screen.getByPlaceholderText('200文字以内'), {
@@ -299,6 +318,61 @@ describe('PersonalRecordsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: '保存' }));
     await waitFor(() =>
       expect(screen.getByRole('alert')).toHaveTextContent('メモは200文字以内で入力してください'),
+    );
+    expect(mockCreatePersonalRecord).not.toHaveBeenCalled();
+  });
+
+  it('新規モーダルを開いた直後は種目が未選択状態（コンボボックスの値が空）', async () => {
+    renderPage();
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: '新規登録' })).not.toBeDisabled(),
+    );
+    await openCreateModal();
+
+    const exerciseSelect = screen.getAllByRole('combobox').find((el) =>
+      Array.from(el.querySelectorAll('option')).some(
+        (o) => (o as HTMLOptionElement).value === '',
+      ),
+    )!;
+    // 修正前: exercises[0].id が auto-select → value='ex-1' → FAIL
+    // 修正後: 未選択 → value='' → PASS
+    expect(exerciseSelect).toHaveValue('');
+  });
+
+  it('種目未選択のまま保存 → API が呼ばれない + 種目を選択してくださいエラー', async () => {
+    renderPage();
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: '新規登録' })).not.toBeDisabled(),
+    );
+    await openCreateModal();
+    // 種目は選択しない
+    fireEvent.change(screen.getByPlaceholderText('例: 100'), { target: { value: '100' } });
+    setAchievedAt('2026-06-01');
+    fireEvent.click(screen.getByRole('button', { name: '保存' }));
+
+    // 修正前: exerciseId が auto-select されているため API が呼ばれてしまい FAIL
+    // 修正後: 種目未選択エラーが出て API は呼ばれない → PASS
+    await waitFor(() =>
+      expect(screen.getByRole('alert')).toHaveTextContent('種目を選択してください'),
+    );
+    expect(mockCreatePersonalRecord).not.toHaveBeenCalled();
+  });
+
+  it('weightKg に 0 を入力して保存 → API が呼ばれない', async () => {
+    renderPage();
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: '新規登録' })).not.toBeDisabled(),
+    );
+    await openCreateModal();
+    selectFirstExercise();
+    fireEvent.change(screen.getByPlaceholderText('例: 100'), { target: { value: '0' } });
+    setAchievedAt('2026-06-01');
+    fireEvent.click(screen.getByRole('button', { name: '保存' }));
+
+    // 修正前: parseWeight('0') が 0（有効）を返すため API が呼ばれてしまい FAIL
+    // 修正後: parseWeight('0') が undefined を返しエラーとなり API は呼ばれない → PASS
+    await waitFor(() =>
+      expect(screen.getByRole('alert')).toHaveTextContent('重量は0より大きい数値を入力してください'),
     );
     expect(mockCreatePersonalRecord).not.toHaveBeenCalled();
   });
@@ -312,6 +386,7 @@ describe('PersonalRecordsPage', () => {
       expect(screen.getByRole('button', { name: '新規登録' })).not.toBeDisabled(),
     );
     await openCreateModal();
+    selectFirstExercise();
     fireEvent.change(screen.getByPlaceholderText('例: 100'), { target: { value: '100' } });
     setAchievedAt('2026-06-01');
     fireEvent.click(screen.getByRole('button', { name: '保存' }));
@@ -330,6 +405,7 @@ describe('PersonalRecordsPage', () => {
       expect(screen.getByRole('button', { name: '新規登録' })).not.toBeDisabled(),
     );
     await openCreateModal();
+    selectFirstExercise();
     fireEvent.change(screen.getByPlaceholderText('例: 100'), { target: { value: '80' } });
     setAchievedAt('2026-06-01');
     fireEvent.click(screen.getByRole('button', { name: '保存' }));
@@ -337,7 +413,7 @@ describe('PersonalRecordsPage', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     await waitFor(() => expect(mockFetchPersonalRecords).toHaveBeenCalledTimes(2));
     await waitFor(() =>
-      expect(screen.getByText('パーソナルレコードを登録しました')).toBeInTheDocument(),
+      expect(screen.getByRole('status')).toHaveTextContent('パーソナルレコードを登録しました'),
     );
   });
 
@@ -348,6 +424,7 @@ describe('PersonalRecordsPage', () => {
       expect(screen.getByRole('button', { name: '新規登録' })).not.toBeDisabled(),
     );
     await openCreateModal();
+    selectFirstExercise();
     fireEvent.change(screen.getByPlaceholderText('例: 100'), { target: { value: '100' } });
     setAchievedAt('2026-06-01');
     fireEvent.click(screen.getByRole('button', { name: '保存' }));
@@ -364,6 +441,7 @@ describe('PersonalRecordsPage', () => {
       expect(screen.getByRole('button', { name: '新規登録' })).not.toBeDisabled(),
     );
     await openCreateModal();
+    selectFirstExercise();
     fireEvent.change(screen.getByPlaceholderText('例: 100'), { target: { value: '100' } });
     setAchievedAt('2026-06-01');
     fireEvent.click(screen.getByRole('button', { name: '保存' }));
@@ -381,6 +459,7 @@ describe('PersonalRecordsPage', () => {
       expect(screen.getByRole('button', { name: '新規登録' })).not.toBeDisabled(),
     );
     await openCreateModal();
+    selectFirstExercise();
     fireEvent.change(
       screen.getAllByRole('combobox').find((el) => {
         const options = el.querySelectorAll('option');
@@ -408,6 +487,7 @@ describe('PersonalRecordsPage', () => {
     await waitFor(() => expect(screen.getByText('ベンチプレス')).toBeInTheDocument());
 
     await openCreateModal();
+    selectFirstExercise();
     fireEvent.change(screen.getByPlaceholderText('例: 100'), { target: { value: '80' } });
     setAchievedAt('2026-06-01');
     fireEvent.click(screen.getByRole('button', { name: '保存' }));
@@ -572,7 +652,7 @@ describe('PersonalRecordsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'はい' }));
 
     await waitFor(() =>
-      expect(screen.getByText('削除に失敗しました')).toBeInTheDocument(),
+      expect(screen.getByRole('alert')).toHaveTextContent('削除に失敗しました'),
     );
     // ページ内の既存一覧は残っている
     await waitFor(() => expect(screen.getByText('ベンチプレス')).toBeInTheDocument());

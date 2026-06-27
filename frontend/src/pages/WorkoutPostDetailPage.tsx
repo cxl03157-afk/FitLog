@@ -1,11 +1,39 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import NavBar from '../components/NavBar';
 import { fetchWorkoutPost, deleteWorkoutPost } from '../api/workoutPosts';
 import { fetchComments, createComment, deleteComment } from '../api/comments';
 import { useAuth } from '../contexts/AuthContext';
 import { useLikeToggle } from '../hooks/useLikeToggle';
 import type { WorkoutPost, WorkoutComment } from '../types/workout';
+
+type LikeSectionProps = {
+  postId: string;
+  initialLiked: boolean;
+  initialCount: number;
+};
+
+const LikeSection = ({ postId, initialLiked, initialCount }: LikeSectionProps) => {
+  const { isLiked, likeCount, isLikeLoading, handleLikeToggle } =
+    useLikeToggle(postId, initialLiked, initialCount);
+
+  return (
+    <button
+      type="button"
+      onClick={() => void handleLikeToggle()}
+      disabled={isLikeLoading}
+      aria-pressed={isLiked}
+      className={`flex items-center gap-1.5 text-sm font-medium transition disabled:opacity-50 ${
+        isLiked ? 'text-orange-500' : 'text-gray-400 hover:text-orange-400'
+      }`}
+    >
+      <span className={`transition-transform ${isLiked ? 'scale-125' : 'scale-100'}`}>
+        👍
+      </span>
+      ナイス！ {likeCount}
+    </button>
+  );
+};
 
 const WorkoutPostDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -37,12 +65,6 @@ const WorkoutPostDetailPage = () => {
       .then(setComments)
       .catch(() => {/* コメント取得失敗は投稿表示を妨げない */});
   }, [id]);
-
-  const likeToggle = useLikeToggle(
-    id ?? '',
-    post?.isLiked ?? false,
-    post?.likeCount ?? 0,
-  );
 
   const handleDelete = async () => {
     if (!id) return;
@@ -94,9 +116,14 @@ const WorkoutPostDetailPage = () => {
 
       <div className="max-w-xl mx-auto px-4 py-6">
         <div className="mb-4">
-          <Link to="/" className="text-blue-600 text-sm hover:underline">
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            disabled={commentSubmitting}
+            className="text-blue-600 text-sm hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+          >
             ← タイムラインへ
-          </Link>
+          </button>
         </div>
 
         {loading && (
@@ -183,21 +210,11 @@ const WorkoutPostDetailPage = () => {
 
               {/* ナイスボタン */}
               <div className="flex items-center gap-4 py-3 border-t border-gray-100">
-                <button
-                  type="button"
-                  onClick={() => void likeToggle.handleLikeToggle()}
-                  disabled={likeToggle.isLikeLoading}
-                  className={`flex items-center gap-1.5 text-sm font-medium transition disabled:opacity-50 ${
-                    likeToggle.isLiked ? 'text-orange-500' : 'text-gray-400 hover:text-orange-400'
-                  }`}
-                >
-                  <span
-                    className={`transition-transform ${likeToggle.isLiked ? 'scale-125' : 'scale-100'}`}
-                  >
-                    👍
-                  </span>
-                  ナイス！ {likeToggle.likeCount}
-                </button>
+                <LikeSection
+                  postId={post.id}
+                  initialLiked={post.isLiked}
+                  initialCount={post.likeCount}
+                />
                 <span className="text-sm text-gray-400">
                   💬 {comments.length}
                 </span>

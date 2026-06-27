@@ -1,5 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { ToastProvider } from './contexts/ToastContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import ProtectedRoute from './components/ProtectedRoute';
 import GuestRoute from './components/GuestRoute';
 import LoginPage from './pages/LoginPage';
@@ -18,33 +20,37 @@ import PersonalRecordsPage from './pages/PersonalRecordsPage';
 
 const App = () => (
   <BrowserRouter>
-    <AuthProvider>
-      <Routes>
-        {/* ゲスト専用 */}
-        <Route element={<GuestRoute />}>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-        </Route>
+    <ErrorBoundary>
+      <AuthProvider>
+        <ToastProvider>
+          <Routes>
+          {/* ゲスト専用 */}
+          <Route element={<GuestRoute />}>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+          </Route>
 
-        {/* 認証必須 */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<TimelinePage />} />
-          <Route path="/workout-posts/new" element={<WorkoutPostNewPage />} />
-          <Route path="/workout-posts/:id" element={<WorkoutPostDetailPage />} />
-          <Route path="/users/:id" element={<ProfilePage />} />
-          <Route path="/users/:id/followers" element={<FollowersPage />} />
-          <Route path="/users/:id/following" element={<FollowingPage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/stats" element={<StatsPage />} />
-          <Route path="/goals" element={<GoalsPage />} />
-          <Route path="/personal-records" element={<PersonalRecordsPage />} />
-          <Route path="/settings/sessions" element={<SessionsPage />} />
-        </Route>
+          {/* 認証必須 */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<TimelinePage />} />
+            <Route path="/workout-posts/new" element={<WorkoutPostNewPage />} />
+            <Route path="/workout-posts/:id" element={<WorkoutPostDetailPage />} />
+            <Route path="/users/:id" element={<ProfilePage />} />
+            <Route path="/users/:id/followers" element={<FollowersPage />} />
+            <Route path="/users/:id/following" element={<FollowingPage />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/stats" element={<StatsPage />} />
+            <Route path="/goals" element={<GoalsPage />} />
+            <Route path="/personal-records" element={<PersonalRecordsPage />} />
+            <Route path="/settings/sessions" element={<SessionsPage />} />
+          </Route>
 
-        {/* フォールバック */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </AuthProvider>
+          {/* フォールバック */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </ToastProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   </BrowserRouter>
 );
 

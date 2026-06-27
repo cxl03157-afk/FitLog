@@ -6,6 +6,7 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 import { S3Service } from '../src/s3/s3.service';
+import { PersonalRecordsService } from '../src/personal-records/personal-records.service';
 
 const mockS3Service = {
   upload: jest.fn().mockResolvedValue(undefined),
@@ -182,6 +183,21 @@ describe('PersonalRecords Integration', () => {
         .expect(400);
 
       expect((res.body as { message: string }).message).toContain('weightKg');
+    });
+
+    it('MAX_WEIGHT with weightKg=0 → 400 (0kg not allowed)', async () => {
+      // 修正前: @Min(0) が 0 を許可するため 201 → FAIL
+      // 修正後: @Min(0.01) が 0 を拒否するため 400 → PASS
+      await request(app.getHttpServer())
+        .post('/api/personal-records')
+        .set('Authorization', `Bearer ${ownerToken}`)
+        .send({
+          exerciseId,
+          recordType: 'MAX_WEIGHT',
+          weightKg: 0,
+          achievedAt: '2026-01-01',
+        })
+        .expect(400);
     });
 
     it('MAX_REPS without reps → 400', async () => {
@@ -362,6 +378,18 @@ describe('PersonalRecords Integration', () => {
       expect((res.body as { statusCode: number }).statusCode).toBe(400);
     });
 
+    it('weightKg=0 → 400 (0kg not allowed)', async () => {
+      const created = await createRecord({ weightKg: 100 });
+
+      // 修正前: @Min(0) が 0 を許可するため 200 → FAIL
+      // 修正後: @Min(0.01) が 0 を拒否するため 400 → PASS
+      await request(app.getHttpServer())
+        .put(`/api/personal-records/${created.id}`)
+        .set('Authorization', `Bearer ${ownerToken}`)
+        .send({ weightKg: 0 })
+        .expect(400);
+    });
+
     it('recordType change to different value → 400 with correct message', async () => {
       const created = await createRecord({
         recordType: 'MAX_WEIGHT',
@@ -377,6 +405,59 @@ describe('PersonalRecords Integration', () => {
       expect((res.body as { message: string }).message).toBe(
         'recordType cannot be changed after creation',
       );
+    });
+  });
+
+  // ─── AllExceptionsFilter ──────────────────────────────────────────────────────
+
+  describe('AllExceptionsFilter', () => {
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('invalid DTO → 400 (ValidationPipe + AllExceptionsFilter coexistence, message is array)', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/api/personal-records')
+        .set('Authorization', `Bearer ${ownerToken}`)
+        .send({})
+        .expect(400);
+
+      const body = res.body as {
+        statusCode: number;
+        message: unknown;
+        error: string;
+      };
+      expect(body.statusCode).toBe(400);
+      expect(Array.isArray(body.message)).toBe(true);
+      expect(body.error).toBe('Bad Request');
+    });
+
+    it('unexpected error → 500 でmock復元後は通常動作する (AllExceptionsFilter 配線確認)', async () => {
+      const service = app.get(PersonalRecordsService);
+      const spy = jest
+        .spyOn(service, 'findAll')
+        .mockRejectedValueOnce(new TypeError('DB gone'));
+
+      try {
+        const response = await request(app.getHttpServer())
+          .get('/api/personal-records')
+          .set('Authorization', `Bearer ${ownerToken}`)
+          .expect(500);
+
+        expect(response.body).toEqual({
+          statusCode: 500,
+          message: 'Internal server error',
+        });
+        expect((response.body as { stack?: unknown }).stack).toBeUndefined();
+        expect(JSON.stringify(response.body)).not.toContain('DB gone');
+      } finally {
+        spy.mockRestore();
+      }
+
+      await request(app.getHttpServer())
+        .get('/api/personal-records')
+        .set('Authorization', `Bearer ${ownerToken}`)
+        .expect(200);
     });
   });
 

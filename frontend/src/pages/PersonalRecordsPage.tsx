@@ -14,6 +14,7 @@ import type {
   UpdatePersonalRecordPayload,
 } from '../types/personalRecord';
 import type { Exercise } from '../types/workout';
+import { useToast } from '../hooks/useToast';
 
 const RECORD_TYPE_LABEL: Record<PersonalRecordType, string> = {
   MAX_WEIGHT: '最大重量',
@@ -23,7 +24,7 @@ const RECORD_TYPE_LABEL: Record<PersonalRecordType, string> = {
 const parseWeight = (val: string): number | undefined => {
   if (val.trim() === '') return undefined;
   const n = Number(val);
-  return Number.isFinite(n) && n >= 0 ? n : undefined;
+  return Number.isFinite(n) && n > 0 ? n : undefined;
 };
 
 const parseReps = (val: string): number | undefined => {
@@ -48,8 +49,8 @@ const PersonalRecordsPage = () => {
   const [isExercisesLoading, setIsExercisesLoading] = useState(true);
   const [exercisesError, setExercisesError] = useState<string | null>(null);
 
-  // ─── 一時バナー ───────────────────────────────────────────────────────
-  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  // ─── 共通Toast ───────────────────────────────────────────────────────
+  const { showToast } = useToast();
 
   // ─── モーダル ─────────────────────────────────────────────────────────
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -109,13 +110,6 @@ const PersonalRecordsPage = () => {
     };
   }, []);
 
-  // ─── 一時バナー（5秒後消滅）─────────────────────────────────────────
-  useEffect(() => {
-    if (!toast) return;
-    const t = setTimeout(() => setToast(null), 5000);
-    return () => clearTimeout(t);
-  }, [toast]);
-
   // ─── モーダル制御 ────────────────────────────────────────────────────
   const closeModal = useCallback(() => {
     setIsModalOpen(false);
@@ -132,7 +126,7 @@ const PersonalRecordsPage = () => {
 
   const openCreateModal = () => {
     setEditingRecord(null);
-    setExerciseId(exercises[0]?.id ?? '');
+    setExerciseId('');
     setRecordType('MAX_WEIGHT');
     setWeightKgStr('');
     setRepsStr('');
@@ -161,7 +155,7 @@ const PersonalRecordsPage = () => {
     if (noteStr.trim().length > 200) return 'メモは200文字以内で入力してください';
     if (recordType === 'MAX_WEIGHT') {
       if (parseWeight(weightKgStr) === undefined)
-        return '重量を0以上の数値で入力してください';
+        return '重量は0より大きい数値を入力してください';
     } else {
       if (parseReps(repsStr) === undefined)
         return '回数を1以上の整数で入力してください';
@@ -174,10 +168,10 @@ const PersonalRecordsPage = () => {
     fetchPersonalRecords()
       .then((data) => {
         setRecords(data);
-        setToast({ type: 'success', message: successMsg });
+        showToast('success', successMsg);
       })
       .catch(() => {
-        setToast({ type: 'error', message: failMsg });
+        showToast('error', failMsg);
       });
 
   // ─── 登録・更新送信 ──────────────────────────────────────────────────
@@ -251,7 +245,7 @@ const PersonalRecordsPage = () => {
         ),
       )
       .catch(() => {
-        setToast({ type: 'error', message: '削除に失敗しました' });
+        showToast('error', '削除に失敗しました');
       })
       .finally(() => setIsDeleting(false));
   };
@@ -436,7 +430,7 @@ const PersonalRecordsPage = () => {
                     onChange={(e) => setExerciseId(e.target.value)}
                     className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                   >
-                    <option value="">選択してください</option>
+                    <option value="">種目を選択してください</option>
                     {exercises.map((ex) => (
                       <option key={ex.id} value={ex.id}>
                         {ex.name}（{ex.category}）
@@ -479,7 +473,7 @@ const PersonalRecordsPage = () => {
                   </span>
                   <input
                     type="number"
-                    min="0"
+                    min="0.01"
                     step="0.01"
                     value={weightKgStr}
                     onChange={(e) => setWeightKgStr(e.target.value)}
@@ -561,25 +555,6 @@ const PersonalRecordsPage = () => {
               </button>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* 一時バナー */}
-      {toast && (
-        <div
-          className={`fixed bottom-4 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-sm font-medium ${
-            toast.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
-          }`}
-          role={toast.type === 'error' ? 'alert' : 'status'}
-        >
-          <span>{toast.message}</span>
-          <button
-            onClick={() => setToast(null)}
-            className="ml-2 text-white/80 hover:text-white"
-            aria-label="閉じる"
-          >
-            ×
-          </button>
         </div>
       )}
     </div>

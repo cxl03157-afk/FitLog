@@ -1,8 +1,12 @@
 # Agent Handoff
 
 ## CurrentPhase
-- **Phase 13-1 実装・ローカル検証・ドキュメント更新完了**: Personal Records CRUD UI（Issue #32 / Branch: `feature/issue-32-phase13-1-personal-records`）
-  - Commit 1〜6 完了。PR 未作成・CI 未確認・main 未マージ。
+- **Phase 13-2**: 例外処理・Toast・ErrorBoundary・既知バグ修正・E2E 拡充（Issue #34 / Branch: `feature/issue-34-phase13-2-error-handling`）
+  - 実装・検証・PR作成完了。PR #35 マージ待ち。
+  - PR #35: OPEN / MERGEABLE / CI 全件 PASS / HEAD: `64fc693`
+  - Issue #34: OPEN（PR #35 の `Closes #34` でリンク済み。マージ後に自動クローズ予定）
+- **Phase 13-1 完了**: Personal Records CRUD UI（Issue #32 / PR #33 マージ済み 2026-06-26）
+  - merge commit: `37c7bc0`
 - **Phase 12 完了**: API仕様書・Swagger整備（Issue #30 / PR #31 マージ済み 2026-06-25）
 - **Phase 11 完了**: 週間/月間集計・目標設定（Issue #28 / Branch: `feature/issue-28-phase11-stats-goals`）
   - Sub-phase 11-1〜11-5 すべて完了・コミット済み。PR #29 マージ済み（2026-06-24）。
@@ -19,7 +23,9 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #32: オープン（Phase 13-1 / PR 未作成）
+- Issue #34: OPEN（PR #35 の `Closes #34` でリンク済み。マージ後に自動クローズ予定）
+- PR #35: OPEN / MERGEABLE / CI 全件 PASS
+- Issue #32: 完了・PR #33 マージ済み（2026-06-26）
 - Issue #30: 完了・PR #31 マージ済み（2026-06-25）
 - Issue #28: 完了・PR #29 マージ済み（2026-06-24）
 - Issue #26 完了・PR #27 マージ済み（2026-06-24）
@@ -33,6 +39,41 @@
 - Issue #8 完了・PR #9 マージ済み（2026-06-10）
 - Issue #10 完了・PR #11 マージ済み（2026-06-10）
 
+## Phase13-2CommitHistory（次セッション引き継ぎ用）
+
+| # | コミットハッシュ | 内容 |
+|---|--------------|------|
+| 1 | `2f776fb` | docs: sync Phase 13-1 completion and start Phase 13-2 |
+| 2 | `adb85cf` | fix(workout-posts): initialize like state from loaded post data |
+| 3 | `8eda87e` | fix(comments): prevent navigation while comment is submitting |
+| 4 | `fef17d6` | feat(backend): add global exception filter |
+| 5 | `f7687da` | feat(frontend): add shared toast context and provider |
+| 6 | `5239534` | refactor(frontend): migrate PersonalRecordsPage to shared toast |
+| 7 | `d88443a` | fix(workout-posts): map raw counts by post id |
+| 8 | `36c1119` | fix(personal-records): require exercise and positive weight |
+| 9 | `158e693` | fix(navigation): clarify new post action label |
+| 10 | `8be846a` | feat(frontend): add error boundary |
+| 11 | `e860803` | test(e2e): add phase13 scenario 3 |
+| 12 | `fe469fd` | test(e2e): wait for following feed filter |
+| 13 | `10a3d7e` | docs: complete phase 13-2 |
+| 14 | `288016a` | docs: correct phase 13-2 scenario numbers |
+| 15 | `64fc693` | test(frontend): suppress react 19 concurrent rendering error in ErrorBoundary tests |
+
+## Phase13-2確定事項
+
+| 項目 | 決定 |
+|------|------|
+| weightKg 最小値 | 0.01kg（0 を拒否。create / update 両方）。フロント: `Number() + Number.isFinite()` で厳密検証 |
+| 既存 0kg レコード | 変更なし（読み取り・表示は可能。DB CHECK 制約未追加）。既存データ整理は将来判断 |
+| 種目選択（新規） | 未選択（「種目を選択してください」）。明示選択が必須。API を呼ばない |
+| 種目選択（編集） | 既存種目を表示・変更不可 |
+| NavBar 投稿リンク | `新規投稿`（ナビゲーション用リンク）。投稿フォームの送信ボタンは `投稿する` のまま（役割が異なる） |
+| AllExceptionsFilter | APP_FILTER で AppModule に登録。HttpException は body を透過（object body）または正規化（string body → `{statusCode, message}`）。非 HttpException は 500 + "Internal server error"。非 HttpException 時のみ logger.error |
+| Provider 順序 | `BrowserRouter > ErrorBoundary > AuthProvider > ToastProvider > Routes` |
+| ErrorBoundary 配置 | BrowserRouter 直下（Router context を使える位置）。FallbackUI は useNavigate でリセット＋/ 遷移 |
+| ToastContext | showToast / hideToast / timerRef。5秒自動消去・unmount 時はタイマー解放のみ（setState しない）|
+| E2E 待機方針 | `waitForResponse`・web-first assertion。固定 `waitForTimeout` 禁止 |
+
 ## Phase13-1CommitHistory（次セッション引き継ぎ用）
 
 | # | コミットハッシュ | 内容 |
@@ -42,7 +83,7 @@
 | 3 | `6d95f1a` | feat: add personalRecord types, API client, route, NavBar link |
 | 4 | `bb10dcd` | feat(personal-records): add CRUD page and navigation |
 | 5 | `b73cb4a` | test(personal-records): add unit and E2E coverage |
-| 6 | （本コミット） | docs: document Phase 13-1 implementation and verification |
+| 6 | `8ff0a89` | docs: document Phase 13-1 implementation and verification |
 
 ## Phase13-1確定事項
 
@@ -82,7 +123,7 @@
 **Phase 13-2 対応:**
 - 修正前に非同期取得前後を再現する失敗 unit test を追加
 - post 取得後に正しい初期値で Like UI をマウントする案を優先検討
-- Scenario 4 で初期 likeCount・初期ナイス済み状態・Unlike・Like を確認
+- Scenario 3 で初期 likeCount・初期ナイス済み状態・Unlike・Like を確認
 
 **分類:** 既存バグ / Phase 13-1 スコープ外 / Phase 13-2 で修正・unit test・E2E を実施
 
@@ -98,7 +139,7 @@
 **Phase 13-2 対応:**
 - 修正前にコメント追加後の画面遷移を再現するテストを追加
 - 手動リロードなしでタイムラインのコメント数を更新する
-- Scenario 5 に「コメント後タイムラインへ戻り、件数が1増える」確認を追加
+- Scenario 4 に「コメント後タイムラインへ戻り、件数が1増える」確認を追加
 
 **分類:** 既存バグ / Phase 13-1 スコープ外 / Phase 13-2 で修正・unit test・E2E を実施
 
@@ -143,13 +184,35 @@
 `.claude/settings.json` のみ未コミット（今後もいかなるコミットにも含めない）。PR #31 の差分にも含まれていないことを全4コミットの変更ファイルで確認済み。
 次セッション開始時は最初に `git status --short` を実行して作業ツリーを確認すること。
 
-## NextActions（Phase 13-1 PR作成以降）
+## NextActions
 
-1. Commit 6 確認 → PR 作成（Issue #32 対応。PR 番号は作成後に handoff.md へ追記）
-2. CI グリーン確認（Backend CI: lint + unit + integration + build / Frontend CI: lint + unit + build）
-3. レビュー → main マージ → Issue #32 自動クローズ確認
-4. main へ切り替え pull
-5. Phase 13-2 開始（既知バグ2件を計画へ組み込む）
+1. PR #35 マージ（ユーザー承認後）→ Issue #34 自動クローズ確認
+2. main へ切り替え（`git checkout main && git pull`）
+3. Phase 13-2.1 Issue 作成（未採番）→ 新規ブランチ作成
+4. Phase 13-2.1 実装開始（NavBar 導線追加）
+
+## NextPhase
+
+- **Phase 13-2.1**: NavBarに検索・統計・目標管理への導線追加（Issue 未作成・未採番）
+- その後: 13-3（種目マスタ）→ 13-4 → 13-4.1 → 13-5 → 13-6 → 13-7 → 13-7.1 → 13-8（旧Phase 13-3 レスポンシブ移設）
+
+## TestResults（Phase 13-2 完了時点 / Commit 13）
+
+### Backend
+| チェック | 結果 |
+|---------|------|
+| lint | PASS |
+| unit test | PASS（17 suites / **172 tests**） |
+| integration test | PASS（4 suites / **42 tests**） |
+| build | PASS |
+
+### Frontend
+| チェック | 結果 |
+|---------|------|
+| lint | PASS |
+| unit test | PASS（20 files / **289 tests**） |
+| build | PASS（Recharts バンドル警告あり・gzip 215 kB 程度） |
+| E2E（Playwright） | PASS（**14件 × 3回連続**: phase10×6 + phase11×4 + phase13×4） |
 
 ## TestResults（Phase 13-1 Commit 5 完了時点）
 
@@ -417,28 +480,28 @@ PR #29 はマージ可能状態（2026-06-24 確認済み）。
 - (none)
 
 ## ReviewStatus
-- Phase 12: PR #31 オープン・CI グリーン（2026-06-24）・マージ承認待ち
+- Phase 13-2: PR #35 OPEN / MERGEABLE / CI PASS / マージ待ち（2026-06-27）
+- Phase 13-1: PR #33 マージ済み（2026-06-26）
+- Phase 12: PR #31 マージ済み（2026-06-25）
 - Phase 11: PR #29 マージ済み（2026-06-24）
 - Phase 10: PR #27 マージ済み（2026-06-24）
 - Phase 9: PR #25 マージ済み（2026-06-19）
 
 ## MergeReadiness
-- Phase 12: 全品質ゲート PASS・docs 更新済み・CI グリーン。ユーザー承認後にマージ可能。
+- Phase 13-2: PR #35 OPEN・CI 全件 PASS・MERGEABLE。ユーザー承認後にマージ可能。
 
 ## NextAction
-1. ユーザーが PR #31 をマージ（`feature/issue-30-phase12-swagger` → `main`）
-2. `git checkout main && git pull` でローカルを最新化
-3. Issue #30 が自動クローズされたことを確認（`Closes #30` により）
-4. `feature/issue-30-phase12-swagger` ブランチの削除は任意
-5. `.claude/settings.json` は引き続きコミット対象外
-6. Phase 13（アプリ全体の調整）の計画確認を開始
-7. Phase 13 開始時の doc-sync ゲートで `docs/tech-stack.md`（Jest 30.x・Recharts 追記）を対処する
+1. push 承認取得 → `git push origin feature/issue-34-phase13-2-error-handling`
+2. PR 作成（`Closes #34` 記載）
+3. CI グリーン確認
+4. レビュー → main マージ → Issue #34 自動クローズ確認
+5. `git checkout main && git pull` でローカルを最新化
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
-- Issue: #30（Phase 12 / PR #31 マージ待ち）、#28（Phase 11 / 完了）、#26（Phase 10 / 完了）、#24（Phase 9 / 完了）
-- PR: #31（Phase 12 / CI グリーン・マージ待ち）、#29（Phase 11 / マージ済み）、#27（Phase 10 / マージ済み）
-- Branch: `feature/issue-30-phase12-swagger`（Phase 12 / マージ待ち）
+- Issue: #34（Phase 13-2 / PR #35 マージ待ち）、#32（Phase 13-1 / 完了）、#30（Phase 12 / 完了）
+- PR: #35（Phase 13-2 / OPEN・マージ待ち）、#33（Phase 13-1 / マージ済み）、#31（Phase 12 / マージ済み）、#29（Phase 11 / マージ済み）
+- Branch: `feature/issue-34-phase13-2-error-handling`（Phase 13-2 / PR #35 マージ待ち）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules

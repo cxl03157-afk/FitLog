@@ -49,7 +49,7 @@ const NavBar = () => {
           to="/workout-posts/new"
           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1.5 px-4 rounded-lg transition text-sm"
         >
-          投稿する
+          新規投稿
         </Link>
         <button
           onClick={() => void handleLogout()}

@@ -25,11 +25,11 @@ export class CreatePersonalRecordDto {
 
   @ApiPropertyOptional({
     description: '最大重量 (kg)。MAX_WEIGHT 時は必須',
-    minimum: 0,
+    minimum: 0.01,
   })
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
+  @Min(0.01)
   weightKg?: number;
 
   @ApiPropertyOptional({

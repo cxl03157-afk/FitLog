@@ -5,24 +5,25 @@
 
 ## 現状スナップショット
 
-- Phase: **13-1 実装・ローカル検証・ドキュメント更新完了**（PersonalRecords CRUD UI）
-- Issue: #32（Phase 13-1）— PR 未作成（PR 番号は作成後に追記）
-- Branch: `feature/issue-32-phase13-1-personal-records`
-- Status: Commit 1〜6 完了。PR 未作成・CI 未確認・main 未マージ。
+- Phase: **13-2**（実装・検証・PR作成完了、PR #35 マージ待ち）
+- Issue: #34（Phase 13-2）— PR #35 OPEN（`Closes #34`）
+- Branch: `feature/issue-34-phase13-2-error-handling`
+- PR: #35 / OPEN / MERGEABLE / CI 全件 PASS
+- HEAD: `64fc693`
 
-## テスト結果（Phase 13-1 Commit 5 完了時点）
+## テスト結果（Phase 13-2 完了時点 / HEAD `64fc693`）
 
 ### Backend
 - lint: PASS
-- unit test: **150件 PASS**（16 suites）
-- integration test: **38件 PASS**（4 suites）
+- unit test: **172件 PASS**（17 suites）
+- integration test: **42件 PASS**（4 suites）
 - build: PASS
 
 ### Frontend
 - lint: PASS
-- unit test: **240件 PASS**（17 files）
+- unit test: **289件 PASS**（20 files）
 - build: PASS
-- E2E（phase10 + phase11 + phase13）: **12件 PASS**
+- E2E（phase10 × 6 + phase11 × 4 + phase13 × 4）: **14件 PASS**（3回連続）
 
 ## 技術スタック
 
@@ -30,6 +31,19 @@
 - Backend: NestJS + TypeORM + PostgreSQL 17
 - DB: PostgreSQL 17（docker-compose）+ LocalStack 3（S3 エミュレーション、Phase 9 追加）
 - CI: GitHub Actions — Lint + 型チェック + Jest/Vitest（Node 22 強制）
+
+## Phase 13-2 確定決定事項
+
+| 項目 | 決定 |
+|------|------|
+| weightKg 最小値 | 0.01kg（0 を拒否。create / update 両方） |
+| 既存 0kg レコード | 変更なし（読み取り・表示は可能。DB CHECK 制約未追加）|
+| 種目選択（新規） | 未選択（「種目を選択してください」）。明示選択が必須 |
+| 種目選択（編集） | 既存種目を表示・変更不可 |
+| NavBar 投稿リンク | `新規投稿`（`/workout-posts/new`）。投稿フォームの送信ボタンは `投稿する` のまま |
+| AllExceptionsFilter | APP_FILTER で AppModule に登録。HttpException は透過、非 HttpException は 500 |
+| Provider 順序 | BrowserRouter > ErrorBoundary > AuthProvider > ToastProvider > Routes |
+| ErrorBoundary | BrowserRouter 直下。FallbackUI は useNavigate を使ってリセット＋/ 遷移 |
 
 ## Phase 13-1 確定決定事項
 
@@ -46,30 +60,23 @@
 | Swagger description | 「登録直後のレスポンスにはexerciseリレーションを含まない」を追記（Commit 6で修正） |
 | sourceExerciseSetId | 初期 UI 対象外（将来対応・別 Issue 候補） |
 
-## Phase 12 確定決定事項
-
-| 項目 | 決定 |
-|------|------|
-| Swagger 整備対象 | 全12コントローラー・全16 DTO |
-| @ApiBearerAuth 付与単位 | AuthController のみメソッド単位（register/login/refresh は認証不要）、他11コントローラーはクラス単位 |
-| ファイルアップロード Swagger | `PATCH /users/me/avatar` と `POST /workout-posts/:id/images` に `@ApiConsumes('multipart/form-data')` + `@ApiBody` を追加 |
-| docs/database.md | personal_records テーブルを Phase 12 で追記（Phase 11 doc-sync 持ち越し） |
-| docs/features/02_workout_post.md | API パス・userId 型の誤記を A分類（ドキュメントのみ）修正 |
-| /code-review 指摘5件 | logout 201/revokeSession 404/likes 409/PR update 400/revokeAllOtherSessions number schema を追加修正済み |
-| スコープ外差異 | docs/tech-stack.md の Jest 29.x→30.x・Recharts 未記載は Phase 13-2 doc-sync ゲートで対処 |
-
 ## NextAction
 
-PR 作成（Issue #32 対応）→ CI グリーン確認 → レビュー → main マージ。
-マージ後: main へ切り替え pull → Phase 13-2 開始。
-Phase 13-2 開始前に既知バグ2件（ナイス初期状態・コメント数同期）を Phase 13-2 計画へ組み込む。
+PR #35 マージ（ユーザー承認後）→ Issue #34 自動クローズ確認 → Phase 13-2.1 Issue 作成（未採番）→ 新規ブランチ作成。
 
-## Phase 13-2 への既知バグ（Phase 13-1 スコープ外）
+## 後続Phase一覧（正式構成）
 
-| # | バグ | 原因 | Phase 13-2 対応 |
-|---|------|------|----------------|
-| 1 | 投稿詳細のナイス初期状態（0表示・-1）| post 取得前に useLikeToggle が false/0 で初期化 | 失敗 unit test 追加 → 修正 → Scenario 4 で確認 |
-| 2 | タイムラインのコメント数が古い | posts state が初回取得値を保持。詳細でのコメント追加が反映されない | 失敗テスト追加 → 修正 → Scenario 5 に「コメント後タイムライン件数」確認を追加 |
+| Phase | 内容 |
+|-------|------|
+| Phase 13-2.1 | NavBarに検索・統計・目標管理への導線追加（Issue 未作成・未採番）|
+| Phase 13-3 | 種目マスタ整理・ユーザー独自種目機能（標準種目一覧・部位カテゴリ・独自種目・テスト cleanup）|
+| Phase 13-4 | ユーザー検索・プロフィール・フォロー導線改善 |
+| Phase 13-4.1 | LocalStack S3データ永続化 |
+| Phase 13-5 | プロフィール編集・アバター操作改善 |
+| Phase 13-6 | 画像表示の信頼性・フォールバック改善 |
+| Phase 13-7 | E2Eテストデータcleanupと再実行安定化 |
+| Phase 13-7.1 | PostCardのナイス状態アクセシブル化（aria-pressed追加）|
+| Phase 13-8 | 全ページのレスポンシブ対応（旧Phase 13-3より移設）|
 
 ## 参照ファイル（詳細確認が必要な場合）
 
@@ -79,4 +86,5 @@ Phase 13-2 開始前に既知バグ2件（ナイス初期状態・コメント�
 - DB 設計: `docs/database.md`
 - Swagger 仕様: `http://localhost:3000/api/docs`（バックエンド起動時）
 - 状態詳細: `docs/handoff.md`
-- Issue: #32（Phase 13-1）、#30（Phase 12 / 完了・PR #31 マージ済み）、#28（Phase 11 / 完了）
+- Issue: #34（Phase 13-2 / PR #35 マージ待ち）、#32（Phase 13-1 / 完了・PR #33 マージ済み）、#30（Phase 12 / 完了）
+- PR: #35（Phase 13-2 / OPEN・マージ待ち）、#33（Phase 13-1 / マージ済み）
