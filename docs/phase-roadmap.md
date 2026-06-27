@@ -25,7 +25,7 @@
 | 12 | API仕様書・Swagger整備 | Swagger自動生成確認、docs/ との整合確認 | 完了 |
 | 13-1 | Personal Records UI | PersonalRecordsPage CRUD・recordType変更制限・integration test補完 | 完了（PR #33 マージ済み 2026-06-26）|
 | 13-2   | アプリ全体の調整（安定化） | ExceptionFilter・Toast統一・ErrorBoundary・E2Eコア整備・既知バグ修正 | 完了（PR #35 マージ済み 2026-06-27 / merge commit: `4d55f09`）|
-| 13-2.1 | NavBar検索・統計・目標管理導線追加 | NavBarリンク追加（/search・/stats・/goals）| 未着手 |
+| 13-2.1 | NavBar検索・統計・目標管理導線追加 | NavBarリンク追加（/search・/stats・/goals）| 未着手（Issue #37）|
 | 13-3   | 種目マスタ整理・ユーザー独自種目機能 | 標準種目整理・部位カテゴリ・独自種目・重複防止 | 未着手 |
 | 13-4   | ユーザー検索・プロフィール・フォロー導線改善 | 検索結果からフォロー・プロフィールへの導線 | 未着手 |
 | 13-4.1 | LocalStack S3データ永続化 | Docker volume設定でテストデータを永続化 | 未着手 |
@@ -223,7 +223,7 @@ S3 object key パスルール（単一バケット構成）:
 
 ### Phase 13-2.1：NavBarに検索・統計・目標管理への導線追加
 
-**未着手**（Issue 未作成・未採番）
+**未着手**（Issue #37 OPEN / ブランチ未作成・実装未開始）
 
 画面・API・Route は Phase 10/11 で実装済み。`docs/screens.md`（Section 3）に仕様記載済み。NavBar リンクのみ未実装。
 

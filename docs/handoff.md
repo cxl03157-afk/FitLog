@@ -192,7 +192,7 @@
 
 ## NextPhase
 
-- **Phase 13-2.1**: NavBarに検索・統計・目標管理への導線追加（Issue 未作成・未採番）
+- **Phase 13-2.1**: NavBarに検索・統計・目標管理への導線追加（Issue #37 OPEN / ブランチ未作成・実装未着手）
 - その後: 13-3（種目マスタ）→ 13-4 → 13-4.1 → 13-5 → 13-6 → 13-7 → 13-7.1 → 13-8（旧Phase 13-3 レスポンシブ移設）
 
 ## TestResults（Phase 13-2 完了時点 / Commit 13）
@@ -490,17 +490,18 @@ PR #29 はマージ可能状態（2026-06-24 確認済み）。
 - Phase 13-2: PR #35 MERGED（2026-06-27 / merge commit: `4d55f09`）。Phase 13-2 マージ完了。
 
 ## NextAction
-1. Phase 13-2.1 Issue 作成（未採番）
-2. Issue 内容・実装計画確認
-3. ブランチ作成
-4. 実装開始
+1. Issue #37（Phase 13-2.1: NavBarに検索・統計・目標管理への導線を追加する）を基に現状調査
+2. 実装計画作成
+3. ユーザーによる計画レビュー
+4. 承認後にブランチ作成
+5. 実装開始
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
-- Issue: #34（Phase 13-2 / CLOSED）、#32（Phase 13-1 / 完了）、#30（Phase 12 / 完了）
+- Issue: #37（Phase 13-2.1 / OPEN・着手前）、#34（Phase 13-2 / CLOSED）、#32（Phase 13-1 / 完了）、#30（Phase 12 / 完了）
 - PR: #35（Phase 13-2 / MERGED 2026-06-27）、#33（Phase 13-1 / マージ済み）、#31（Phase 12 / マージ済み）、#29（Phase 11 / マージ済み）
 - Branch: `feature/issue-34-phase13-2-error-handling`（Phase 13-2 完了・ブランチ残存中）
-- NextPhase: Phase 13-2.1（NavBar 検索・統計・目標管理導線追加 / Issue 未作成・未採番）
+- NextPhase: Phase 13-2.1（NavBar 検索・統計・目標管理導線追加 / Issue #37 OPEN・ブランチ未作成）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules

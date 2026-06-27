@@ -61,13 +61,13 @@
 
 ## NextAction
 
-Phase 13-2.1 Issue 作成（未採番）→ 実装計画確認 → ブランチ作成 → 実装開始。
+Issue #37（Phase 13-2.1）の内容確認 → 現状調査 → 実装計画作成 → ユーザー承認後にブランチ作成・実装。
 
 ## 後続Phase一覧（正式構成）
 
 | Phase | 内容 |
 |-------|------|
-| Phase 13-2.1 | NavBarに検索・統計・目標管理への導線追加（Issue 未作成・未採番）|
+| Phase 13-2.1 | NavBarに検索・統計・目標管理への導線追加（Issue #37 / 着手前）|
 | Phase 13-3 | 種目マスタ整理・ユーザー独自種目機能（標準種目一覧・部位カテゴリ・独自種目・テスト cleanup）|
 | Phase 13-4 | ユーザー検索・プロフィール・フォロー導線改善 |
 | Phase 13-4.1 | LocalStack S3データ永続化 |
@@ -85,5 +85,5 @@ Phase 13-2.1 Issue 作成（未採番）→ 実装計画確認 → ブランチ�
 - DB 設計: `docs/database.md`
 - Swagger 仕様: `http://localhost:3000/api/docs`（バックエンド起動時）
 - 状態詳細: `docs/handoff.md`
-- Issue: #34（Phase 13-2 / CLOSED・PR #35 マージ済み）、#32（Phase 13-1 / 完了・PR #33 マージ済み）、#30（Phase 12 / 完了）
+- Issue: #37（Phase 13-2.1 / OPEN・着手前）、#34（Phase 13-2 / CLOSED・PR #35 マージ済み）、#32（Phase 13-1 / 完了・PR #33 マージ済み）、#30（Phase 12 / 完了）
 - PR: #35（Phase 13-2 / MERGED 2026-06-27・merge commit: `4d55f09`）、#33（Phase 13-1 / マージ済み）
