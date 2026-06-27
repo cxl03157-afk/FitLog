@@ -1,10 +1,9 @@
 # Agent Handoff
 
 ## CurrentPhase
-- **Phase 13-2**: 例外処理・Toast・ErrorBoundary・既知バグ修正・E2E 拡充（Issue #34 / Branch: `feature/issue-34-phase13-2-error-handling`）
-  - 実装・検証・PR作成完了。PR #35 マージ待ち。
-  - PR #35: OPEN / MERGEABLE / CI 全件 PASS / HEAD: `64fc693`
-  - Issue #34: OPEN（PR #35 の `Closes #34` でリンク済み。マージ後に自動クローズ予定）
+- **Phase 13-2**: 例外処理・Toast・ErrorBoundary・既知バグ修正・E2E 拡充（Issue #34 / PR #35 MERGED 2026-06-27）
+  - 実装・検証・PR・マージ完了。merge commit: `4d55f09`
+  - Issue #34: CLOSED（PR #35 マージ後に自動クローズ）
 - **Phase 13-1 完了**: Personal Records CRUD UI（Issue #32 / PR #33 マージ済み 2026-06-26）
   - merge commit: `37c7bc0`
 - **Phase 12 完了**: API仕様書・Swagger整備（Issue #30 / PR #31 マージ済み 2026-06-25）
@@ -23,8 +22,8 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #34: OPEN（PR #35 の `Closes #34` でリンク済み。マージ後に自動クローズ予定）
-- PR #35: OPEN / MERGEABLE / CI 全件 PASS
+- Issue #34: CLOSED（2026-06-27 PR #35 マージ後に自動クローズ）
+- PR #35: MERGED（2026-06-27 / merge commit: `4d55f09`）
 - Issue #32: 完了・PR #33 マージ済み（2026-06-26）
 - Issue #30: 完了・PR #31 マージ済み（2026-06-25）
 - Issue #28: 完了・PR #29 マージ済み（2026-06-24）
@@ -193,7 +192,7 @@
 
 ## NextPhase
 
-- **Phase 13-2.1**: NavBarに検索・統計・目標管理への導線追加（Issue 未作成・未採番）
+- **Phase 13-2.1**: NavBarに検索・統計・目標管理への導線追加（Issue #37 OPEN / ブランチ未作成・実装未着手）
 - その後: 13-3（種目マスタ）→ 13-4 → 13-4.1 → 13-5 → 13-6 → 13-7 → 13-7.1 → 13-8（旧Phase 13-3 レスポンシブ移設）
 
 ## TestResults（Phase 13-2 完了時点 / Commit 13）
@@ -480,7 +479,7 @@ PR #29 はマージ可能状態（2026-06-24 確認済み）。
 - (none)
 
 ## ReviewStatus
-- Phase 13-2: PR #35 OPEN / MERGEABLE / CI PASS / マージ待ち（2026-06-27）
+- Phase 13-2: PR #35 MERGED（2026-06-27 / merge commit: `4d55f09`）
 - Phase 13-1: PR #33 マージ済み（2026-06-26）
 - Phase 12: PR #31 マージ済み（2026-06-25）
 - Phase 11: PR #29 マージ済み（2026-06-24）
@@ -488,20 +487,21 @@ PR #29 はマージ可能状態（2026-06-24 確認済み）。
 - Phase 9: PR #25 マージ済み（2026-06-19）
 
 ## MergeReadiness
-- Phase 13-2: PR #35 OPEN・CI 全件 PASS・MERGEABLE。ユーザー承認後にマージ可能。
+- Phase 13-2: PR #35 MERGED（2026-06-27 / merge commit: `4d55f09`）。Phase 13-2 マージ完了。
 
 ## NextAction
-1. push 承認取得 → `git push origin feature/issue-34-phase13-2-error-handling`
-2. PR 作成（`Closes #34` 記載）
-3. CI グリーン確認
-4. レビュー → main マージ → Issue #34 自動クローズ確認
-5. `git checkout main && git pull` でローカルを最新化
+1. Issue #37（Phase 13-2.1: NavBarに検索・統計・目標管理への導線を追加する）を基に現状調査
+2. 実装計画作成
+3. ユーザーによる計画レビュー
+4. 承認後にブランチ作成
+5. 実装開始
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
-- Issue: #34（Phase 13-2 / PR #35 マージ待ち）、#32（Phase 13-1 / 完了）、#30（Phase 12 / 完了）
-- PR: #35（Phase 13-2 / OPEN・マージ待ち）、#33（Phase 13-1 / マージ済み）、#31（Phase 12 / マージ済み）、#29（Phase 11 / マージ済み）
-- Branch: `feature/issue-34-phase13-2-error-handling`（Phase 13-2 / PR #35 マージ待ち）
+- Issue: #37（Phase 13-2.1 / OPEN・着手前）、#34（Phase 13-2 / CLOSED）、#32（Phase 13-1 / 完了）、#30（Phase 12 / 完了）
+- PR: #35（Phase 13-2 / MERGED 2026-06-27）、#33（Phase 13-1 / マージ済み）、#31（Phase 12 / マージ済み）、#29（Phase 11 / マージ済み）
+- Branch: `feature/issue-34-phase13-2-error-handling`（Phase 13-2 完了・ブランチ残存中）
+- NextPhase: Phase 13-2.1（NavBar 検索・統計・目標管理導線追加 / Issue #37 OPEN・ブランチ未作成）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules
