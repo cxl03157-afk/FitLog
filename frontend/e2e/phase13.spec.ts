@@ -417,3 +417,58 @@ test('シナリオ2: PR記録を更新・削除できる', async (
   });
   await expect(page.getByText('パーソナルレコードを削除しました')).toBeVisible();
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// シナリオ 5: NavBarから検索・統計・目標画面へ遷移できる
+// ─────────────────────────────────────────────────────────────────────────────
+test(
+  'シナリオ5: NavBarから検索・統計・目標画面へ遷移できる',
+  async ({ page, request }, testInfo) => {
+    const user = await registerUser(request, genUsername(testInfo.workerIndex));
+    await loginViaUi(page, user.email);
+    await expect(page).toHaveURL('/');
+
+    // ── 検索リンク → /search ──────────────────────────────────────────
+    await page.getByRole('link', { name: '検索' }).click();
+    await expect(page).toHaveURL('/search');
+    await expect(page.getByTestId('search-input')).toBeVisible();
+
+    // ── 統計リンク → /stats ───────────────────────────────────────────
+    await page.getByRole('link', { name: '統計' }).click();
+    await expect(page).toHaveURL('/stats');
+    await expect(
+      page.getByRole('heading', { name: '統計', level: 1 }),
+    ).toBeVisible();
+
+    // ── 目標リンク → /goals ───────────────────────────────────────────
+    await page.getByRole('link', { name: '目標' }).click();
+    await expect(page).toHaveURL('/goals');
+    await expect(
+      page.getByRole('heading', { name: '目標設定', level: 1 }),
+    ).toBeVisible();
+
+    // ── 375px: 横スクロールなし・全リンク表示確認 ─────────────────────
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto('/');
+    await expect(page).toHaveURL('/');
+
+    const hasHorizontalOverflow = await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth >
+        document.documentElement.clientWidth,
+    );
+    expect(hasHorizontalOverflow).toBe(false);
+
+    await expect(page.getByRole('link', { name: '検索' })).toBeVisible();
+    await expect(page.getByRole('link', { name: '統計' })).toBeVisible();
+    await expect(page.getByRole('link', { name: '目標' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'PR記録' })).toBeVisible();
+    await expect(page.getByRole('link', { name: '新規投稿' })).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'ログアウト' }),
+    ).toBeVisible();
+
+    // viewport を元に戻す
+    await page.setViewportSize({ width: 1280, height: 720 });
+  },
+);

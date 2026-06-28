@@ -1,7 +1,11 @@
 # Agent Handoff
 
 ## CurrentPhase
-- **Phase 13-2**: 例外処理・Toast・ErrorBoundary・既知バグ修正・E2E 拡充（Issue #34 / PR #35 MERGED 2026-06-27）
+- **Phase 13-2.1**: NavBarに検索・統計・目標管理への導線追加（Issue #37 / 実装・検証完了 / PR 作成待ち）
+  - Branch: `feature/issue-37-phase13-2-1-navbar` / HEAD: `f13c69d`
+  - Issue #37: OPEN / PR: 未作成・作成待ち
+  - Frontend unit: 293件 PASS / E2E: 15件 PASS（phase13 × 5 含む）
+- **Phase 13-2 完了**: 例外処理・Toast・ErrorBoundary・既知バグ修正・E2E 拡充（Issue #34 / PR #35 MERGED 2026-06-27）
   - 実装・検証・PR・マージ完了。merge commit: `4d55f09`
   - Issue #34: CLOSED（PR #35 マージ後に自動クローズ）
 - **Phase 13-1 完了**: Personal Records CRUD UI（Issue #32 / PR #33 マージ済み 2026-06-26）
@@ -22,6 +26,8 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
+- Issue #37: OPEN（Phase 13-2.1 実装完了・PR 作成待ち）
+- PR（Phase 13-2.1）: 未作成・作成待ち
 - Issue #34: CLOSED（2026-06-27 PR #35 マージ後に自動クローズ）
 - PR #35: MERGED（2026-06-27 / merge commit: `4d55f09`）
 - Issue #32: 完了・PR #33 マージ済み（2026-06-26）

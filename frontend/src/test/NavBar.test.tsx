@@ -216,4 +216,37 @@ describe('NavBar', () => {
     // 修正後: '投稿する' リンクが存在しない → PASS
     expect(screen.queryByRole('link', { name: '投稿する' })).toBeNull();
   });
+
+  // ── 検索・統計・目標リンク（新規 4 件）────────────────────────────────
+  it('「検索」リンクが表示され href が /search', () => {
+    renderNavBar();
+    const link = screen.getByRole('link', { name: '検索' });
+    expect(link.getAttribute('href')).toBe('/search');
+  });
+
+  it('「統計」リンクが表示され href が /stats', () => {
+    renderNavBar();
+    const link = screen.getByRole('link', { name: '統計' });
+    expect(link.getAttribute('href')).toBe('/stats');
+  });
+
+  it('「目標」リンクが表示され href が /goals', () => {
+    renderNavBar();
+    const link = screen.getByRole('link', { name: '目標' });
+    expect(link.getAttribute('href')).toBe('/goals');
+  });
+
+  it('NavBarリンクは 検索→統計→目標→PR記録→新規投稿 の DOM 順に並ぶ', () => {
+    renderNavBar();
+    const hrefs = screen.getAllByRole('link').map((l) => l.getAttribute('href'));
+    const si = hrefs.indexOf('/search');
+    const sti = hrefs.indexOf('/stats');
+    const gi = hrefs.indexOf('/goals');
+    const pri = hrefs.indexOf('/personal-records');
+    const npi = hrefs.indexOf('/workout-posts/new');
+    expect(si).toBeLessThan(sti);
+    expect(sti).toBeLessThan(gi);
+    expect(gi).toBeLessThan(pri);
+    expect(pri).toBeLessThan(npi);
+  });
 });
