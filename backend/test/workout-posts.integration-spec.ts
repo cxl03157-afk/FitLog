@@ -60,9 +60,11 @@ describe('WorkoutPosts Integration', () => {
     dataSource = app.get(DataSource);
     await dataSource.runMigrations();
 
-    // Seed: exercise
+    // Seed: exercise（Date.now() suffixで同名衝突を防ぐ）
+    const exerciseName = `ベンチプレス_${Date.now()}`;
     const result = await dataSource.query<{ id: string }[]>(
-      `INSERT INTO exercises (name, category) VALUES ('ベンチプレス', '胸') RETURNING id`,
+      `INSERT INTO exercises (name, category) VALUES ($1, $2) RETURNING id`,
+      [exerciseName, '胸'],
     );
     exerciseId = result[0].id;
 
