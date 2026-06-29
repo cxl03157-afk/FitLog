@@ -25,8 +25,11 @@
 | 12 | API仕様書・Swagger整備 | Swagger自動生成確認、docs/ との整合確認 | 完了 |
 | 13-1 | Personal Records UI | PersonalRecordsPage CRUD・recordType変更制限・integration test補完 | 完了（PR #33 マージ済み 2026-06-26）|
 | 13-2   | アプリ全体の調整（安定化） | ExceptionFilter・Toast統一・ErrorBoundary・E2Eコア整備・既知バグ修正 | 完了（PR #35 マージ済み 2026-06-27 / merge commit: `4d55f09`）|
-| 13-2.1 | NavBar検索・統計・目標管理導線追加 | NavBarリンク追加（/search・/stats・/goals）| 実装・検証完了（Issue #37 OPEN / PR 作成待ち）|
-| 13-3   | 種目マスタ整理・ユーザー独自種目機能 | 標準種目整理・部位カテゴリ・独自種目・重複防止 | 未着手 |
+| 13-2.1 | NavBar検索・統計・目標管理導線追加 | NavBarリンク追加（/search・/stats・/goals）| 完了（Issue #37 CLOSED / PR #38 MERGED 2026-06-28）|
+| 13-3A  | 標準種目マスタ・テストデータ基盤整備 | seed Migration 23件・integration test名ユニーク化 | 実装・検証完了（Issue #39 OPEN / PR 作成待ち）|
+| 13-3B  | ユーザー独自種目 Backend | user_id追加・UNIQUE INDEX・独自種目 CRUD API | 未着手 |
+| 13-3C1 | ユーザー独自種目 Frontend（新規登録） | ExerciseSelect 共通コンポーネント・inline 新規登録 UI | 未着手 |
+| 13-3C2 | ユーザー独自種目 Frontend（管理画面） | /exercises 管理ページ・編集・削除 | 未着手 |
 | 13-4   | ユーザー検索・プロフィール・フォロー導線改善 | 検索結果からフォロー・プロフィールへの導線 | 未着手 |
 | 13-4.1 | LocalStack S3データ永続化 | Docker volume設定でテストデータを永続化 | 未着手 |
 | 13-5   | プロフィール編集・アバター操作改善 | アバターUX・編集フォーム改善 | 未着手 |
@@ -223,7 +226,7 @@ S3 object key パスルール（単一バケット構成）:
 
 ### Phase 13-2.1：NavBarに検索・統計・目標管理への導線追加
 
-**実装・検証完了**（Issue #37 OPEN / Branch: `feature/issue-37-phase13-2-1-navbar` / PR 作成待ち）
+**完了**（Issue #37 CLOSED / PR #38 MERGED 2026-06-28）
 
 - NavBar に 検索・統計・目標・PR記録リンクを追加（表示順: 検索→統計→目標→PR記録→新規投稿→プロフィール→ログアウト）
 - `flex-1 min-w-0 flex-wrap` で 375px 横スクロールなし確認済み
@@ -235,15 +238,36 @@ S3 object key パスルール（単一バケット構成）:
 
 ---
 
-### Phase 13-3：種目マスタ整理・ユーザー独自種目機能
+### Phase 13-3A：標準種目マスタ・テストデータ基盤整備
 
-**未着手**
+**実装・検証完了**（Issue #39 OPEN / Branch: `feature/issue-39-phase13-3a-exercise-seed` / PR 作成待ち）
 
-- 標準種目一覧の整理・部位カテゴリの整備
-- ユーザー独自種目の登録・管理・重複防止
-- 種目選択 UI 改善
-- E2E テスト用種目データの cleanup
-- `sourceExerciseSetId` の扱い検討
+- `backend/src/database/migrations/1739000000013-SeedStandardExercises.ts` 新規作成（23 件一括 VALUES + WHERE NOT EXISTS 冪等 INSERT）
+- `backend/test/workout-posts.integration-spec.ts` Exercise 名ユニーク化（`ベンチプレス_${Date.now()}` + パラメータ化 SQL）
+- `backend/test/personal-records.integration-spec.ts` Exercise 名ユニーク化（`プレスPR統合テスト_${Date.now()}` + パラメータ化 SQL）
+- 新規環境検証・既存 3 種目環境検証: 両パターンで 23 件 OK・重複 0・category 一致を確認
+- 既存 3 種目（ベンチプレス/スクワット/デッドリフト）の ID が Migration 前後で不変であることを確認
+
+---
+
+### Phase 13-3B：ユーザー独自種目 Backend
+
+**未着手**（Issue A マージ後に開始）
+
+- Migration: `1739000000014-AddUserIdToExercises.ts`（user_id BIGINT NULL + 部分 UNIQUE INDEX 2 本）
+- API: GET 拡張・POST・PATCH・DELETE `/api/exercises`
+
+---
+
+### Phase 13-3C1：ユーザー独自種目 Frontend（新規登録）
+
+**未着手**（Issue B マージ後に開始）
+
+---
+
+### Phase 13-3C2：ユーザー独自種目 Frontend（管理画面）
+
+**未着手**（Issue C1 マージ後に開始）
 
 ---
 

@@ -1,10 +1,12 @@
 # Agent Handoff
 
 ## CurrentPhase
-- **Phase 13-2.1**: NavBarに検索・統計・目標管理への導線追加（Issue #37 / 実装・検証完了 / PR 作成待ち）
-  - Branch: `feature/issue-37-phase13-2-1-navbar` / HEAD: `f13c69d`
-  - Issue #37: OPEN / PR: 未作成・作成待ち
-  - Frontend unit: 293件 PASS / E2E: 15件 PASS（phase13 × 5 含む）
+- **Phase 13-3A**: 標準種目マスタ・テストデータ基盤整備（Issue #39 / 実装・検証完了 / PR 作成待ち）
+  - Branch: `feature/issue-39-phase13-3a-exercise-seed` / HEAD: `4a6df00`
+  - Issue #39: OPEN / PR: 未作成・作成待ち
+  - Backend unit: 172件 PASS / Backend integration: 42件 PASS / Frontend unit: 293件 PASS / E2E: 15件 PASS
+- **Phase 13-2.1 完了**: NavBarに検索・統計・目標管理への導線追加（Issue #37 CLOSED / PR #38 MERGED 2026-06-28）
+  - merge commit: `c773f1f`
 - **Phase 13-2 完了**: 例外処理・Toast・ErrorBoundary・既知バグ修正・E2E 拡充（Issue #34 / PR #35 MERGED 2026-06-27）
   - 実装・検証・PR・マージ完了。merge commit: `4d55f09`
   - Issue #34: CLOSED（PR #35 マージ後に自動クローズ）
@@ -26,8 +28,10 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #37: OPEN（Phase 13-2.1 実装完了・PR 作成待ち）
-- PR（Phase 13-2.1）: 未作成・作成待ち
+- Issue #39: OPEN（Phase 13-3A 実装・検証完了・PR 作成待ち）
+- PR（Phase 13-3A）: 未作成・作成待ち
+- Issue #37: CLOSED（2026-06-28 PR #38 マージ後に自動クローズ）
+- PR #38: MERGED（2026-06-28 / merge commit: `c773f1f`）
 - Issue #34: CLOSED（2026-06-27 PR #35 マージ後に自動クローズ）
 - PR #35: MERGED（2026-06-27 / merge commit: `4d55f09`）
 - Issue #32: 完了・PR #33 マージ済み（2026-06-26）
@@ -43,6 +47,92 @@
 - Issue #12 完了・PR #13 マージ済み（2026-06-11）
 - Issue #8 完了・PR #9 マージ済み（2026-06-10）
 - Issue #10 完了・PR #11 マージ済み（2026-06-10）
+
+## Phase13-3ACommitHistory（次セッション引き継ぎ用）
+
+| # | コミットハッシュ | 内容 |
+|---|--------------|------|
+| 1 | `0f91973` | test(exercises): make integration-test exercise names unique |
+| 2 | `4a6df00` | feat(exercises): add standard exercise seed migration |
+| 3 | `（本コミット）` | docs: record Phase 13-3A implementation completion |
+
+## Phase13-3A確定事項
+
+| 項目 | 決定 |
+|------|------|
+| 標準種目件数 | 23 件（胸×4・背中×5・脚×5・肩×3・腕×3・体幹×3）|
+| seed Migration 方式 | 一括 VALUES + WHERE NOT EXISTS（LOWER(TRIM) 比較）冪等 INSERT |
+| down Migration | 意図的 no-op（FK 参照の可能性・ID 区別不可のため）|
+| integration test 名 | `ベンチプレス_${Date.now()}` / `プレスPR統合テスト_${Date.now()}` + SQL パラメータ化 |
+| DB 行数蓄積解消 | Phase 13-7 スコープ（今回は衝突防止のみ）|
+| user_id / UNIQUE INDEX | Phase 13-3B スコープ |
+
+## Phase13-3A開発DBの状態（次セッション引き継ぎ用）
+
+**現在の開発 DB は汚染されており、Phase 13-3A では変更しなかった。**
+
+| 確認内容 | 結果 |
+|---------|------|
+| ベンチプレス重複件数 | 56 件（ID 2〜88、integration test 蓄積）|
+| プレスPR統合テスト重複件数 | 31 件（ID 32〜87、同上）|
+| スクワット | 不存在 |
+| デッドリフト | 不存在 |
+| テスト種目（id=1） | 1 件（workout_exercises=104, goals=39, personal_records=18）|
+| exercises テーブル全件数 | 88 件 |
+
+**Phase 13-3B 開始前または明示指示があった時点で開発 DB を再構築すること:**
+```bash
+docker compose down -v   # ユーザー承認後のみ
+docker compose up -d
+cd backend && npm run migration:run
+```
+
+## Phase13-3A一時DB検証結果
+
+**検証パターン1: 完全な新規環境**（`fitlog-postgres-verify`・port 5433・`fitlog_verify`）
+
+- 全 13 Migration 適用: ✅
+- 完了判定 SQL: **0 行** ✅（23 種目全存在・category 一致）
+- 重複確認 SQL: **0 行** ✅
+- 一時コンテナ・volume: 検証後に削除済み
+
+**検証パターン2: 既存 3 種目環境**（同一一時コンテナ内でリセット）
+
+| 種目 | Migration 前 ID | Migration 後 ID | 一致 |
+|------|----------------|----------------|------|
+| ベンチプレス | 24 | 24 | ✅ |
+| スクワット | 25 | 25 | ✅ |
+| デッドリフト | 26 | 26 | ✅ |
+
+- 合計件数: 23 件 ✅
+- 完了判定 SQL: **0 行** ✅
+- 重複確認 SQL: **0 行** ✅
+- 既存 category が上書きされていないことを確認 ✅
+
+## TestResults（Phase 13-3A 実装完了時点 / HEAD `4a6df00`）
+
+### Backend
+| チェック | 結果 |
+|---------|------|
+| lint | PASS |
+| unit test | PASS（17 suites / **172 tests**）|
+| integration test | PASS（4 suites / **42 tests**）|
+| build | PASS |
+
+### Frontend
+| チェック | 結果 |
+|---------|------|
+| lint | PASS |
+| unit test | PASS（20 files / **293 tests**）|
+| build | PASS（chunk size 警告あり・gzip 217 kB 程度）|
+| E2E（Playwright） | PASS（**15件**: phase10×6 + phase11×4 + phase13×5）|
+
+## NextAction
+1. CI グリーン確認
+2. ユーザー承認後に PR 作成（Issue #39 紐付け）
+3. PR マージ → Issue #39 自動クローズ確認
+4. Phase 13-3B 開始前に開発 DB 再構築（ユーザー承認後）
+5. Phase 13-3B 実装開始
 
 ## Phase13-2CommitHistory（次セッション引き継ぎ用）
 
@@ -495,19 +585,16 @@ PR #29 はマージ可能状態（2026-06-24 確認済み）。
 ## MergeReadiness
 - Phase 13-2: PR #35 MERGED（2026-06-27 / merge commit: `4d55f09`）。Phase 13-2 マージ完了。
 
-## NextAction
-1. Issue #37（Phase 13-2.1: NavBarに検索・統計・目標管理への導線を追加する）を基に現状調査
-2. 実装計画作成
-3. ユーザーによる計画レビュー
-4. 承認後にブランチ作成
-5. 実装開始
+## NextAction（旧・更新済み）
+Phase 13-2.1 は PR #38 MERGED（2026-06-28）にて完了。
+現在は Phase 13-3A の NextAction セクションを参照のこと。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
-- Issue: #37（Phase 13-2.1 / OPEN・着手前）、#34（Phase 13-2 / CLOSED）、#32（Phase 13-1 / 完了）、#30（Phase 12 / 完了）
-- PR: #35（Phase 13-2 / MERGED 2026-06-27）、#33（Phase 13-1 / マージ済み）、#31（Phase 12 / マージ済み）、#29（Phase 11 / マージ済み）
-- Branch: `feature/issue-34-phase13-2-error-handling`（Phase 13-2 完了・ブランチ残存中）
-- NextPhase: Phase 13-2.1（NavBar 検索・統計・目標管理導線追加 / Issue #37 OPEN・ブランチ未作成）
+- Issue: #39（Phase 13-3A / OPEN・実装完了・PR作成待ち）、#37（Phase 13-2.1 / CLOSED・PR #38 マージ済み）、#34（Phase 13-2 / CLOSED）
+- PR: #38（Phase 13-2.1 / MERGED 2026-06-28 / merge commit: `c773f1f`）、#35（Phase 13-2 / MERGED 2026-06-27）
+- Branch: `feature/issue-39-phase13-3a-exercise-seed`（Phase 13-3A 実装完了・PR 作成待ち）
+- NextPhase: Phase 13-3B（ユーザー独自種目 Backend）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules

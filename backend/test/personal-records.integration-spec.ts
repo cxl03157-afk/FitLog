@@ -88,9 +88,11 @@ describe('PersonalRecords Integration', () => {
     dataSource = app.get(DataSource);
     await dataSource.runMigrations();
 
-    // 他のintegration specと重複しない名前でexerciseをseed
+    // 他のintegration specと重複しない名前でexerciseをseed（Date.now() suffixで同名衝突を防ぐ）
+    const exerciseName = `プレスPR統合テスト_${Date.now()}`;
     const result = await dataSource.query<{ id: string }[]>(
-      `INSERT INTO exercises (name, category) VALUES ('プレスPR統合テスト', '胸') RETURNING id`,
+      `INSERT INTO exercises (name, category) VALUES ($1, $2) RETURNING id`,
+      [exerciseName, '胸'],
     );
     exerciseId = result[0].id;
 

@@ -5,23 +5,27 @@
 
 ## 現状スナップショット
 
-- Phase: **Phase 13-2.1**（実装・検証完了 / PR 作成待ち）
-- Issue: #37（Phase 13-2.1）— OPEN
-- Branch: `feature/issue-37-phase13-2-1-navbar`
+- Phase: **Phase 13-3A**（実装・検証完了 / PR 作成待ち）
+- Issue: #39（Phase 13-3A）— OPEN
+- Branch: `feature/issue-39-phase13-3a-exercise-seed`
 - PR: 未作成・作成待ち
-- HEAD: `f13c69d`
+- HEAD: `4a6df00`
 
-## テスト結果（Phase 13-2.1 実装完了時点 / HEAD `f13c69d`）
+## 直前の完了 Phase
+
+- **Phase 13-2.1**: NavBar検索・統計・目標管理導線追加（Issue #37 CLOSED / PR #38 MERGED 2026-06-28）
+
+## テスト結果（Phase 13-3A 実装完了時点 / HEAD `4a6df00`）
 
 ### Backend
-- lint: PASS（Phase 13-2 時点から変更なし）
+- lint: PASS
 - unit test: **172件 PASS**（17 suites）
 - integration test: **42件 PASS**（4 suites）
 - build: PASS
 
 ### Frontend
 - lint: PASS
-- unit test: **293件 PASS**（20 files）（NavBar +4件）
+- unit test: **293件 PASS**（20 files）
 - build: PASS
 - E2E（phase10 × 6 + phase11 × 4 + phase13 × 5）: **15件 PASS**
 
@@ -62,14 +66,27 @@
 
 ## NextAction
 
-CI グリーン確認 → ユーザー承認後に PR 作成 → マージ → Issue #37 自動クローズ確認 → Phase 13-3 へ。
+CI グリーン確認 → ユーザー承認後に PR 作成 → マージ → Issue #39 自動クローズ確認 → Phase 13-3B へ。
+Phase 13-3B 開始前に現在の開発 DB を削除・再構築すること（exercises テーブルが汚染されているため）。
+
+## Phase 13-3A 注意事項
+
+現在のローカル開発 DB は汚染されており、今回の実装では変更していない:
+- ベンチプレス: 56件重複（integration test の繰り返し INSERT が蓄積）
+- プレスPR統合テスト: 31件重複（同上）
+- スクワット・デッドリフト: 不存在
+- 一時 DB で新規環境・既存 3 種目環境の 2 パターン検証を実施し、Migration が正常動作することを確認
+
+**Phase 13-3B 開始時、または手動指示があった時点で開発 DB を `docker compose down -v` → `docker compose up -d` → migration:run で再構築すること。**
 
 ## 後続Phase一覧（正式構成）
 
 | Phase | 内容 |
 |-------|------|
-| Phase 13-2.1 | NavBarに検索・統計・目標管理への導線追加（Issue #37 / 実装・検証完了・PR作成待ち）|
-| Phase 13-3 | 種目マスタ整理・ユーザー独自種目機能（標準種目一覧・部位カテゴリ・独自種目・テスト cleanup）|
+| Phase 13-3A | 標準種目マスタ・テストデータ基盤整備（Issue #39 / 実装・検証完了・PR作成待ち）|
+| Phase 13-3B | ユーザー独自種目 Backend（user_id追加・UNIQUE INDEX・独自種目 CRUD API）|
+| Phase 13-3C1 | ユーザー独自種目 Frontend（新規登録：ExerciseSelect 共通コンポーネント）|
+| Phase 13-3C2 | ユーザー独自種目 Frontend（管理画面：/exercises ページ）|
 | Phase 13-4 | ユーザー検索・プロフィール・フォロー導線改善 |
 | Phase 13-4.1 | LocalStack S3データ永続化 |
 | Phase 13-5 | プロフィール編集・アバター操作改善 |
@@ -86,5 +103,5 @@ CI グリーン確認 → ユーザー承認後に PR 作成 → マージ → I
 - DB 設計: `docs/database.md`
 - Swagger 仕様: `http://localhost:3000/api/docs`（バックエンド起動時）
 - 状態詳細: `docs/handoff.md`
-- Issue: #37（Phase 13-2.1 / OPEN・実装完了・PR作成待ち）、#34（Phase 13-2 / CLOSED・PR #35 マージ済み）、#32（Phase 13-1 / 完了・PR #33 マージ済み）、#30（Phase 12 / 完了）
-- PR: #35（Phase 13-2 / MERGED 2026-06-27・merge commit: `4d55f09`）、#33（Phase 13-1 / マージ済み）
+- Issue: #39（Phase 13-3A / OPEN・実装完了・PR作成待ち）、#37（Phase 13-2.1 / CLOSED・PR #38 マージ済み）、#34（Phase 13-2 / CLOSED・PR #35 マージ済み）
+- PR: #38（Phase 13-2.1 / MERGED 2026-06-28）、#35（Phase 13-2 / MERGED 2026-06-27）、#33（Phase 13-1 / マージ済み）
