@@ -19,6 +19,9 @@ export class Exercise {
   @Column({ type: 'text', nullable: true })
   description: string | null;
 
+  @Column({ type: 'bigint', name: 'user_id', nullable: true })
+  userId: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 }

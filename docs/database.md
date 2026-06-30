@@ -33,6 +33,7 @@ erDiagram
 
     exercises {
         bigint id PK
+        bigint user_id FK "NULL=標準種目"
         varchar name
         varchar category
         text description
@@ -126,6 +127,7 @@ erDiagram
     }
 
     users ||--o{ refresh_tokens : "発行される"
+    users ||--o{ exercises : "独自種目を作成する"
     users ||--o{ workout_posts : "投稿する"
     users ||--o{ comments : "コメントする"
     users ||--o{ likes : "ナイス！する"
@@ -197,10 +199,17 @@ erDiagram
 | カラム名 | 型 | 制約 | 備考 |
 |---|---|---|---|
 | id | BIGSERIAL | PRIMARY KEY | |
+| user_id | BIGINT | NULL, FOREIGN KEY → users(id) | NULL = 標準種目 / 値あり = 独自種目（作成者 ID） |
 | name | VARCHAR(100) | NOT NULL | 種目名（例: ベンチプレス） |
 | category | VARCHAR(50) | NOT NULL | 部位カテゴリ（胸・背中・脚・肩・腕・体幹）|
 | description | TEXT | NULL | 種目の説明・フォームのポイント |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT NOW() | |
+
+**インデックス:**
+- `idx_exercises_unique_standard_name` — `LOWER(TRIM(name))` WHERE `user_id IS NULL`（標準種目内の同名禁止）
+- `idx_exercises_unique_name_per_user` — `(LOWER(TRIM(name)), user_id)` WHERE `user_id IS NOT NULL`（同一ユーザー内の独自種目同名禁止）
+
+> 両インデックスは PostgreSQL の部分的関数インデックス（Partial Functional UNIQUE INDEX）。TypeORM の Entity 同期では管理できないため Migration で明示的に作成する。
 
 ---
 
