@@ -23,6 +23,7 @@ vi.mock('../api/personalRecords', () => ({
 
 vi.mock('../api/exercises', () => ({
   fetchExercises: vi.fn(),
+  createExercise: vi.fn(),
 }));
 
 vi.mock('../components/NavBar', () => ({

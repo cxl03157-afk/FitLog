@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { ToastProvider } from '../contexts/ToastContext';
 import WorkoutPostNewPage from '../pages/WorkoutPostNewPage';
 import * as AuthContextModule from '../contexts/AuthContext';
 import * as exercisesApi from '../api/exercises';
@@ -15,6 +16,7 @@ vi.mock('../contexts/AuthContext', async (importOriginal) => {
 
 vi.mock('../api/exercises', () => ({
   fetchExercises: vi.fn(),
+  createExercise: vi.fn(),
 }));
 
 vi.mock('../api/workoutPosts', () => ({
@@ -87,10 +89,12 @@ beforeEach(() => {
 const renderNewPage = () =>
   render(
     <MemoryRouter initialEntries={['/workout-posts/new']}>
-      <Routes>
-        <Route path="/workout-posts/new" element={<WorkoutPostNewPage />} />
-        <Route path="/" element={<div>timeline</div>} />
-      </Routes>
+      <ToastProvider>
+        <Routes>
+          <Route path="/workout-posts/new" element={<WorkoutPostNewPage />} />
+          <Route path="/" element={<div>timeline</div>} />
+        </Routes>
+      </ToastProvider>
     </MemoryRouter>,
   );
 
