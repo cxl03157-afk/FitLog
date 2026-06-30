@@ -35,8 +35,8 @@ const mockDeleteGoal = vi.mocked(goalsApi.deleteGoal);
 const mockFetchExercises = vi.mocked(exercisesApi.fetchExercises);
 
 const mockExercises = [
-  { id: 'e1', name: 'ベンチプレス', category: '胸', description: null },
-  { id: 'e2', name: '懸垂', category: '背中', description: null },
+  { id: 'e1', name: 'ベンチプレス', category: '胸', description: null, userId: null },
+  { id: 'e2', name: '懸垂', category: '背中', description: null, userId: null },
 ];
 
 const makeGoal = (overrides?: Partial<Goal>): Goal => ({

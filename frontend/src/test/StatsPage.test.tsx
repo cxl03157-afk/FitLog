@@ -83,8 +83,8 @@ const makeMonthlyStats = (): PeriodStat[] =>
   }));
 
 const mockExercises: Exercise[] = [
-  { id: '1', name: 'ベンチプレス', category: '胸', description: null },
-  { id: '2', name: '懸垂', category: '背中', description: null },
+  { id: '1', name: 'ベンチプレス', category: '胸', description: null, userId: null },
+  { id: '2', name: '懸垂', category: '背中', description: null, userId: null },
 ];
 
 const makeWeightExercise = (): ExerciseStatResponse => ({

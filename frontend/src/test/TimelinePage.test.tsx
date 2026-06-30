@@ -43,7 +43,7 @@ const mockPost: WorkoutPost = {
       id: '1',
       exerciseId: '1',
       orderIndex: 0,
-      exercise: { id: '1', name: 'ベンチプレス', category: '胸', description: null },
+      exercise: { id: '1', name: 'ベンチプレス', category: '胸', description: null, userId: null },
       sets: [{ id: '1', setNumber: 1, weightKg: 60, reps: 10, isPr: false, memo: null }],
     },
   ],
