@@ -11,6 +11,7 @@
 | フォロー | フォロー・解除・一覧・検索 | [docs/features/05_follow.md](features/05_follow.md) |
 | 集計 | 週間・月間・種目別グラフ | [docs/features/06_statistics.md](features/06_statistics.md) |
 | 目標設定 | 目標の作成・達成管理 | [docs/features/07_goal.md](features/07_goal.md) |
+| 種目管理 | 標準種目参照・独自種目 CRUD | [docs/features/09_exercise.md](features/09_exercise.md) |
 
 ---
 
@@ -43,6 +44,10 @@
 | UC-23 | ログイン中セッション一覧取得 | 認証済みユーザー（自分のみ） | 01_auth |
 | UC-24 | 指定セッションのログアウト | 認証済みユーザー（自分のみ） | 01_auth |
 | UC-25 | 全端末ログアウト | 認証済みユーザー（自分のみ） | 01_auth |
+| UC-26 | 種目一覧取得 | 認証済みユーザー | 09_exercise |
+| UC-27 | 独自種目作成 | 認証済みユーザー | 09_exercise |
+| UC-28 | 独自種目更新 | 認証済みユーザー（自分の種目のみ） | 09_exercise |
+| UC-29 | 独自種目削除 | 認証済みユーザー（自分の種目のみ） | 09_exercise |
 
 ---
 
@@ -65,7 +70,11 @@
 | GET | `/api/users/:id/following` | フォロー中一覧 | 必要 |
 | POST | `/api/follows/:userId` | フォロー | 必要 |
 | DELETE | `/api/follows/:userId` | フォロー解除 | 必要 |
-| GET | `/api/exercises` | 種目マスタ一覧 | 必要 |
+| GET | `/api/exercises` | 種目一覧（標準＋自分の独自） | 必要 |
+| GET | `/api/exercises/:id` | 種目詳細（他ユーザーの独自種目は404） | 必要 |
+| POST | `/api/exercises` | 独自種目作成 | 必要 |
+| PATCH | `/api/exercises/:id` | 独自種目更新（自分の種目のみ） | 必要 |
+| DELETE | `/api/exercises/:id` | 独自種目削除（自分の種目のみ） | 必要 |
 | GET | `/api/workout-posts` | 投稿一覧（タイムライン） | 必要 |
 | POST | `/api/workout-posts` | 投稿作成 | 必要 |
 | GET | `/api/workout-posts/:id` | 投稿詳細 | 必要 |
