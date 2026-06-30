@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import NavBar from '../components/NavBar';
+import ExerciseSelect from '../components/ExerciseSelect';
 import { fetchExercises } from '../api/exercises';
 import { createGoal, deleteGoal, getGoals, updateGoal } from '../api/goals';
 import type { CreateGoalPayload, Goal, GoalStatus } from '../types/goal';
@@ -381,23 +382,24 @@ const GoalsPage = () => {
               </h2>
 
               <div className="space-y-4">
-                <label className="block">
+                <div>
                   <span className="text-sm font-medium text-gray-700">
                     種目 <span className="text-red-500">*</span>
                   </span>
-                  <select
-                    value={exerciseId}
-                    onChange={(e) => setExerciseId(e.target.value)}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                  >
-                    <option value="">選択してください</option>
-                    {exercises.map((ex) => (
-                      <option key={ex.id} value={ex.id}>
-                        {ex.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                  <div className="mt-1">
+                    <ExerciseSelect
+                      exercises={exercises}
+                      value={exerciseId}
+                      onChange={setExerciseId}
+                      onExerciseCreated={(newEx) => {
+                        setExercises((prev) =>
+                          prev.some((e) => e.id === newEx.id) ? prev : [...prev, newEx],
+                        );
+                      }}
+                      placeholder="選択してください"
+                    />
+                  </div>
+                </div>
 
                 <label className="block">
                   <span className="text-sm font-medium text-gray-700">目標重量 (kg)</span>

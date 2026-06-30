@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '../components/NavBar';
+import ExerciseSelect from '../components/ExerciseSelect';
 import { fetchExercises } from '../api/exercises';
 import { createWorkoutPost, uploadPostImages } from '../api/workoutPosts';
 import type { Exercise } from '../types/workout';
@@ -223,9 +224,6 @@ const WorkoutPostNewPage = () => {
     navigate('/');
   };
 
-  // カテゴリ別グルーピング
-  const categories = Array.from(new Set(exerciseMaster.map((e) => e.category))).sort();
-
   return (
     <div className="min-h-screen bg-gray-50">
       <NavBar />
@@ -281,30 +279,26 @@ const WorkoutPostNewPage = () => {
 
             {exercises.map((ex, ei) => (
               <div key={ei} className="bg-white rounded-2xl shadow-sm p-4 mb-3 border border-gray-100">
-                <div className="flex items-center gap-2 mb-3">
-                  <select
-                    value={ex.exerciseId}
-                    onChange={(e) => updateExerciseId(ei, e.target.value)}
-                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">種目を選択</option>
-                    {categories.map((cat) => (
-                      <optgroup key={cat} label={cat}>
-                        {exerciseMaster
-                          .filter((e) => e.category === cat)
-                          .map((e) => (
-                            <option key={e.id} value={e.id}>
-                              {e.name}
-                            </option>
-                          ))}
-                      </optgroup>
-                    ))}
-                  </select>
+                <div className="flex items-start gap-2 mb-3">
+                  <div className="flex-1">
+                    <ExerciseSelect
+                      exercises={exerciseMaster}
+                      value={ex.exerciseId}
+                      onChange={(id) => updateExerciseId(ei, id)}
+                      onExerciseCreated={(newEx) => {
+                        setExerciseMaster((prev) =>
+                          prev.some((e) => e.id === newEx.id) ? prev : [...prev, newEx],
+                        );
+                      }}
+                      placeholder="種目を選択"
+                      disabled={submitting}
+                    />
+                  </div>
                   {exercises.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeExercise(ei)}
-                      className="text-red-400 hover:text-red-600 text-sm transition"
+                      className="text-red-400 hover:text-red-600 text-sm transition mt-2"
                     >
                       削除
                     </button>
