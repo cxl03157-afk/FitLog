@@ -117,6 +117,14 @@ describe('PersonalRecords Integration', () => {
 
   afterAll(async () => {
     if (dataSource?.isInitialized) {
+      // personal_records は exercises への NO ACTION FK があるため先に削除する
+      await dataSource.query(
+        `DELETE FROM personal_records WHERE exercise_id = $1`,
+        [exerciseId],
+      );
+      await dataSource.query(`DELETE FROM exercises WHERE id = $1`, [
+        exerciseId,
+      ]);
       await dataSource.destroy();
     }
     await app.close();

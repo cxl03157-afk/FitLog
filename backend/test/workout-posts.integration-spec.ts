@@ -99,6 +99,15 @@ describe('WorkoutPosts Integration', () => {
 
   afterAll(async () => {
     if (dataSource?.isInitialized) {
+      // workout_post を削除（CASCADE で workout_exercises も削除される）してから exercise を削除する
+      if (postId) {
+        await dataSource.query(`DELETE FROM workout_posts WHERE id = $1`, [
+          postId,
+        ]);
+      }
+      await dataSource.query(`DELETE FROM exercises WHERE id = $1`, [
+        exerciseId,
+      ]);
       await dataSource.destroy();
     }
     await app.close();
