@@ -272,6 +272,13 @@ export class WorkoutPostsService {
         imageUrl: `${this.imageBaseUrl}/${img.imageKey}`,
       }));
     }
+    if (post.user) {
+      Object.assign(post.user, {
+        avatarUrl: post.user.avatarKey
+          ? `${this.imageBaseUrl}/${post.user.avatarKey}`
+          : null,
+      });
+    }
     return post;
   }
 
