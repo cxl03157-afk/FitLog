@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { ToastProvider } from '../contexts/ToastContext';
 import GoalsPage from '../pages/GoalsPage';
 import * as AuthContextModule from '../contexts/AuthContext';
 import * as goalsApi from '../api/goals';
@@ -21,6 +22,7 @@ vi.mock('../api/goals', () => ({
 
 vi.mock('../api/exercises', () => ({
   fetchExercises: vi.fn(),
+  createExercise: vi.fn(),
 }));
 
 vi.mock('../components/NavBar', () => ({
@@ -35,8 +37,8 @@ const mockDeleteGoal = vi.mocked(goalsApi.deleteGoal);
 const mockFetchExercises = vi.mocked(exercisesApi.fetchExercises);
 
 const mockExercises = [
-  { id: 'e1', name: 'ベンチプレス', category: '胸', description: null },
-  { id: 'e2', name: '懸垂', category: '背中', description: null },
+  { id: 'e1', name: 'ベンチプレス', category: '胸', description: null, userId: null },
+  { id: 'e2', name: '懸垂', category: '背中', description: null, userId: null },
 ];
 
 const makeGoal = (overrides?: Partial<Goal>): Goal => ({
@@ -57,7 +59,9 @@ const makeGoal = (overrides?: Partial<Goal>): Goal => ({
 const renderPage = () =>
   render(
     <MemoryRouter>
-      <GoalsPage />
+      <ToastProvider>
+        <GoalsPage />
+      </ToastProvider>
     </MemoryRouter>,
   );
 

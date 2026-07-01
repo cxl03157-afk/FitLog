@@ -23,6 +23,7 @@ vi.mock('../api/personalRecords', () => ({
 
 vi.mock('../api/exercises', () => ({
   fetchExercises: vi.fn(),
+  createExercise: vi.fn(),
 }));
 
 vi.mock('../components/NavBar', () => ({
@@ -36,7 +37,7 @@ const mockUpdatePersonalRecord = vi.mocked(prApi.updatePersonalRecord);
 const mockDeletePersonalRecord = vi.mocked(prApi.deletePersonalRecord);
 const mockFetchExercises = vi.mocked(exercisesApi.fetchExercises);
 
-const mockExercise = { id: 'ex-1', name: 'ベンチプレス', category: '胸', description: null };
+const mockExercise = { id: 'ex-1', name: 'ベンチプレス', category: '胸', description: null, userId: null };
 
 const makeRecord = (overrides?: Partial<PersonalRecord>): PersonalRecord => ({
   id: '1',

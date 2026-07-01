@@ -11,6 +11,7 @@ import {
   YAxis,
 } from 'recharts';
 import NavBar from '../components/NavBar';
+import ExerciseSelect from '../components/ExerciseSelect';
 import { fetchExercises } from '../api/exercises';
 import { getExerciseStats, getMonthlyStats, getWeeklyStats } from '../api/stats';
 import type { ExerciseStatResponse, PeriodStat } from '../types/stats';
@@ -229,21 +230,17 @@ const StatsPage = () => {
         <section aria-label="種目別最大値推移" className="bg-white rounded-lg p-4 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-700 mb-3">種目別最大値推移</h2>
 
-          <label className="block mb-4">
+          <div className="block mb-4">
             <span className="text-xs text-gray-500 mb-1 block">種目を選択</span>
-            <select
+            <ExerciseSelect
+              exercises={exercises}
               value={selectedExerciseId}
-              onChange={(e) => setSelectedExerciseId(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-            >
-              <option value="">選択してください</option>
-              {exercises.map((ex) => (
-                <option key={ex.id} value={ex.id}>
-                  {ex.name}
-                </option>
-              ))}
-            </select>
-          </label>
+              onChange={setSelectedExerciseId}
+              onExerciseCreated={() => {}}
+              placeholder="選択してください"
+              showCreate={false}
+            />
+          </div>
 
           {exercisesError && (
             <p className="text-red-500 text-sm" role="alert">

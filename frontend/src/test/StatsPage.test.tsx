@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { ToastProvider } from '../contexts/ToastContext';
 import StatsPage from '../pages/StatsPage';
 import * as AuthContextModule from '../contexts/AuthContext';
 import * as statsApi from '../api/stats';
@@ -49,6 +50,7 @@ vi.mock('../api/stats', () => ({
 
 vi.mock('../api/exercises', () => ({
   fetchExercises: vi.fn(),
+  createExercise: vi.fn(),
 }));
 
 vi.mock('../components/NavBar', () => ({
@@ -83,8 +85,8 @@ const makeMonthlyStats = (): PeriodStat[] =>
   }));
 
 const mockExercises: Exercise[] = [
-  { id: '1', name: 'ベンチプレス', category: '胸', description: null },
-  { id: '2', name: '懸垂', category: '背中', description: null },
+  { id: '1', name: 'ベンチプレス', category: '胸', description: null, userId: null },
+  { id: '2', name: '懸垂', category: '背中', description: null, userId: null },
 ];
 
 const makeWeightExercise = (): ExerciseStatResponse => ({
@@ -120,7 +122,9 @@ const makeNoneExercise = (): ExerciseStatResponse => ({
 const renderPage = () =>
   render(
     <MemoryRouter>
-      <StatsPage />
+      <ToastProvider>
+        <StatsPage />
+      </ToastProvider>
     </MemoryRouter>,
   );
 
