@@ -149,6 +149,41 @@ describe('WorkoutPostNewPage', () => {
   });
 });
 
+describe('WorkoutPostNewPage — 重量バリデーション', () => {
+  // 重量空欄・負数は React バリデーションまたは HTML5 ネイティブバリデーションでブロックされる。
+  // min="0" 属性により負数はブラウザ側でフォーム送信がブロックされるため UI テストは空欄で代用する。
+
+  it('重量空欄で投稿 → React バリデーションエラーを表示する', async () => {
+    renderNewPage();
+    await waitForExercisesLoad();
+    await userEvent.type(screen.getByPlaceholderText('例：胸の日'), 'テスト投稿');
+    await userEvent.selectOptions(screen.getByRole('combobox'), '1');
+    // 重量は空欄のまま、回数のみ入力
+    const spinbuttons = screen.getAllByRole('spinbutton');
+    await userEvent.type(spinbuttons[1], '10');
+    await userEvent.click(screen.getByRole('button', { name: '投稿する' }));
+    await waitFor(() => {
+      expect(screen.getByText(/重量を正しく入力してください/)).toBeTruthy();
+    });
+  });
+
+  it('重量0で投稿 → バリデーションを通過して createWorkoutPost が呼ばれる', async () => {
+    mockCreateWorkoutPost.mockResolvedValue(mockCreatedPost);
+    renderNewPage();
+    await waitForExercisesLoad();
+    await userEvent.type(screen.getByPlaceholderText('例：胸の日'), 'テスト投稿');
+    await userEvent.selectOptions(screen.getByRole('combobox'), '1');
+    const spinbuttons = screen.getAllByRole('spinbutton');
+    await userEvent.type(spinbuttons[0], '0');
+    await userEvent.type(spinbuttons[1], '10');
+    await userEvent.click(screen.getByRole('button', { name: '投稿する' }));
+    await waitFor(() => {
+      expect(mockCreateWorkoutPost).toHaveBeenCalled();
+    });
+    expect(screen.queryByText(/重量を正しく入力してください/)).toBeNull();
+  });
+});
+
 describe('WorkoutPostNewPage - 画像バリデーション', () => {
   it('3枚選択済みで3枚追加試みる → 先頭1枚のみ追加・残り2枚除外・エラー表示', async () => {
     renderNewPage();
