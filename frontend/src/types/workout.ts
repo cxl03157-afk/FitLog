@@ -21,6 +21,12 @@ export type CreateExerciseDto = {
   category: string;
 };
 
+export type UpdateExerciseDto = {
+  name?: string;
+  category?: string;
+  description?: string | null;
+};
+
 export type ExerciseSet = {
   id: string;
   setNumber: number;
