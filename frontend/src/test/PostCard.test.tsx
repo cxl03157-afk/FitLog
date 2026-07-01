@@ -60,8 +60,25 @@ describe('PostCard', () => {
   it('renders a link to the post detail page', () => {
     renderCard();
 
-    const link = screen.getByRole('link');
+    const link = screen.getByRole('link', { name: /テスト投稿/ });
     expect(link.getAttribute('href')).toBe('/workout-posts/1');
+  });
+
+  it('renders a user profile link', () => {
+    renderCard();
+
+    const link = screen.getByRole('link', { name: /テスター/ });
+    expect(link.getAttribute('href')).toBe('/users/10');
+  });
+
+  it('does not nest links', () => {
+    renderCard();
+
+    const links = screen.getAllByRole('link');
+    expect(links).toHaveLength(2);
+    links.forEach((link) => {
+      expect(link.querySelector('a')).toBeNull();
+    });
   });
 
   it('calls addLike when like button clicked (not liked)', async () => {
@@ -107,7 +124,6 @@ describe('PostCard', () => {
   it('hides image area when postImages is empty', () => {
     renderCard({ ...basePost, postImages: [] });
 
-    // No <img> elements should be present (no thumbnails)
     const images = document.querySelectorAll('img[src]');
     expect(images.length).toBe(0);
   });
@@ -128,7 +144,25 @@ describe('PostCard', () => {
       expect(mockAddLike).toHaveBeenCalledWith('1');
     });
 
-    // likeCount should remain 5 (rolled back from optimistic 6)
     expect(screen.getByText(/5/)).toBeTruthy();
+  });
+
+  describe('アバター表示', () => {
+    it('avatarUrlがある場合は画像を表示する', () => {
+      renderCard({
+        ...basePost,
+        user: { ...basePost.user, avatarUrl: 'http://example.com/avatar.jpg' },
+      });
+
+      const img = screen.getByAltText('テスター');
+      expect(img.getAttribute('src')).toBe('http://example.com/avatar.jpg');
+    });
+
+    it('avatarUrlがnullの場合はイニシャル円を表示する', () => {
+      renderCard();
+
+      expect(screen.getByText('テ')).toBeTruthy();
+      expect(screen.queryByAltText('テスター')).toBeNull();
+    });
   });
 });

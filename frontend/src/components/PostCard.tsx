@@ -16,14 +16,30 @@ const PostCard = ({ post }: Props) => {
   const { isLiked, likeCount, isLikeLoading, handleLikeToggle } =
     useLikeToggle(post.id, post.isLiked, post.likeCount);
 
+  const initial = post.user.displayName?.[0]?.toUpperCase() ?? '?';
+
   return (
     <article className="bg-white rounded-2xl shadow-md p-4 hover:shadow-lg transition">
-      <Link to={`/workout-posts/${post.id}`} className="block">
-        <div className="flex items-center gap-2 mb-2">
+      <div className="flex items-center justify-between mb-2">
+        <Link to={`/users/${post.user.id}`} className="flex items-center gap-2">
+          {post.user.avatarUrl ? (
+            <img
+              src={post.user.avatarUrl}
+              alt={post.user.displayName}
+              className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+              {initial}
+            </div>
+          )}
           <span className="font-semibold text-gray-800">{post.user.displayName}</span>
           <span className="text-gray-400 text-sm">@{post.user.username}</span>
-          <span className="ml-auto text-gray-400 text-sm">{post.trainedOn}</span>
-        </div>
+        </Link>
+        <span className="text-gray-400 text-sm">{post.trainedOn}</span>
+      </div>
+
+      <Link to={`/workout-posts/${post.id}`} className="block">
         <p className="font-bold text-gray-900 mb-1">{post.title}</p>
         {exerciseSummary && (
           <p className="text-sm text-gray-500 truncate">{exerciseSummary}</p>
