@@ -50,7 +50,7 @@ const mockPost: WorkoutPost = {
   likeCount: 3,
   commentCount: 2,
   isLiked: false,
-  user: { id: POST_OWNER_ID, username: 'owner', displayName: 'オーナー' },
+  user: { id: POST_OWNER_ID, username: 'owner', displayName: 'オーナー', avatarUrl: null },
   workoutExercises: [
     {
       id: '1',

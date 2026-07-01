@@ -56,7 +56,7 @@ const mockCreatedPost: WorkoutPost = {
   likeCount: 0,
   commentCount: 0,
   isLiked: false,
-  user: { id: '1', username: 'user', displayName: 'User' },
+  user: { id: '1', username: 'user', displayName: 'User', avatarUrl: null },
   workoutExercises: [],
   postImages: [],
 };

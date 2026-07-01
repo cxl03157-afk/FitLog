@@ -32,7 +32,7 @@ const basePost: WorkoutPost = {
   likeCount: 5,
   commentCount: 3,
   isLiked: false,
-  user: { id: '10', username: 'tester', displayName: 'テスター' },
+  user: { id: '10', username: 'tester', displayName: 'テスター', avatarUrl: null },
   workoutExercises: [],
   postImages: [],
 };
