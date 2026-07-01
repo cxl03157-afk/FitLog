@@ -26,7 +26,7 @@ const mockPost = (userId = '1') =>
     updatedAt: null,
     workoutExercises: [],
     postImages: [],
-    user: { id: userId },
+    user: { id: userId, avatarKey: null },
   }) as unknown as WorkoutPost;
 
 const mockFile = (mimetype = 'image/jpeg', size = 1024): Express.Multer.File =>
@@ -270,6 +270,63 @@ describe('WorkoutPostsService', () => {
       expect(result.data[0].likeCount).toBe(5);
       expect(result.data[0].commentCount).toBe(3);
       expect(result.data[0].isLiked).toBe(true);
+    });
+  });
+
+  describe('attachImageUrls (via findAll)', () => {
+    const setupFindAll = (post: unknown) => {
+      mockQb.getCount.mockResolvedValue(1);
+      mockQb.getRawAndEntities.mockResolvedValue({
+        entities: [post],
+        raw: [
+          { post_id: '10', likecount: '0', commentcount: '0', isliked: false },
+        ],
+      });
+    };
+
+    it('sets avatarUrl from avatarKey when avatarKey is present', async () => {
+      const post = {
+        ...mockPost(),
+        user: { id: '1', avatarKey: 'images/avatars/1/abc.jpg' },
+      } as unknown as WorkoutPost;
+      setupFindAll(post);
+
+      const result = await service.findAll({ page: 1, limit: 20 }, '1');
+
+      expect(
+        (result.data[0].user as unknown as Record<string, unknown>).avatarUrl,
+      ).toBe('http://localhost:4566/fitlog/images/avatars/1/abc.jpg');
+    });
+
+    it('sets avatarUrl to null when avatarKey is null', async () => {
+      const post = {
+        ...mockPost(),
+        user: { id: '1', avatarKey: null },
+      } as unknown as WorkoutPost;
+      setupFindAll(post);
+
+      const result = await service.findAll({ page: 1, limit: 20 }, '1');
+
+      expect(
+        (result.data[0].user as unknown as Record<string, unknown>).avatarUrl,
+      ).toBeNull();
+    });
+
+    it('preserves post image URLs alongside avatarUrl computation', async () => {
+      const post = {
+        ...mockPost(),
+        user: { id: '1', avatarKey: 'images/avatars/1/abc.jpg' },
+        postImages: [
+          { id: 'img1', imageKey: 'images/posts/10/xyz.jpg', displayOrder: 0 },
+        ],
+      } as unknown as WorkoutPost;
+      setupFindAll(post);
+
+      const result = await service.findAll({ page: 1, limit: 20 }, '1');
+
+      expect(result.data[0].postImages[0].imageUrl).toBe(
+        'http://localhost:4566/fitlog/images/posts/10/xyz.jpg',
+      );
     });
   });
 

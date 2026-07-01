@@ -87,7 +87,7 @@ const makePost = (overrides: Partial<WorkoutPost> = {}): WorkoutPost => ({
   likeCount: 0,
   commentCount: 0,
   isLiked: false,
-  user: { id: 'other-user', username: 'bob', displayName: 'Bob' },
+  user: { id: 'other-user', username: 'bob', displayName: 'Bob', avatarUrl: null },
   workoutExercises: [],
   postImages: [],
   ...overrides,

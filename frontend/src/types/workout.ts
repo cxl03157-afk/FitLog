@@ -75,6 +75,7 @@ export type WorkoutPost = {
     id: string;
     username: string;
     displayName: string;
+    avatarUrl: string | null;
   };
   workoutExercises: WorkoutExercise[];
   postImages: PostImageItem[];

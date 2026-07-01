@@ -145,6 +145,20 @@ DELETE /api/workout-posts/:id を実行
 | commentCount | number | 投稿に付いたコメント数 |
 | isLiked | boolean | リクエストユーザーがナイス済みかどうか |
 
+### 投稿レスポンスの user フィールド
+
+`GET /api/workout-posts` および `GET /api/workout-posts/:id` の `user` フィールドに含まれるプロパティ:
+
+| フィールド | 型 | 説明 |
+|---|---|---|
+| id | string | ユーザーID |
+| username | string | ユーザー名 |
+| displayName | string | 表示名 |
+| avatarUrl | string \| null | アバター画像URL（S3経由。未設定の場合は null）|
+
+- `avatarUrl` は `WorkoutPostsService.attachImageUrls()` で動的に生成（`avatarKey` → `IMAGE_BASE_URL/avatarKey`）。DB には保存されない
+- DB / Migration 変更なし（Phase 13-4 追加）
+
 ### 画像アップロード仕様
 
 - アップロード方式: Multer + AWS SDK v3 サーバー中継（クライアント → バックエンド → S3）

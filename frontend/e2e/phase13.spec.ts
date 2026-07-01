@@ -419,6 +419,77 @@ test('シナリオ2: PR記録を更新・削除できる', async (
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// シナリオ 6: タイムラインの投稿カードから投稿者プロフィールへ遷移する
+// ─────────────────────────────────────────────────────────────────────────────
+test('シナリオ6: タイムラインの投稿カードから投稿者プロフィールへ遷移する', async (
+  { page, request },
+  testInfo,
+) => {
+  // ── セットアップ ────────────────────────────────────────────────
+  const usernameA = genUsername(testInfo.workerIndex);
+  const usernameB = genUsername(testInfo.workerIndex);
+  const userA = await registerUser(request, usernameA);
+  const userB = await registerUser(request, usernameB);
+  const exerciseId = await fetchFirstExerciseId(userB.accessToken, request);
+
+  const postTitle = `Phase13 Scenario6 ${Date.now()}`;
+  await createWorkoutPostViaApi(request, userB.accessToken, postTitle, exerciseId);
+
+  // ── A でログインしタイムラインを表示 ────────────────────────────
+  await loginViaUi(page, userA.email);
+  await page.waitForURL('/');
+
+  // ── B の投稿カードを特定 ─────────────────────────────────────────
+  const article = page.locator('article').filter({ hasText: postTitle });
+  await expect(article).toBeVisible({ timeout: 5_000 });
+
+  // ── 投稿者リンク（/users/:id）をクリック ─────────────────────────
+  // 投稿内容リンク（/workout-posts/:id）とは distinct な Link
+  const userLink = article.getByRole('link', { name: new RegExp(usernameB) });
+  await userLink.click();
+
+  // ── URL が /users/${userB.userId} になることを確認 ───────────────
+  await expect(page).toHaveURL(`/users/${userB.userId}`, { timeout: 5_000 });
+
+  // ── B の表示名・@username がプロフィールに表示される ─────────────
+  await expect(page.getByText(usernameB).first()).toBeVisible({ timeout: 5_000 });
+  await expect(page.getByText(`@${usernameB}`).first()).toBeVisible();
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// シナリオ 7: 投稿詳細ページから投稿者プロフィールへ遷移する
+// ─────────────────────────────────────────────────────────────────────────────
+test('シナリオ7: 投稿詳細ページから投稿者プロフィールへ遷移する', async (
+  { page, request },
+  testInfo,
+) => {
+  // ── セットアップ ────────────────────────────────────────────────
+  const usernameA = genUsername(testInfo.workerIndex);
+  const usernameB = genUsername(testInfo.workerIndex);
+  const userA = await registerUser(request, usernameA);
+  const userB = await registerUser(request, usernameB);
+  const exerciseId = await fetchFirstExerciseId(userB.accessToken, request);
+
+  const postTitle = `Phase13 Scenario7 ${Date.now()}`;
+  const postId = await createWorkoutPostViaApi(request, userB.accessToken, postTitle, exerciseId);
+
+  // ── A でログインし投稿詳細へ直接遷移 ────────────────────────────
+  await loginViaUi(page, userA.email);
+  await page.goto(`/workout-posts/${postId}`);
+  await expect(page.getByText(postTitle)).toBeVisible({ timeout: 5_000 });
+
+  // ── 投稿者情報エリアのリンクをクリック ──────────────────────────
+  const userLink = page.getByRole('link', { name: new RegExp(usernameB) });
+  await userLink.click();
+
+  // ── URL が /users/${userB.userId} になることを確認 ───────────────
+  await expect(page).toHaveURL(`/users/${userB.userId}`, { timeout: 5_000 });
+
+  // ── B の表示名がプロフィールに表示される ─────────────────────────
+  await expect(page.getByText(usernameB).first()).toBeVisible({ timeout: 5_000 });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // シナリオ 5: NavBarから検索・統計・目標画面へ遷移できる
 // ─────────────────────────────────────────────────────────────────────────────
 test(
