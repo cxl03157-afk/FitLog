@@ -1,10 +1,14 @@
 # Agent Handoff
 
 ## CurrentPhase
-- **Phase 13-3C2**: 独自種目管理画面（/exercises ページ）（Issue #45 / 実装完了 / PR 作成待ち）
+- **Phase 13-4**: 投稿者プロフィール導線・アバター表示（Issue #47 / 実装完了 / PR #48 CI 確認中）
+  - Branch: `feature/issue-47-phase13-4-profile-navigation`
+  - Issue #47: OPEN / PR #48: OPEN・CI 確認中
+  - Backend unit: 198件 PASS / Backend integration: 42件 PASS / Frontend unit: 333件 PASS
+  - E2E: 17件 PASS（LocalStack 起動必須。未起動時は phase10 画像系が FAIL）
+  - DB / Migration 変更なし
+- **Phase 13-3C2 完了**: 独自種目管理画面（Issue #45 CLOSED / PR #46 MERGED）
   - Branch: `feature/issue-45-phase13-3c2-exercise-management` / HEAD: `c1be66d`
-  - Issue #45: OPEN / PR: 未作成・作成待ち
-  - Backend unit: 172件 PASS / Backend integration: 42件 PASS / Frontend unit: 326件 PASS / E2E: 15件 PASS
 - **Phase 13-3C1 完了**: ExerciseSelect 共通コンポーネント（Issue #43 CLOSED / PR #44 MERGED）
 - **Phase 13-3B 完了**: ユーザー独自種目 Backend（Issue #41 CLOSED / PR #42 MERGED）
 - **Phase 13-3A 完了**: 標準種目マスタ・テストデータ基盤整備（Issue #39 CLOSED / PR #40 MERGED）
@@ -31,8 +35,10 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #45: OPEN（Phase 13-3C2 実装完了・PR 作成待ち）
-- PR（Phase 13-3C2）: 未作成・作成待ち
+- Issue #47: OPEN（Phase 13-4 実装完了・PR #48 CI 確認中）
+- PR #48: OPEN（Phase 13-4 / CI 確認中）
+- Issue #45: CLOSED（Phase 13-3C2 / PR #46 MERGED）
+- PR #46: MERGED（Phase 13-3C2）
 - Issue #43: CLOSED（Phase 13-3C1 / PR #44 MERGED）
 - Issue #41: CLOSED（Phase 13-3B / PR #42 MERGED）
 - Issue #39: CLOSED（Phase 13-3A / PR #40 MERGED）
