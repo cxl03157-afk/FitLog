@@ -196,7 +196,7 @@ describe('ExercisesPage', () => {
     });
   });
 
-  it('編集ボタン押下でモーダルが開き、既存値がセットされる', async () => {
+  it('編集ボタン押下でモーダルが開き、既存値がセットされる（名前・カテゴリ・説明）', async () => {
     mockFetchExercises.mockResolvedValue([customExercise1]);
     renderPage();
     await waitFor(() => expect(screen.getByText('ケーブルフライ変形')).toBeTruthy());
@@ -209,6 +209,8 @@ describe('ExercisesPage', () => {
     expect(nameInput.value).toBe('ケーブルフライ変形');
     const select = screen.getByRole('combobox') as HTMLSelectElement;
     expect(select.value).toBe('胸');
+    const descTextarea = screen.getByPlaceholderText(/種目の説明/) as HTMLTextAreaElement;
+    expect(descTextarea.value).toBe('ケーブルを使ったバリエーション');
   });
 
   it('編集成功 → モーダルが閉じ、リストが更新され、成功トーストが表示される', async () => {
@@ -315,6 +317,83 @@ describe('ExercisesPage', () => {
 
     await waitFor(() => {
       expect(screen.getByText('削除に失敗しました')).toBeTruthy();
+    });
+  });
+});
+
+// ─── description 回帰テスト ───────────────────────────────────────────────────
+
+describe('ExercisesPage — description', () => {
+  it('description付きで作成すると createExercise に description が渡る', async () => {
+    const created: Exercise = { id: 'new1', userId: 'u1', name: '新種目', category: '胸', description: 'テスト説明' };
+    mockFetchExercises
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([created]);
+    mockCreateExercise.mockResolvedValue(created);
+
+    renderPage();
+    await waitFor(() => expect(screen.queryByText('読み込み中...')).toBeNull());
+
+    fireEvent.click(screen.getByRole('button', { name: /新しい種目を作成/ }));
+    await screen.findByRole('dialog');
+
+    await userEvent.type(screen.getByPlaceholderText(/ケーブルフライ変形/), '新種目');
+    await userEvent.selectOptions(screen.getByRole('combobox'), '胸');
+    await userEvent.type(screen.getByPlaceholderText(/種目の説明/), 'テスト説明');
+    fireEvent.click(screen.getByRole('button', { name: '保存' }));
+
+    await waitFor(() => {
+      expect(mockCreateExercise).toHaveBeenCalledWith(
+        expect.objectContaining({ description: 'テスト説明' }),
+      );
+    });
+  });
+
+  it('description付きで作成後、カードに description が表示される', async () => {
+    const created: Exercise = { id: 'new1', userId: 'u1', name: '新種目', category: '胸', description: 'テスト説明' };
+    mockFetchExercises
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([created]);
+    mockCreateExercise.mockResolvedValue(created);
+
+    renderPage();
+    await waitFor(() => expect(screen.queryByText('読み込み中...')).toBeNull());
+
+    fireEvent.click(screen.getByRole('button', { name: /新しい種目を作成/ }));
+    await screen.findByRole('dialog');
+
+    await userEvent.type(screen.getByPlaceholderText(/ケーブルフライ変形/), '新種目');
+    await userEvent.selectOptions(screen.getByRole('combobox'), '胸');
+    await userEvent.type(screen.getByPlaceholderText(/種目の説明/), 'テスト説明');
+    fireEvent.click(screen.getByRole('button', { name: '保存' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('テスト説明')).toBeTruthy();
+    });
+  });
+
+  it('description 空欄で作成すると createExercise に null が渡る', async () => {
+    const created: Exercise = { id: 'new1', userId: 'u1', name: '新種目', category: '胸', description: null };
+    mockFetchExercises
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([created]);
+    mockCreateExercise.mockResolvedValue(created);
+
+    renderPage();
+    await waitFor(() => expect(screen.queryByText('読み込み中...')).toBeNull());
+
+    fireEvent.click(screen.getByRole('button', { name: /新しい種目を作成/ }));
+    await screen.findByRole('dialog');
+
+    await userEvent.type(screen.getByPlaceholderText(/ケーブルフライ変形/), '新種目');
+    await userEvent.selectOptions(screen.getByRole('combobox'), '胸');
+    // description は空欄のまま
+    fireEvent.click(screen.getByRole('button', { name: '保存' }));
+
+    await waitFor(() => {
+      expect(mockCreateExercise).toHaveBeenCalledWith(
+        expect.objectContaining({ description: null }),
+      );
     });
   });
 });
