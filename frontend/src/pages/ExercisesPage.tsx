@@ -80,7 +80,7 @@ export default function ExercisesPage() {
     const descriptionValue = formDescription.trim() === '' ? null : formDescription.trim();
 
     if (editingExercise === null) {
-      createExercise({ name: formName.trim(), category: formCategory })
+      createExercise({ name: formName.trim(), category: formCategory, description: descriptionValue })
         .then((created) => {
           setExercises((prev) => [...prev, { ...created, description: descriptionValue }]);
           closeModal();

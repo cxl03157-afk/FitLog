@@ -19,6 +19,7 @@ export type Exercise = {
 export type CreateExerciseDto = {
   name: string;
   category: string;
+  description?: string | null;
 };
 
 export type UpdateExerciseDto = {
