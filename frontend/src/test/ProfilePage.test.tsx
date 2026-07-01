@@ -430,6 +430,45 @@ describe('ProfilePage — フォロー', () => {
   });
 });
 
+// ─── 管理リンク ───────────────────────────────────────────────────────────────
+
+describe('ProfilePage — 管理リンク', () => {
+  it('自分のプロフィールでは独自種目管理リンクが表示され /exercises を指す', async () => {
+    setupCurrentUser('own-user');
+    mockGetProfile.mockResolvedValue(makeProfile({ id: 'own-user' }));
+
+    renderProfilePage('own-user');
+
+    await waitFor(() => expect(screen.getByTestId('exercises-link')).toBeTruthy());
+    const link = screen.getByTestId('exercises-link') as HTMLAnchorElement;
+    expect(link.getAttribute('href')).toBe('/exercises');
+    expect(link.textContent).toBe('独自種目管理');
+  });
+
+  it('自分のプロフィールではデバイス管理リンクが表示され /settings/sessions を指す', async () => {
+    setupCurrentUser('own-user');
+    mockGetProfile.mockResolvedValue(makeProfile({ id: 'own-user' }));
+
+    renderProfilePage('own-user');
+
+    await waitFor(() => expect(screen.getByTestId('sessions-link')).toBeTruthy());
+    const link = screen.getByTestId('sessions-link') as HTMLAnchorElement;
+    expect(link.getAttribute('href')).toBe('/settings/sessions');
+    expect(link.textContent).toBe('デバイス管理');
+  });
+
+  it('他人のプロフィールでは独自種目管理・デバイス管理リンクを表示しない', async () => {
+    setupCurrentUser('me');
+    mockGetProfile.mockResolvedValue(makeProfile({ id: 'other-user' }));
+
+    renderProfilePage('other-user');
+
+    await waitFor(() => expect(screen.getByTestId('follow-button')).toBeTruthy());
+    expect(screen.queryByTestId('exercises-link')).toBeNull();
+    expect(screen.queryByTestId('sessions-link')).toBeNull();
+  });
+});
+
 // ─── アバター更新 ─────────────────────────────────────────────────────────────
 
 describe('ProfilePage — アバター更新', () => {

@@ -306,6 +306,7 @@ const WorkoutPostNewPage = () => {
                 </div>
 
                 {/* セット一覧 */}
+                <p className="text-xs text-gray-400 mb-1">自重種目など重量がない場合は 0 を入力してください。</p>
                 <table className="w-full text-sm mb-2">
                   <thead>
                     <tr className="text-left text-gray-400 border-b">
