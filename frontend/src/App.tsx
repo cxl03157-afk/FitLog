@@ -17,6 +17,7 @@ import StatsPage from './pages/StatsPage';
 import GoalsPage from './pages/GoalsPage';
 import SessionsPage from './pages/stubs/SessionsPage';
 import PersonalRecordsPage from './pages/PersonalRecordsPage';
+import ExercisesPage from './pages/ExercisesPage';
 
 const App = () => (
   <BrowserRouter>
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/goals" element={<GoalsPage />} />
             <Route path="/personal-records" element={<PersonalRecordsPage />} />
             <Route path="/settings/sessions" element={<SessionsPage />} />
+            <Route path="/exercises" element={<ExercisesPage />} />
           </Route>
 
           {/* フォールバック */}

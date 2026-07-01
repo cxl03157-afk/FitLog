@@ -261,14 +261,32 @@ const ProfilePage = () => {
 
               {/* アクションボタン */}
               {isOwnProfile ? (
-                <button
-                  type="button"
-                  onClick={openEditModal}
-                  className="w-full border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold py-2 rounded-lg transition text-sm"
-                  data-testid="edit-profile-button"
-                >
-                  プロフィールを編集
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={openEditModal}
+                    className="w-full border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold py-2 rounded-lg transition text-sm"
+                    data-testid="edit-profile-button"
+                  >
+                    プロフィールを編集
+                  </button>
+                  <div className="mt-2 flex gap-4 justify-center text-sm">
+                    <Link
+                      to="/exercises"
+                      className="text-gray-500 hover:text-gray-700 underline"
+                      data-testid="exercises-link"
+                    >
+                      独自種目管理
+                    </Link>
+                    <Link
+                      to="/settings/sessions"
+                      className="text-gray-500 hover:text-gray-700 underline"
+                      data-testid="sessions-link"
+                    >
+                      デバイス管理
+                    </Link>
+                  </div>
+                </>
               ) : (
                 <button
                   type="button"
