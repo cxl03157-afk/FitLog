@@ -348,6 +348,48 @@ describe('WorkoutPostDetailPage', () => {
     });
   });
 
+  describe('投稿者リンク・アバター', () => {
+    beforeEach(() => {
+      mockUseAuth.mockReturnValue({
+        user: { id: '99', username: 'other', displayName: 'Other', email: 'o@test.com', avatarUrl: null, bio: null },
+        isLoading: false,
+        isAuthenticated: true,
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+        updateCurrentUser: vi.fn(),
+      });
+    });
+
+    it('投稿者Linkのhrefが/users/:id', async () => {
+      mockFetchWorkoutPost.mockResolvedValue(mockPost);
+      renderDetail();
+
+      const link = await screen.findByRole('link', { name: /オーナー/ });
+      expect(link.getAttribute('href')).toBe(`/users/${POST_OWNER_ID}`);
+    });
+
+    it('avatarUrlがある場合は画像を表示する', async () => {
+      mockFetchWorkoutPost.mockResolvedValue({
+        ...mockPost,
+        user: { ...mockPost.user, avatarUrl: 'http://example.com/avatar.jpg' },
+      });
+      renderDetail();
+
+      const img = await screen.findByAltText('オーナー');
+      expect(img.getAttribute('src')).toBe('http://example.com/avatar.jpg');
+    });
+
+    it('avatarUrlがnullの場合はイニシャル円を表示する', async () => {
+      mockFetchWorkoutPost.mockResolvedValue(mockPost);
+      renderDetail();
+
+      await waitFor(() => expect(screen.getByText('ベンチプレスの日')).toBeTruthy());
+      expect(screen.getByText('オ')).toBeTruthy();
+      expect(screen.queryByAltText('オーナー')).toBeNull();
+    });
+  });
+
   describe('comments', () => {
     beforeEach(() => {
       mockUseAuth.mockReturnValue({

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import NavBar from '../components/NavBar';
 import { fetchWorkoutPost, deleteWorkoutPost } from '../api/workoutPosts';
 import { fetchComments, createComment, deleteComment } from '../api/comments';
@@ -109,6 +109,7 @@ const WorkoutPostDetailPage = () => {
   };
 
   const isOwner = user != null && post != null && user.id === post.userId;
+  const initial = post?.user.displayName?.[0]?.toUpperCase() ?? '?';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -138,10 +139,23 @@ const WorkoutPostDetailPage = () => {
           <>
             <div className="bg-white rounded-2xl shadow-md p-6 mb-4">
               {/* 投稿者情報 */}
-              <div className="flex items-center gap-2 mb-4">
-                <span className="font-semibold text-gray-800">{post.user.displayName}</span>
-                <span className="text-gray-400 text-sm">@{post.user.username}</span>
-                <span className="ml-auto text-gray-400 text-sm">{post.trainedOn}</span>
+              <div className="flex items-center justify-between mb-4">
+                <Link to={`/users/${post.user.id}`} className="flex items-center gap-2">
+                  {post.user.avatarUrl ? (
+                    <img
+                      src={post.user.avatarUrl}
+                      alt={post.user.displayName}
+                      className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                      {initial}
+                    </div>
+                  )}
+                  <span className="font-semibold text-gray-800">{post.user.displayName}</span>
+                  <span className="text-gray-400 text-sm">@{post.user.username}</span>
+                </Link>
+                <span className="text-gray-400 text-sm">{post.trainedOn}</span>
               </div>
 
               {/* タイトル */}
