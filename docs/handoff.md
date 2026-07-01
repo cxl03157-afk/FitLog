@@ -1,10 +1,13 @@
 # Agent Handoff
 
 ## CurrentPhase
-- **Phase 13-3A**: 標準種目マスタ・テストデータ基盤整備（Issue #39 / 実装・検証完了 / PR 作成待ち）
-  - Branch: `feature/issue-39-phase13-3a-exercise-seed` / HEAD: `4a6df00`
-  - Issue #39: OPEN / PR: 未作成・作成待ち
-  - Backend unit: 172件 PASS / Backend integration: 42件 PASS / Frontend unit: 293件 PASS / E2E: 15件 PASS
+- **Phase 13-3C2**: 独自種目管理画面（/exercises ページ）（Issue #45 / 実装完了 / PR 作成待ち）
+  - Branch: `feature/issue-45-phase13-3c2-exercise-management` / HEAD: `c1be66d`
+  - Issue #45: OPEN / PR: 未作成・作成待ち
+  - Backend unit: 172件 PASS / Backend integration: 42件 PASS / Frontend unit: 326件 PASS / E2E: 15件 PASS
+- **Phase 13-3C1 完了**: ExerciseSelect 共通コンポーネント（Issue #43 CLOSED / PR #44 MERGED）
+- **Phase 13-3B 完了**: ユーザー独自種目 Backend（Issue #41 CLOSED / PR #42 MERGED）
+- **Phase 13-3A 完了**: 標準種目マスタ・テストデータ基盤整備（Issue #39 CLOSED / PR #40 MERGED）
 - **Phase 13-2.1 完了**: NavBarに検索・統計・目標管理への導線追加（Issue #37 CLOSED / PR #38 MERGED 2026-06-28）
   - merge commit: `c773f1f`
 - **Phase 13-2 完了**: 例外処理・Toast・ErrorBoundary・既知バグ修正・E2E 拡充（Issue #34 / PR #35 MERGED 2026-06-27）
@@ -28,8 +31,11 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #39: OPEN（Phase 13-3A 実装・検証完了・PR 作成待ち）
-- PR（Phase 13-3A）: 未作成・作成待ち
+- Issue #45: OPEN（Phase 13-3C2 実装完了・PR 作成待ち）
+- PR（Phase 13-3C2）: 未作成・作成待ち
+- Issue #43: CLOSED（Phase 13-3C1 / PR #44 MERGED）
+- Issue #41: CLOSED（Phase 13-3B / PR #42 MERGED）
+- Issue #39: CLOSED（Phase 13-3A / PR #40 MERGED）
 - Issue #37: CLOSED（2026-06-28 PR #38 マージ後に自動クローズ）
 - PR #38: MERGED（2026-06-28 / merge commit: `c773f1f`）
 - Issue #34: CLOSED（2026-06-27 PR #35 マージ後に自動クローズ）
@@ -47,6 +53,31 @@
 - Issue #12 完了・PR #13 マージ済み（2026-06-11）
 - Issue #8 完了・PR #9 マージ済み（2026-06-10）
 - Issue #10 完了・PR #11 マージ済み（2026-06-10）
+
+## Phase13-3C2確定事項
+
+| 項目 | 決定 |
+|------|------|
+| /exercises ページ | 独自種目管理（CRUD）。NavBar には追加しない |
+| ProfilePage 導線 | 自分のプロフィール時のみ「独自種目管理」（/exercises）・「デバイス管理」（/settings/sessions）リンク表示 |
+| カード UI | `bg-white rounded-lg p-4 shadow-sm`。作成・編集はモーダル、削除はカード内確認 |
+| ExerciseSelect との分離 | /exercises は独立ページ。ExerciseSelect（Phase 13-3C1）は投稿フォーム向け |
+| description バグ修正 | CreateExerciseDto に description フィールド追加・createExercise() で送信修正 |
+| 自重ヒント | WorkoutPostNewPage に「自重種目など重量がない場合は 0 を入力してください。」追加 |
+| weightKg（ワークアウト投稿） | 0以上（自重は 0）。0 は有効値。HTML5 min="0" で負数をブロック |
+
+## Phase13-3C2CommitHistory（次セッション引き継ぎ用）
+
+| # | コミットハッシュ | 内容 |
+|---|--------------|------|
+| 1 | `581e193` | feat(exercises): add UpdateExerciseDto type and update/delete API |
+| 2 | `80d68db` | feat(exercises): add exercises management page |
+| 3 | `d08cf17` | feat(exercises): add /exercises route and ProfilePage link |
+| 4 | `dbdeeb3` | test(exercises): add ExercisesPage unit tests |
+| 5 | `990b940` | test(profile): cover exercise and session management links |
+| 6 | `97cf497` | fix(exercises): preserve description when creating custom exercise |
+| 7 | `e0e870f` | test(exercises): cover custom exercise description creation |
+| 8 | `c1be66d` | fix(workouts): clarify zero weight input for bodyweight exercises |
 
 ## Phase13-3ACommitHistory（次セッション引き継ぎ用）
 
@@ -575,26 +606,25 @@ PR #29 はマージ可能状態（2026-06-24 確認済み）。
 - (none)
 
 ## ReviewStatus
+- Phase 13-3C2: PR 未作成（CI グリーン確認後に作成予定）
+- Phase 13-3C1: PR #44 MERGED
+- Phase 13-3B: PR #42 MERGED
+- Phase 13-3A: PR #40 MERGED
+- Phase 13-2.1: PR #38 MERGED（2026-06-28 / merge commit: `c773f1f`）
 - Phase 13-2: PR #35 MERGED（2026-06-27 / merge commit: `4d55f09`）
-- Phase 13-1: PR #33 マージ済み（2026-06-26）
-- Phase 12: PR #31 マージ済み（2026-06-25）
-- Phase 11: PR #29 マージ済み（2026-06-24）
-- Phase 10: PR #27 マージ済み（2026-06-24）
-- Phase 9: PR #25 マージ済み（2026-06-19）
 
 ## MergeReadiness
-- Phase 13-2: PR #35 MERGED（2026-06-27 / merge commit: `4d55f09`）。Phase 13-2 マージ完了。
+- Phase 13-3C2: PR 未作成。CI グリーン確認後にマージ可能。
 
-## NextAction（旧・更新済み）
-Phase 13-2.1 は PR #38 MERGED（2026-06-28）にて完了。
-現在は Phase 13-3A の NextAction セクションを参照のこと。
+## NextAction
+Phase 13-3C2 は PR 作成待ち。CI グリーン確認 → マージ → Issue #45 自動クローズ確認 → Phase 13-4へ。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
-- Issue: #39（Phase 13-3A / OPEN・実装完了・PR作成待ち）、#37（Phase 13-2.1 / CLOSED・PR #38 マージ済み）、#34（Phase 13-2 / CLOSED）
-- PR: #38（Phase 13-2.1 / MERGED 2026-06-28 / merge commit: `c773f1f`）、#35（Phase 13-2 / MERGED 2026-06-27）
-- Branch: `feature/issue-39-phase13-3a-exercise-seed`（Phase 13-3A 実装完了・PR 作成待ち）
-- NextPhase: Phase 13-3B（ユーザー独自種目 Backend）
+- Issue: #45（Phase 13-3C2 / OPEN・PR作成待ち）、#43（Phase 13-3C1 / CLOSED）、#41（Phase 13-3B / CLOSED）
+- PR: #44（Phase 13-3C1 / MERGED）、#42（Phase 13-3B / MERGED）、#40（Phase 13-3A / MERGED）、#38（Phase 13-2.1 / MERGED 2026-06-28）
+- Branch: `feature/issue-45-phase13-3c2-exercise-management`（Phase 13-3C2 実装完了・PR 作成待ち）
+- NextPhase: Phase 13-4（ユーザー検索・プロフィール・フォロー導線改善）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules
