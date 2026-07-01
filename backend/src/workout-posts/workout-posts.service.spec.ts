@@ -293,9 +293,9 @@ describe('WorkoutPostsService', () => {
 
       const result = await service.findAll({ page: 1, limit: 20 }, '1');
 
-      expect((result.data[0].user as Record<string, unknown>).avatarUrl).toBe(
-        'http://localhost:4566/fitlog/images/avatars/1/abc.jpg',
-      );
+      expect(
+        (result.data[0].user as unknown as Record<string, unknown>).avatarUrl,
+      ).toBe('http://localhost:4566/fitlog/images/avatars/1/abc.jpg');
     });
 
     it('sets avatarUrl to null when avatarKey is null', async () => {
@@ -308,7 +308,7 @@ describe('WorkoutPostsService', () => {
       const result = await service.findAll({ page: 1, limit: 20 }, '1');
 
       expect(
-        (result.data[0].user as Record<string, unknown>).avatarUrl,
+        (result.data[0].user as unknown as Record<string, unknown>).avatarUrl,
       ).toBeNull();
     });
 
