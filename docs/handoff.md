@@ -1,9 +1,16 @@
 # Agent Handoff
 
 ## CurrentPhase
-- **Phase 13-4**: 投稿者プロフィール導線・アバター表示（Issue #47 / 実装完了 / PR #48 CI 確認中）
+- **Phase 13-4.1**: LocalStack初期化スクリプトの冪等化とCommunity版S3制約の文書化（Issue #49 / 実装完了 / PR 作成前）
+  - Branch: `feature/issue-49-phase13-4-1-localstack-persistence`
+  - Issue #49: OPEN / PR: 未作成
+  - HEAD: `f1908d5`
+  - 変更ファイル: `localstack-init/01-create-buckets.sh`・`README.md`
+  - E2E（phase10 シナリオ1・3 画像系）: 2件 PASS
+  - Backend / Frontend / DB 変更なし
+- **Phase 13-4 完了**: 投稿者プロフィール導線・アバター表示（Issue #47 CLOSED / PR #48 MERGED）
   - Branch: `feature/issue-47-phase13-4-profile-navigation`
-  - Issue #47: OPEN / PR #48: OPEN・CI 確認中
+  - merge commit: `6bc5849`
   - Backend unit: 198件 PASS / Backend integration: 42件 PASS / Frontend unit: 333件 PASS
   - E2E: 17件 PASS（LocalStack 起動必須。未起動時は phase10 画像系が FAIL）
   - DB / Migration 変更なし
@@ -35,8 +42,9 @@
 - Phase 2 complete: PR #4 merged, Issue #3 closed
 
 ## Status
-- Issue #47: OPEN（Phase 13-4 実装完了・PR #48 CI 確認中）
-- PR #48: OPEN（Phase 13-4 / CI 確認中）
+- Issue #49: OPEN（Phase 13-4.1 実装完了・PR 作成前）
+- Issue #47: CLOSED（Phase 13-4 / PR #48 MERGED）
+- PR #48: MERGED（Phase 13-4 / merge commit: `6bc5849`）
 - Issue #45: CLOSED（Phase 13-3C2 / PR #46 MERGED）
 - PR #46: MERGED（Phase 13-3C2）
 - Issue #43: CLOSED（Phase 13-3C1 / PR #44 MERGED）
@@ -611,8 +619,22 @@ PR #29 はマージ可能状態（2026-06-24 確認済み）。
 ## OpenQuestions
 - (none)
 
+## Phase13-4.1確定事項
+
+| 項目 | 決定 |
+|------|------|
+| S3 永続化（PERSISTENCE=1 + named volume） | **不採用**。Community v3.8.1 では `/var/lib/localstack/state/` へのスナップショット保存が動作しないことを確認 |
+| `/tmp/localstack-s3-storage` 直接マウント | **不採用**。内部実装パスのため保守性リスク（LocalStack 更新時にパス・形式変更の可能性） |
+| 実際の S3 データ保存先 | `/tmp/localstack-s3-storage/fitlog`（コンテナ内メモリ相当・プロセス再起動で消える） |
+| `docker-compose.yml` 変更 | **なし** |
+| 初期化スクリプト冪等化 | `head-bucket` で存在確認 → 未作成時のみ `fitlog` バケット作成。`set -e` 維持・`\|\| true` 不使用 |
+| Community 版 S3 制約の扱い | README に記載（起動前提・`down` vs `down -v` の違い・永続化未対応を明記） |
+| 真の S3 永続化 | 別 Issue 候補（MinIO 移行・LocalStack Pro 等） |
+
 ## ReviewStatus
-- Phase 13-3C2: PR 未作成（CI グリーン確認後に作成予定）
+- Phase 13-4.1: PR 未作成
+- Phase 13-4: PR #48 MERGED
+- Phase 13-3C2: PR #46 MERGED
 - Phase 13-3C1: PR #44 MERGED
 - Phase 13-3B: PR #42 MERGED
 - Phase 13-3A: PR #40 MERGED
@@ -620,17 +642,17 @@ PR #29 はマージ可能状態（2026-06-24 確認済み）。
 - Phase 13-2: PR #35 MERGED（2026-06-27 / merge commit: `4d55f09`）
 
 ## MergeReadiness
-- Phase 13-3C2: PR 未作成。CI グリーン確認後にマージ可能。
+- Phase 13-4.1: push → PR 作成 → CI 確認後にマージ可能。
 
 ## NextAction
-Phase 13-3C2 は PR 作成待ち。CI グリーン確認 → マージ → Issue #45 自動クローズ確認 → Phase 13-4へ。
+Phase 13-4.1 は push 待ち。push → PR 作成（`Closes #49`）→ CI グリーン確認 → マージ → Issue #49 自動クローズ確認 → Phase 13-5 へ。
 
 ## References
 - Plan（全体）: `docs/phase-roadmap.md`
-- Issue: #45（Phase 13-3C2 / OPEN・PR作成待ち）、#43（Phase 13-3C1 / CLOSED）、#41（Phase 13-3B / CLOSED）
-- PR: #44（Phase 13-3C1 / MERGED）、#42（Phase 13-3B / MERGED）、#40（Phase 13-3A / MERGED）、#38（Phase 13-2.1 / MERGED 2026-06-28）
-- Branch: `feature/issue-45-phase13-3c2-exercise-management`（Phase 13-3C2 実装完了・PR 作成待ち）
-- NextPhase: Phase 13-4（ユーザー検索・プロフィール・フォロー導線改善）
+- Issue: #49（Phase 13-4.1 / OPEN）、#47（Phase 13-4 / CLOSED）
+- PR: #48（Phase 13-4 / MERGED / merge commit: `6bc5849`）
+- Branch: `feature/issue-49-phase13-4-1-localstack-persistence`
+- NextPhase: Phase 13-5（プロフィール編集・アバター操作改善）
 - Repository: `https://github.com/cxl03157-afk/FitLog`
 
 ## UpdateRules
