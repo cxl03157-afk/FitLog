@@ -31,7 +31,7 @@
 | 13-3C1 | ユーザー独自種目 Frontend（新規登録） | ExerciseSelect 共通コンポーネント・inline 新規登録 UI | 未着手 |
 | 13-3C2 | ユーザー独自種目 Frontend（管理画面） | /exercises 管理ページ・編集・削除 | 未着手 |
 | 13-4   | ユーザー検索・プロフィール・フォロー導線改善 | 検索結果からフォロー・プロフィールへの導線 | 未着手 |
-| 13-4.1 | LocalStack S3データ永続化 | Docker volume設定でテストデータを永続化 | 未着手 |
+| 13-4.1 | LocalStack初期化スクリプトの冪等化とCommunity版S3制約の文書化 | 初期化スクリプト冪等化・README制約記載（S3オブジェクト永続化は別Issue候補） | 完了（Issue #49 / PR 作成前）|
 | 13-5   | プロフィール編集・アバター操作改善 | アバターUX・編集フォーム改善 | 未着手 |
 | 13-6   | 画像表示の信頼性・フォールバック改善 | 画像エラー時のフォールバック表示 | 未着手 |
 | 13-7   | E2Eテストデータcleanupと再実行安定化 | テストデータ削除・再実行時の衝突防止 | 未着手 |
@@ -277,9 +277,24 @@ S3 object key パスルール（単一バケット構成）:
 
 ---
 
-### Phase 13-4.1：LocalStack S3データ永続化
+### Phase 13-4.1：LocalStack初期化スクリプトの冪等化とCommunity版S3制約の文書化
 
-**未着手**
+**完了**（Issue #49 / Branch: `feature/issue-49-phase13-4-1-localstack-persistence` / PR 作成前）
+
+**調査結果:**
+- LocalStack Community v3.8.1 では `PERSISTENCE=1` + `/var/lib/localstack` named volume による S3 オブジェクト永続化を確認できなかった（不採用）
+- 実際のS3データ保存先は `/tmp/localstack-s3-storage`（内部実装パス）だが、直接マウントは保守性リスクのため不採用
+- `docker compose restart` でもメモリ内 S3 データが失われることを確認
+
+**実施内容:**
+- `localstack-init/01-create-buckets.sh` を冪等化（`head-bucket` で存在確認 → 未作成時のみ作成・`set -e` 維持）
+- `README.md` に Community 版 S3 制約・LocalStack 起動前提・`docker compose down` vs `down -v` の違いを記載
+- `docker-compose.yml` 変更なし（効果のない永続化設定は追加しない）
+
+**将来候補（別Issue）:**
+- MinIO など永続化を正式サポートする S3 互換ストレージへの切り替え
+- LocalStack Pro の利用
+- 開発用 S3 バックアップ／リストア手順
 
 ---
 
