@@ -96,11 +96,31 @@ npm run e2e
 
 `playwright.config.ts` の `webServer` が自動的に `npm run dev`（port 5173）を起動します。Backend（port 3000）と Docker サービスは手動で起動してください。
 
+### LocalStack と画像機能
+
+画像アップロード（アバター・投稿画像）および画像系 E2E テスト（phase10 シナリオ1・3）は **LocalStack が起動していることが前提**です。`docker compose up -d` で PostgreSQL と LocalStack をまとめて起動してください。
+
+**LocalStack S3 のデータ保持について（Community v3.8.1）**
+
+| 操作 | PostgreSQL データ | LocalStack S3 オブジェクト |
+|------|-----------------|--------------------------|
+| `docker compose restart` | 保持 | 同一コンテナのため基本保持 |
+| `docker compose down → up -d` | 保持（named volume） | **失われる**（Community版では永続化未対応） |
+| `docker compose down -v → up -d` | **失われる** | **失われる** |
+
+LocalStack Community v3.8.1 では `PERSISTENCE=1` + named volume によるS3オブジェクト永続化を確認できていません。`docker compose down` 後にコンテナを再作成するとアップロード済み画像が失われます。真のS3永続化が必要な場合は MinIO への切り替え等を別途検討してください。
+
 ### 環境リセット（テストデータ削除）
 
 ```bash
+# 通常の停止・再起動（PostgreSQL データは保持される）
+docker compose down && docker compose up -d
+
+# 完全リセット（PostgreSQL・LocalStack S3 を含む全データ削除）
 docker compose down -v && docker compose up -d
 ```
+
+> **注意**: `docker compose down -v` は `postgres_data` volume も削除するため、PostgreSQL の開発データがすべて失われます。通常の停止・再起動では `-v` を使わないでください。
 
 ### 成果物（コミット対象外）
 
